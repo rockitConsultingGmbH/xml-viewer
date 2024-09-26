@@ -132,7 +132,7 @@ def insert_data_into_db(xml_tree, db_path):
                     importLocation(cursor, communication_id, communicationElement, communicationElement.tag)
                     rows_created += cursor.rowcount
                     
-                case 'preCommand' | 'postCommand':
+                case 'postCommand' | 'preCommand':
                     command_id = importCommand(cursor, communication_id, communicationElement, communicationElement.tag)
                     rows_created += cursor.rowcount
                     

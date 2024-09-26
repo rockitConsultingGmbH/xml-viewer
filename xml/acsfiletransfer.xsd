@@ -1,0 +1,223 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- Define Main Elements -->
+	<xs:element name="acs">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="acsfiletransfer" type="FileTransferType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- Define Custom Types -->
+	<!-- FileTransferType -->
+	<xs:complexType name="FileTransferType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="stage" type="xs:string"/>
+			<xs:element name="tempDir" type="xs:string"/>
+			<xs:element name="tempDir1" type="xs:string"/>
+			<xs:element name="tempDir2" type="xs:string"/>
+			<xs:element name="historyFile" type="xs:string"/>
+			<xs:element name="historyFile1" type="xs:string"/>
+			<xs:element name="historyFile2" type="xs:string"/>
+			<xs:element name="alreadyTransferedFile" type="xs:string"/>
+			<xs:element name="historyDays" type="xs:string"/>
+			<xs:element name="archiverTime" type="xs:string"/>
+			<xs:element name="watcherEscalationTimeout" type="xs:string"/>
+			<xs:element name="watcherSleepTime"/>
+			<xs:element name="lzb" type="LzbType" minOccurs="1"/>
+			<xs:element name="mq" type="MqType" minOccurs="1"/>
+			<xs:element name="communication" type="CommunicationType" maxOccurs="unbounded"/>
+			<xs:element name="nameList" type="NameListType" maxOccurs="unbounded"/>
+		</xs:choice>
+	</xs:complexType>
+	<!-- EncryptType -->
+	<xs:complexType name="EncryptType">
+		<xs:sequence>
+			<xs:element name="enabled" type="xs:string"/>
+			<xs:element name="key" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- KeystoreTruststoreType -->
+	<xs:complexType name="KeystoreTruststoreType">
+		<xs:sequence>
+			<xs:element name="path" type="xs:string"/>
+			<xs:element name="password" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- SslType -->
+	<xs:complexType name="SslType">
+		<xs:sequence>
+			<xs:element name="keystore" type="KeystoreTruststoreType"/>
+			<xs:element name="truststore" type="KeystoreTruststoreType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- SshType -->
+	<xs:complexType name="SshType">
+		<xs:sequence>
+			<xs:element name="implementation" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- DnsType -->
+	<xs:complexType name="DnsType">
+		<xs:sequence>
+			<xs:element name="timeout" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- LzbType -->
+	<xs:complexType name="LzbType">
+		<xs:sequence>
+			<xs:element name="encrypt" type="EncryptType"/>
+			<xs:element name="ssl" type="SslType"/>
+			<xs:element name="ssh" type="SshType"/>
+			<xs:element name="dns" type="DnsType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- MqType -->
+	<xs:complexType name="MqType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="description" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="isRemote" type="xs:string"/>
+			<xs:element name="qmgr" type="xs:string"/>
+			<xs:element name="hostname" type="xs:string"/>
+			<xs:element name="port" type="xs:string"/>
+			<xs:element name="channel" type="xs:string"/>
+			<xs:element name="userid" type="xs:string"/>
+			<xs:element name="password" type="xs:string"/>
+			<xs:element name="cipher" type="xs:string"/>
+			<xs:element name="sslPeer" type="xs:string"/>
+			<xs:element name="ccsid" type="xs:string"/>
+			<xs:element name="queue" type="xs:string"/>
+			<xs:element name="numberOfThreads" type="xs:string" minOccurs="0"/>
+			<xs:element name="errorQueue" type="xs:string"/>
+			<xs:element name="commandQueue" type="xs:string"/>
+			<xs:element name="commandReplyQueue" type="xs:string"/>
+			<xs:element name="trigger" type="MqTriggerType"/>
+			<xs:element name="IPQueue" type="IPQueueType" maxOccurs="unbounded"/>
+			<xs:element name="waitinterval" type="xs:string"/>
+		</xs:choice>
+	</xs:complexType>
+	<!-- MqTriggerType -->
+	<xs:complexType name="MqTriggerType">
+		<xs:sequence>
+			<xs:element name="successintervall" type="xs:string"/>
+			<xs:element name="intervall" type="xs:string"/>
+			<xs:element name="polling" type="xs:string"/>
+			<xs:element name="dynamic" type="DynamicType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- DynamicType -->
+	<xs:complexType name="DynamicType">
+		<xs:sequence>
+			<xs:element name="instance" type="MQInstanceType"/>
+			<xs:element name="success" type="MQSuccessType"/>
+			<xs:element name="max" type="MQMaxType"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- MQInstanceType -->
+	<xs:complexType name="MQInstanceType">
+		<xs:sequence>
+			<xs:element name="management" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- MQSuccessType -->
+	<xs:complexType name="MQSuccessType">
+		<xs:sequence>
+			<xs:element name="count" type="xs:string"/>
+			<xs:element name="interval" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- MQMaxType -->
+	<xs:complexType name="MQMaxType">
+		<xs:sequence>
+			<xs:element name="instances" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- IPQueueType -->
+	<xs:complexType name="IPQueueType">
+		<xs:sequence>
+			<xs:element name="queue" type="xs:string"/>
+			<xs:element name="errorQueue" type="xs:string"/>
+			<xs:element name="numberOfThreads" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- LocationType -->
+	<xs:complexType name="LocationType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="description" type="xs:string" minOccurs="0"/>
+			<xs:element name="useLocalFilename" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="usePathFromConfig" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="targetMustBeArchived" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="targetHistoryDays" type="xs:string" minOccurs="0"/>
+			<xs:element name="renameExistingFile" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="location" type="xs:string"/>
+			<xs:element name="userid" type="xs:string"/>
+			<xs:element name="password" type="xs:string"/>
+		</xs:choice>
+		<xs:attribute name="id" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<!-- CommandType -->
+	<xs:complexType name="CommandType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="className" type="xs:string"/>
+			<xs:element name="validForTargetLocations" type="xs:string" minOccurs="0"/>
+			<xs:element name="userid" type="xs:string" minOccurs="0"/>
+			<xs:element name="password" type="xs:string" minOccurs="0"/>
+			<xs:element name="param" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:choice>
+	</xs:complexType>
+	<!-- CommunicationType -->
+	<xs:complexType name="CommunicationType">
+		<xs:choice maxOccurs="unbounded">
+			<xs:element name="description" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="description1" type="xs:string" minOccurs="0"/>
+			<xs:element name="description2" type="xs:string" minOccurs="0"/>
+			<xs:element name="description3" type="xs:string" minOccurs="0"/>
+			<xs:element name="description4" type="xs:string" minOccurs="0"/>
+			<xs:element name="alternateNameList" type="xs:string" minOccurs="0"/>
+			<xs:element name="watcherEscalationTimeout" type="xs:string" minOccurs="0"/>
+			<xs:element name="isToPoll" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="pollUntilFound" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="noTransfer" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="targetMustBeArchived" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="mustBeArchived" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="historyDays" type="xs:string" minOccurs="0"/>
+			<xs:element name="targetHistoryDays" type="xs:string" minOccurs="0"/>
+			<xs:element name="sourceLocation" type="LocationType"/>
+			<xs:element name="targetLocation" type="LocationType" maxOccurs="unbounded"/>
+			<xs:element name="findPattern" type="xs:string"/>
+			<xs:element name="movPattern" type="xs:string"/>
+			<xs:element name="tmpPattern" type="xs:string" minOccurs="0"/>
+			<xs:element name="quitPattern" type="xs:string" minOccurs="0"/>
+			<xs:element name="putPattern" type="xs:string"/>
+			<xs:element name="ackPattern" type="xs:string"/>
+			<xs:element name="rcvPattern" type="xs:string" minOccurs="0"/>
+			<xs:element name="zipPattern" type="xs:string" minOccurs="0"/>
+			<xs:element name="befoerderung" type="xs:string" minOccurs="0"/>
+			<xs:element name="pollInterval" type="xs:string" minOccurs="0"/>
+			<xs:element name="gueltigAb" type="xs:string" minOccurs="0" nillable="true"/>
+			<xs:element name="gueltigBis" type="xs:string" minOccurs="0" nillable="true"/>
+			<xs:element name="befoerderungAb" type="xs:string" minOccurs="0" nillable="true"/>
+			<xs:element name="befoerderungBis" type="xs:string" minOccurs="0" nillable="true"/>
+			<xs:element name="befoerderungCron" type="xs:string" minOccurs="0"/>
+			<xs:element name="preunzip" type="xs:boolean" minOccurs="0"/>
+			<xs:element name="postzip" type="xs:boolean"/>
+			<xs:element name="renameWithTimestamp" type="xs:boolean"/>
+			<xs:element name="preCommand" type="CommandType" minOccurs="0"/>
+			<xs:element name="postCommand" type="CommandType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:choice>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+	<!-- NameListsType -->
+	<xs:complexType name="NameListsType">
+		<xs:sequence>
+			<xs:element name="nameList" type="NameListType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- NameListType -->
+	<xs:complexType name="NameListType">
+		<xs:sequence>
+			<xs:element name="entry" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+</xs:schema>
