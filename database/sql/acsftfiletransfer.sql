@@ -90,6 +90,7 @@ CREATE TABLE IPQueue (
     queue VARCHAR(255) NOT NULL,
     errorQueue VARCHAR(255),
     numberOfThreads VARCHAR(255),
+	description VARCHAR(255),
     FOREIGN KEY (mqConfig_id) REFERENCES MqConfig(id) ON DELETE CASCADE
 );
 

@@ -47,34 +47,34 @@ def print_xml(xml_tree):
     print(xml_str)
 
 def importBasicConfig(cursor, acsfiletransfer):
-    return sql_statements.InsertIntoBasicConfig(cursor, dictionaries.createBasicConfigDict(acsfiletransfer, xml_name)).lastrowid
+    return sql_statements.InsertIntoBasicConfig(cursor, dictionaries.createBasicConfigDict(acsfiletransfer, xml_name))
 
 def importLzbConfig(cursor, basicConfig_id, lzb):
-    return sql_statements.InsertIntoLzbConfig(cursor, dictionaries.createLzbConfigDict(basicConfig_id, lzb)).lastrowid
+    return sql_statements.InsertIntoLzbConfig(cursor, dictionaries.createLzbConfigDict(basicConfig_id, lzb))
 
 def importMqConfig(cursor, basicConfig_id, mq):
-    return sql_statements.InsertIntoMqConfig(cursor, dictionaries.createMqConfigDict(basicConfig_id, mq)).lastrowid
+    return sql_statements.InsertIntoMqConfig(cursor, dictionaries.createMqConfigDict(basicConfig_id, mq))
 
 def importMqTrigger(cursor, mqConfig_id, mqtrigger):
-    return sql_statements.InsertIntoMqTrigger(cursor, dictionaries.createMqTriggerDict(mqConfig_id, mqtrigger)).lastrowid
+    return sql_statements.InsertIntoMqTrigger(cursor, dictionaries.createMqTriggerDict(mqConfig_id, mqtrigger))
 
 def importIPQueue(cursor, mqConfig_id, ipqueue):
-    return sql_statements.InsertIntoIPQueue(cursor, dictionaries.createIPQueueDict(mqConfig_id, ipqueue)).lastrowid
+    return sql_statements.InsertIntoIPQueue(cursor, dictionaries.createIPQueueDict(mqConfig_id, ipqueue))
 
 def importCommunication(cursor, basicConfig_id, communication):
-    return sql_statements.InsertIntoCommunication(cursor, dictionaries.createCommunicationDict(basicConfig_id, communication)).lastrowid
+    return sql_statements.InsertIntoCommunication(cursor, dictionaries.createCommunicationDict(basicConfig_id, communication))
 
 def importLocation(cursor, communication_id, location, locationType):
-    return sql_statements.InsertIntoLocation(cursor, dictionaries.createLocationDict(communication_id, location, locationType)).lastrowid
+    return sql_statements.InsertIntoLocation(cursor, dictionaries.createLocationDict(communication_id, location, locationType))
 
 def importCommand(cursor, communication_id, command, commandType):
-    return sql_statements.InsertIntoCommand(cursor, dictionaries.createCommandDict(communication_id, command, commandType)).lastrowid
+    return sql_statements.InsertIntoCommand(cursor, dictionaries.createCommandDict(communication_id, command, commandType))
 
 def importCommandParam(cursor, command_id, param):
-    return sql_statements.InsertIntoCommandParam(cursor, dictionaries.createCommandParamDict(command_id, param)).lastrowid
+    return sql_statements.InsertIntoCommandParam(cursor, dictionaries.createCommandParamDict(command_id, param))
 
 def importAlternateNameList(cursor, communication_id, listName, alternateName):
-    return sql_statements.InsertIntoAlternateNameList(cursor, dictionaries.createAlternateNameListDict(communication_id, listName, alternateName)).lastrowid
+    return sql_statements.InsertIntoAlternateNameList(cursor, dictionaries.createAlternateNameListDict(communication_id, listName, alternateName))
 
 def insert_data_into_db(xml_tree, db_path):
     """
@@ -98,53 +98,53 @@ def insert_data_into_db(xml_tree, db_path):
     acsfiletransfer = root.find('.//acsfiletransfer')
 
     # BasicConfig
-    basicConfig_id = importBasicConfig(cursor, acsfiletransfer)
-    rows_created = rows_created + cursor.rowcount
+    basicConfig_id = importBasicConfig(cursor, acsfiletransfer).lastrowid
+    rows_created += cursor.rowcount
 
     # LzbConfig
     lzb = acsfiletransfer.find('lzb')
     importLzbConfig(cursor, basicConfig_id, lzb)
-    rows_created = rows_created + cursor.rowcount
+    rows_created += cursor.rowcount
 
     # MqConfig
     mq = acsfiletransfer.find('mq')
-    mqConfig_id = importMqConfig(cursor, basicConfig_id, mq)
-    rows_created = rows_created + cursor.rowcount
+    mqConfig_id = importMqConfig(cursor, basicConfig_id, mq).lastrowid
+    rows_created += cursor.rowcount
 
     # MqTrigger
     mqtrigger = mq.find('trigger')
     importMqTrigger(cursor, mqConfig_id, mqtrigger)
-    rows_created = rows_created + cursor.rowcount
+    rows_created += cursor.rowcount
 
     # IPQueue
     for ipqueue in mq.findall('IPQueue'):
         importIPQueue(cursor, mqConfig_id, ipqueue)
-        rows_created = rows_created + cursor.rowcount
+        rows_created += cursor.rowcount
 
     # Communication
     for communication in acsfiletransfer.findall('communication'):
-        communication_id = importCommunication(cursor, basicConfig_id, communication)
-        rows_created = rows_created + cursor.rowcount
+        communication_id = importCommunication(cursor, basicConfig_id, communication).lastrowid
+        rows_created += cursor.rowcount
 
         for communicationElement in communication.findall('./*'):            
             match communicationElement.tag:
+                # Location
                 case 'sourceLocation' | 'targetLocation':
                     importLocation(cursor, communication_id, communicationElement, communicationElement.tag)
                     rows_created += cursor.rowcount
-                    
+                # Command                    
                 case 'postCommand' | 'preCommand':
-                    command_id = importCommand(cursor, communication_id, communicationElement, communicationElement.tag)
+                    command_id = importCommand(cursor, communication_id, communicationElement, communicationElement.tag).lastrowid
                     rows_created += cursor.rowcount
-                    
+                    # CommandParam                    
                     for commandparam in communicationElement.findall('param'):
                         param = commandparam.text if commandparam.text is not None else ''
                         if param != '':
                             importCommandParam(cursor, command_id, param)
                             rows_created += cursor.rowcount
-
+                # AlternateNameList                    
                 case 'alternateNameList' if communicationElement.tag is not None:
                     namelist = acsfiletransfer.find(f".//nameList[@name='{communicationElement.text}']")
-                    
                     if namelist is not None:
                         for entry in namelist.findall('entry'):
                             if entry.text is not None:

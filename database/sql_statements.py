@@ -1,4 +1,4 @@
-
+# SQL Statements
 def InsertIntoBasicConfig(cursor, row):
     cursor.execute("""
     INSERT INTO BasicConfig (
@@ -36,7 +36,6 @@ def InsertIntoBasicConfig(cursor, row):
     ))
     return cursor
 
-
 def InsertIntoLzbConfig(cursor, row):
     cursor.execute("""
     INSERT INTO LzbConfig (
@@ -63,7 +62,6 @@ def InsertIntoLzbConfig(cursor, row):
         row['dns_timeout']
     ))
     return cursor
-
 
 def InsertIntoMqConfig(cursor, row):
     cursor.execute("""
@@ -110,7 +108,6 @@ def InsertIntoMqConfig(cursor, row):
     ))
     return cursor
 
-
 def InsertIntoMqTrigger(cursor, row):
     cursor.execute("""
     INSERT INTO MqTrigger (
@@ -136,24 +133,24 @@ def InsertIntoMqTrigger(cursor, row):
     ))
     return cursor
 
-
 def InsertIntoIPQueue(cursor, row):
     cursor.execute("""
     INSERT INTO IPQueue (
         mqConfig_id, 
         queue, 
         errorQueue, 
-        numberOfThreads
+        numberOfThreads,
+        description
     ) 
-    VALUES (?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?)
     """, (
         row['mqConfig_id'], 
         row['queue'], 
         row['errorQueue'], 
-        row['numberOfThreads']
+        row['numberOfThreads'],
+        row['description'],
     ))
     return cursor
-
 
 def InsertIntoCommunication(cursor, row):
     cursor.execute("""
@@ -230,7 +227,6 @@ def InsertIntoCommunication(cursor, row):
     ))
     return cursor
 
-
 def InsertIntoLocation(cursor, row):
     cursor.execute("""
     INSERT INTO Location (
@@ -243,9 +239,10 @@ def InsertIntoLocation(cursor, row):
         renameExistingFile, 
         userid, 
         password, 
+        description,
         locationType
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         row['communication_id'], 
         row['location'], 
@@ -256,10 +253,10 @@ def InsertIntoLocation(cursor, row):
         row['renameExistingFile'], 
         row['userid'], 
         row['password'], 
+        row['description'],
         row['locationType']
     ))
     return cursor
-
 
 def InsertIntoCommand(cursor, row):
     cursor.execute("""
@@ -282,7 +279,6 @@ def InsertIntoCommand(cursor, row):
     ))
     return cursor
 
-
 def InsertIntoCommandParam(cursor, row):
     cursor.execute("""
     INSERT INTO CommandParam (
@@ -295,7 +291,6 @@ def InsertIntoCommandParam(cursor, row):
         row['param']
     ))
     return cursor
-
 
 def InsertIntoAlternateNameList(cursor, row):
     cursor.execute("""

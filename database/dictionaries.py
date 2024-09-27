@@ -1,4 +1,4 @@
-
+# Dictionaries
 def createBasicConfigDict(acsfiletransfer, cofigFileName):
     BasicConfigDict = {
         'stage':                        acsfiletransfer.find('stage').text,
@@ -13,11 +13,10 @@ def createBasicConfigDict(acsfiletransfer, cofigFileName):
         'archiverTime':                 acsfiletransfer.find('archiverTime').text,
         'watcherEscalationTimeout':     acsfiletransfer.find('watcherEscalationTimeout').text,
         'watcherSleepTime':             acsfiletransfer.find('watcherSleepTime').text,
-        'description':                  acsfiletransfer.find('description').text if acsfiletransfer.find('description')                         is not None else '',
+        'description':                  acsfiletransfer.find('description').text            if acsfiletransfer.find('description')              is not None else '',
         'configFileName':               cofigFileName
     }
     return BasicConfigDict
-
 
 def createLzbConfigDict(basicConfig_id, lzb):
     LzbConfigDict = {
@@ -33,7 +32,6 @@ def createLzbConfigDict(basicConfig_id, lzb):
     }
     return LzbConfigDict
 
-
 def createMqConfigDict(basicConfig_id, mq):
     MqConfigDict = {
         'basicConfig_id':               basicConfig_id,
@@ -48,15 +46,14 @@ def createMqConfigDict(basicConfig_id, mq):
         'sslPeer':                      mq.find('sslPeer').text,
         'ccsid':                        mq.find('ccsid').text,
         'queue':                        mq.find('queue').text,
-        'numberOfThreads':              mq.find('numberOfThreads').text if mq.find('numberOfThreads')                                           is not None else '',
+        'numberOfThreads':              mq.find('numberOfThreads').text                     if mq.find('numberOfThreads')                       is not None else '',
         'errorQueue':                   mq.find('errorQueue').text,
         'commandQueue':                 mq.find('commandQueue').text,
         'commandReplyQueue':            mq.find('commandReplyQueue').text,
         'waitinterval':                 mq.find('waitinterval').text,
-        'description':                  mq.find('description').text,
+        'description':                  mq.find('description').text
     }
     return MqConfigDict
-
 
 def createMqTriggerDict(mqConfig_id, mqtrigger):
     MqTriggerDict = {
@@ -67,10 +64,9 @@ def createMqTriggerDict(mqConfig_id, mqtrigger):
         'dynamic_instance_management':  mqtrigger.find('dynamic').find('instance').find('management').text,
         'dynamic_success_count':        mqtrigger.find('dynamic').find('success').find('count').text,
         'dynamic_success_interval':     mqtrigger.find('dynamic').find('success').find('interval').text,
-        'dynamic_max_instances':        mqtrigger.find('dynamic').find('max').find('instances').text,
+        'dynamic_max_instances':        mqtrigger.find('dynamic').find('max').find('instances').text
     }
     return MqTriggerDict
-
 
 def createIPQueueDict(mqConfig_id, ipqueue):
     IPQueueDict = {
@@ -78,77 +74,76 @@ def createIPQueueDict(mqConfig_id, ipqueue):
         'queue':                        ipqueue.find('queue').text,
         'errorQueue':                   ipqueue.find('errorQueue').text,
         'numberOfThreads':              ipqueue.find('numberOfThreads').text,
+        #'description':                  ipqueue.find('description').text                    if ipqueue.find('description')                      is not None else ''
+        'description':                  ipqueue.getprevious().text                          if ipqueue.getprevious() is not None and ipqueue.getprevious().tag == 'description' else ''
     }
     return IPQueueDict
-
 
 def createCommunicationDict(basicConfig_id, communication):
     CommunicationDict = {
         'basicConfig_id':               basicConfig_id,
         'name':                         communication.get('name', ''),
         'watcherEscalationTimeout':     communication.find('watcherEscalationTimeout').text if communication.find('watcherEscalationTimeout')   is not None else '',
-        'alternateNameList':            communication.find('alternateNameList').text if communication.find('alternateNameList')                 is not None else '',
-        'isToPoll':                     communication.find('isToPoll').text if communication.find('isToPoll')                                   is not None else '',
-        'pollUntilFound':               communication.find('pollUntilFound').text if communication.find('pollUntilFound')                       is not None else '',
-        'noTransfer':                   communication.find('noTransfer').text if communication.find('noTransfer')                               is not None else '',
-        'targetMustBeArchived':         communication.find('targetMustBeArchived').text if communication.find('targetMustBeArchived')           is not None else '',
-        'mustBeArchived':               communication.find('mustBeArchived').text if communication.find('mustBeArchived')                       is not None else '',
-        'historyDays':                  communication.find('historyDays').text if communication.find('historyDays')                             is not None else '',
-        'targetHistoryDays':            communication.find('targetHistoryDays').text if communication.find('targetHistoryDays')                 is not None else '',
+        'alternateNameList':            communication.find('alternateNameList').text        if communication.find('alternateNameList')          is not None else '',
+        'isToPoll':                     communication.find('isToPoll').text                 if communication.find('isToPoll')                   is not None else '',
+        'pollUntilFound':               communication.find('pollUntilFound').text           if communication.find('pollUntilFound')             is not None else '',
+        'noTransfer':                   communication.find('noTransfer').text               if communication.find('noTransfer')                 is not None else '',
+        'targetMustBeArchived':         communication.find('targetMustBeArchived').text     if communication.find('targetMustBeArchived')       is not None else '',
+        'mustBeArchived':               communication.find('mustBeArchived').text           if communication.find('mustBeArchived')             is not None else '',
+        'historyDays':                  communication.find('historyDays').text              if communication.find('historyDays')                is not None else '',
+        'targetHistoryDays':            communication.find('targetHistoryDays').text        if communication.find('targetHistoryDays')          is not None else '',
         'findPattern':                  communication.find('findPattern').text,     
         'movPattern':                   communication.find('movPattern').text,      
-        'tmpPattern':                   communication.find('tmpPattern').text if communication.find('tmpPattern')                               is not None else '',
-        'quitPattern':                  communication.find('quitPattern').text if communication.find('quitPattern')                             is not None else '',
+        'tmpPattern':                   communication.find('tmpPattern').text               if communication.find('tmpPattern')                 is not None else '',
+        'quitPattern':                  communication.find('quitPattern').text              if communication.find('quitPattern')                is not None else '',
         'putPattern':                   communication.find('putPattern').text,      
         'ackPattern':                   communication.find('ackPattern').text,      
-        'rcvPattern':                   communication.find('rcvPattern').text if communication.find('rcvPattern')                               is not None else '',
-        'zipPattern':                   communication.find('zipPattern').text if communication.find('zipPattern')                               is not None else '',
-        'befoerderung':                 communication.find('befoerderung').text if communication.find('befoerderung')                           is not None else '',
-        'pollInterval':                 communication.find('pollInterval').text if communication.find('pollInterval')                           is not None else '',
-        'gueltigAb':                    communication.find('gueltigAb').text if communication.find('gueltigAb')                                 is not None else '',
-        'gueltigBis':                   communication.find('gueltigBis').text if communication.find('gueltigBis')                               is not None else '',
-        'befoerderungAb':               communication.find('befoerderungAb').text if communication.find('befoerderungAb')                       is not None else '',
-        'befoerderungBis':              communication.find('befoerderungBis').text if communication.find('befoerderungBis')                     is not None else '',
-        'befoerderungCron':             communication.find('befoerderungCron').text if communication.find('befoerderungCron')                   is not None else '',
-        'preunzip':                     communication.find('preunzip').text if communication.find('preunzip')                                   is not None else '',
+        'rcvPattern':                   communication.find('rcvPattern').text               if communication.find('rcvPattern')                 is not None else '',
+        'zipPattern':                   communication.find('zipPattern').text               if communication.find('zipPattern')                 is not None else '',
+        'befoerderung':                 communication.find('befoerderung').text             if communication.find('befoerderung')               is not None else '',
+        'pollInterval':                 communication.find('pollInterval').text             if communication.find('pollInterval')               is not None else '',
+        'gueltigAb':                    communication.find('gueltigAb').text                if communication.find('gueltigAb')                  is not None else '',
+        'gueltigBis':                   communication.find('gueltigBis').text               if communication.find('gueltigBis')                 is not None else '',
+        'befoerderungAb':               communication.find('befoerderungAb').text           if communication.find('befoerderungAb')             is not None else '',
+        'befoerderungBis':              communication.find('befoerderungBis').text          if communication.find('befoerderungBis')            is not None else '',
+        'befoerderungCron':             communication.find('befoerderungCron').text         if communication.find('befoerderungCron')           is not None else '',
+        'preunzip':                     communication.find('preunzip').text                 if communication.find('preunzip')                   is not None else '',
         'postzip':                      communication.find('postzip').text,     
         'renameWithTimestamp':          communication.find('renameWithTimestamp').text,     
-        'description':                  communication.find('description').text if communication.find('description')                             is not None else '',
-        'description1':                 communication.find('description1').text if communication.find('description1')                           is not None else '',
-        'description2':                 communication.find('description2').text if communication.find('description2')                           is not None else '',
-        'description3':                 communication.find('description3').text if communication.find('description3')                           is not None else '',
-        'description4':                 communication.find('description4').text if communication.find('description4')                           is not None else ''
+        'description':                  communication.find('description').text              if communication.find('description')                is not None else '',
+        'description1':                 communication.find('description1').text             if communication.find('description1')               is not None else '',
+        'description2':                 communication.find('description2').text             if communication.find('description2')               is not None else '',
+        'description3':                 communication.find('description3').text             if communication.find('description3')               is not None else '',
+        'description4':                 communication.find('description4').text             if communication.find('description4')               is not None else ''
     }
     return CommunicationDict
-
 
 def createLocationDict(communication_id, location, locationType):
     LocationDict = {
         'communication_id':             communication_id,
         'location':                     location.find('location').text,
-        'useLocalFilename':             location.find('useLocalFilename').text if location.find('useLocalFilename')                             is not None else '',
-        'usePathFromConfig':            location.find('usePathFromConfig').text if location.find('usePathFromConfig')                           is not None else '',
-        'targetMustBeArchived':         location.find('targetMustBeArchived').text if location.find('targetMustBeArchived')                     is not None else '',
-        'targetHistoryDays':            location.find('targetHistoryDays').text if location.find('targetHistoryDays')                           is not None else '',
-        'renameExistingFile':           location.find('renameExistingFile').text if location.find('renameExistingFile')                         is not None else '',
+        'useLocalFilename':             location.find('useLocalFilename').text              if location.find('useLocalFilename')                is not None else '',
+        'usePathFromConfig':            location.find('usePathFromConfig').text             if location.find('usePathFromConfig')               is not None else '',
+        'targetMustBeArchived':         location.find('targetMustBeArchived').text          if location.find('targetMustBeArchived')            is not None else '',
+        'targetHistoryDays':            location.find('targetHistoryDays').text             if location.find('targetHistoryDays')               is not None else '',
+        'renameExistingFile':           location.find('renameExistingFile').text            if location.find('renameExistingFile')              is not None else '',
         'userid':                       location.find('userid').text,
         'password':                     location.find('password').text,
+        'description':                  location.find('description').text                   if location.find('description')                     is not None else '',
         'locationType':                 locationType
     }
     return LocationDict
-
 
 def createCommandDict(communication_id, command, commandType):
     CommandDict = {
         'communication_id':             communication_id,
         'className':                    command.find('className').text,
-        'validForTargetLocations':      command.find('validForTargetLocations').text if command.find('validForTargetLocations')                 is not None else '',
-        'userid':                       command.find('userid').text if command.find('userid')                                                   is not None else '',
-        'password':                     command.find('password').text if command.find('password')                                               is not None else '',
+        'validForTargetLocations':      command.find('validForTargetLocations').text        if command.find('validForTargetLocations')          is not None else '',
+        'userid':                       command.find('userid').text                         if command.find('userid')                           is not None else '',
+        'password':                     command.find('password').text                       if command.find('password')                         is not None else '',
         'commandType':                  commandType
     }
     return CommandDict
-
 
 def createCommandParamDict(command_id, param):
     CommandParamDict = {
@@ -156,7 +151,6 @@ def createCommandParamDict(command_id, param):
         'param':                        param
     }
     return CommandParamDict
-
 
 def createAlternateNameListDict(communication_id, listName, alternateName):
     AlternateNameListDict = {
