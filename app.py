@@ -40,11 +40,12 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(splitter)
 
-#Function to open the XML file
+    # Function to open the XML file
     def open_xml(self):
         dialog = FileDialog(self)
         if dialog.exec_():
             pass
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

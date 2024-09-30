@@ -1,7 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QHBoxLayout, QFileDialog, QMessageBox
 from PyQt5.QtGui import QIcon
-from database.import_xml import validate_xml, insert_data_into_db
+from database.xml_data_to_db import validate_xml, insert_data_into_db
+
 
 class FileDialog(QDialog):
     def __init__(self, parent=None):
