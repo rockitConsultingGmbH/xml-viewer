@@ -95,7 +95,7 @@ def create_xml_from_dbconfig(config_id):
 
     # NameList
     columns = get_columns_from_table(cursor, 'NameList')
-    rows = get_rows_from_db_table(cursor, 'NameList', columns)
+    rows = get_rows_from_db_table(cursor, 'NameList', columns, f"WHERE basicConfig_id = {basicConfig_id}")
     for row in rows:
         xml_tree, namelist = db_to_xml_map.create_xml_from_namelist(acsfiletransfer, row)
         nameList_id = row['id']
