@@ -179,8 +179,10 @@ CREATE TABLE CommandParam (
 -- Create NameList table with reference to Communication
 CREATE TABLE NameList (
     id INTEGER PRIMARY KEY,
+    basicConfig_id INT NOT NULL,
     communication_id INT NOT NULL,
     listName VARCHAR(255) NOT NULL,
+    FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
     FOREIGN KEY (communication_id) REFERENCES Communication(id) ON DELETE CASCADE
 );
 
@@ -190,15 +192,6 @@ CREATE TABLE AlternateName (
     nameList_id INT,
     alternateName VARCHAR(255) NOT NULL,
     FOREIGN KEY (nameList_id) REFERENCES NameList(id) ON DELETE CASCADE
-);
-
--- Create Comment table with reference to BasicConfig
-CREATE TABLE Comment (
-    id INTEGER PRIMARY KEY,
-    basicConfig_id INT NOT NULL,
-    comment  VARCHAR(255) NOT NULL,
-    xmlIndex INT,
-    FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
 );
 
 /* -- Create Description table with reference to Communication

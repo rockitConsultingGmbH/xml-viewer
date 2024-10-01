@@ -153,8 +153,9 @@ def createCommandParamDict(command_id, param):
     }
     return CommandParamDict
 
-def createNameListDict(communication_id, listName):
+def createNameListDict(basicConfig_id, communication_id, listName):
     NameListDict = {
+        'basicConfig_id':               basicConfig_id,
         'communication_id':             communication_id,
         'listName':                     listName
     }
@@ -166,11 +167,3 @@ def createAlternateNameDict(nameList_id, alternateName):
         'alternateName':                alternateName
     }
     return AlternateNameDict
-
-def createCommentDict(basicConfig_id, comment, idx):
-    CommentDict = {
-        'basicConfig_id':               basicConfig_id,
-        'comment':                      comment.text,
-        'xmlIndex':                     idx
-    }
-    return CommentDict
