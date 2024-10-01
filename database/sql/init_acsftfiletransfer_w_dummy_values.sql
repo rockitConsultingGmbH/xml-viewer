@@ -53,9 +53,9 @@ INSERT INTO CommandParam (command_id, param) VALUES
 (2, 'param4');
 
 -- Insert data into NameList table
-INSERT INTO NameList (communication_id, listName) VALUES
-(1, 'NameList1'),
-(2, 'NameList2');
+INSERT INTO NameList (basicConfig_id, communication_id, listName) VALUES
+(1, 1, 'NameList1'),
+(2, 2, 'NameList2');
 
 -- Insert data into AlternateNameList table
 INSERT INTO AlternateName (nameList_id, alternateName) VALUES
@@ -63,10 +63,3 @@ INSERT INTO AlternateName (nameList_id, alternateName) VALUES
 (1, 'AlternateName2'),
 (2, 'AlternateName3'),
 (2, 'AlternateName4');
-
--- Insert data into Comment table
-INSERT INTO Comment (basicConfig_id, comment, xmlIndex) VALUES
-(1, 'comment1', 10),
-(1, 'comment2', 20),
-(1, 'comment3', 30),
-(1, 'comment4', 40);

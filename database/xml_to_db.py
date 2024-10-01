@@ -59,14 +59,11 @@ def importCommand(cursor, communication_id, command, commandType):
 def importCommandParam(cursor, command_id, param):
     return sql_statements.InsertIntoCommandParam(cursor, dictionaries.createCommandParamDict(command_id, param))
 
-def importNameList(cursor, communication_id, listName):
-    return sql_statements.InsertIntoNameList(cursor, dictionaries.createNameListDict(communication_id, listName))
+def importNameList(cursor, basicConfig_id, communication_id, listName):
+    return sql_statements.InsertIntoNameList(cursor, dictionaries.createNameListDict(basicConfig_id, communication_id, listName))
 
 def importAlternateName(cursor, nameList_id, alternateName):
     return sql_statements.InsertIntoAlternateName(cursor, dictionaries.createAlternateNameDict(nameList_id, alternateName))
-
-def importComment(cursor, basicConfig_id, comment, idx):
-    return sql_statements.InsertIntoComment(cursor, dictionaries.createCommentDict(basicConfig_id, comment, idx))
 
 def insert_data_into_db(xml_tree, db_path):
     # Check if the database file exists
@@ -132,7 +129,7 @@ def insert_data_into_db(xml_tree, db_path):
                 case 'alternateNameList' if communicationElement.tag is not None:
                     namelist = acsfiletransfer.find(f".//nameList[@name='{communicationElement.text}']")
                     if namelist is not None:
-                        nameList_id = importNameList(cursor, communication_id, namelist.get('name', '')).lastrowid
+                        nameList_id = importNameList(cursor, basicConfig_id, communication_id, namelist.get('name', '')).lastrowid
                         rows_created += cursor.rowcount
                         for entry in namelist.findall('entry'):
                             if entry.text is not None:
