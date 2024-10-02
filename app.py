@@ -32,6 +32,18 @@ class MainWindow(QMainWindow):
         file_menu.addAction(open_xml_action)
         open_xml_action.triggered.connect(self.open_xml)
 
+        file_menu.addSeparator()
+
+        save_action = QAction('Save changes', self)
+        save_action.setShortcut('Ctrl+S')
+        save_action.setStatusTip('Ctrl+S')
+        file_menu.addAction(save_action)  # TODO: add functionality
+
+        reset_action = QAction('Reset', self)
+        reset_action.setShortcut('Ctrl+R')
+        reset_action.setStatusTip('Ctrl+R')
+        file_menu.addAction(reset_action)  # TODO: add functionality
+
         communication_menu = menubar.addMenu('Communication')
 
         copy_action = QAction('Copy', self)
@@ -51,7 +63,7 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.left_widget)
         self.splitter.addWidget(self.right_widget)
 
-        self.splitter.setSizes([400, 800])
+        self.splitter.setSizes([250, 1000])
 
         self.setCentralWidget(self.splitter)
 
