@@ -1,16 +1,21 @@
 import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
+    QTreeWidgetItem
 
 from gui.dialog_window import FileDialog
+from gui.communication_ui import setup_right_interface
+from database.xml_data_to_db import get_db_connection
 
 
-# Settings for the main window
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.input_field = None
+        self.recent_files = []
 
-        self.resize(1280, 720)
+        self.resize(1600, 900)
         self.setWindowTitle("XML Editor")
 
         screen = QApplication.primaryScreen().availableGeometry()
@@ -21,34 +26,88 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         file_menu = menubar.addMenu('File')
 
-        open_xml_action = QAction('Open XML', self)
-        open_xml_action.triggered.connect(self.open_xml)
+        open_xml_action = QAction('Open', self)
+        open_xml_action.setShortcut('Ctrl+O')
+        open_xml_action.setStatusTip('Ctrl+O')
         file_menu.addAction(open_xml_action)
+        open_xml_action.triggered.connect(self.open_xml)
 
-        splitter = QSplitter(Qt.Horizontal)
+        communication_menu = menubar.addMenu('Communication')
 
-        left_widget = QWidget()
-        right_widget = QWidget()
+        copy_action = QAction('Copy', self)
+        communication_menu.addAction(copy_action)  # TODO: add functionality
 
-        left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
-        right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+        delete_action = QAction('Delete', self)
+        communication_menu.addAction(delete_action)  # TODO: add functionality
 
-        splitter.addWidget(left_widget)
-        splitter.addWidget(right_widget)
+        self.splitter = QSplitter(Qt.Horizontal)
 
-        splitter.setSizes([300, 980])
+        self.left_widget = QWidget()
+        self.right_widget = QWidget()
 
-        self.setCentralWidget(splitter)
+        self.left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+        self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
 
-    # Function to open the XML file
+        self.splitter.addWidget(self.left_widget)
+        self.splitter.addWidget(self.right_widget)
+
+        self.splitter.setSizes([400, 800])
+
+        self.setCentralWidget(self.splitter)
+
+        setup_right_interface(self.right_widget)  
+
     def open_xml(self):
         dialog = FileDialog(self)
         if dialog.exec_():
-            pass
+            self.display_db_tables()
+
+    def display_db_tables(self):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cursor.fetchall()
+
+        tree_widget = QTreeWidget()
+        tree_widget.setStyleSheet("border: none; outline: 0;")
+        tree_widget.setHeaderHidden(True)
+
+        for table in tables:
+            table_name = table[0]
+            table_item = QTreeWidgetItem([table_name])
+            tree_widget.addTopLevelItem(table_item)
+
+            if table_name == "Communication":
+                cursor.execute(f"SELECT name FROM {table_name};")
+                names = cursor.fetchall()
+
+                for name in names:
+                    column_item = QTreeWidgetItem([name[0]])
+                    table_item.addChild(column_item)
+
+            else:
+                cursor.execute(f"PRAGMA table_info({table_name});")
+                columns = cursor.fetchall()
+
+                for column in columns:
+                    column_name = column[1]
+                    column_item = QTreeWidgetItem([column_name])
+                    table_item.addChild(column_item)
+
+            table_item.setExpanded(False)
+
+        layout = QVBoxLayout()
+        layout.addWidget(tree_widget)
+        self.left_widget.setLayout(layout)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+
+    with open("styles.css", "r", encoding="utf-8") as f:
+        css = f.read()
+        app.setStyleSheet(css)
+
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())
