@@ -15,7 +15,7 @@ class MainWindow(QMainWindow):
         self.input_field = None
         self.recent_files = []
 
-        self.resize(1600, 900)
+        self.resize(1800, 900)
         self.setWindowTitle("XML Editor")
 
         screen = QApplication.primaryScreen().availableGeometry()
