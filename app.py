@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
-    QTreeWidgetItem
+    QTreeWidgetItem, QMessageBox, QFileDialog
 
 from gui.dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
@@ -10,7 +10,8 @@ from gui.lzb_configuration_ui import LZBConfigurationWidget
 from database.xml_data_to_db import get_db_connection
 from gui.mq_configuration_ui import MQConfigurationWidget
 
-
+from database.db_to_xml import export_to_xml as export_to_xml_function  # Import the function with an alias to avoid name conflict
+from common import config_manager
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -47,6 +48,12 @@ class MainWindow(QMainWindow):
         reset_action.setShortcut('Ctrl+R')
         reset_action.setStatusTip('Ctrl+R')
         file_menu.addAction(reset_action)  # TODO: add functionality
+
+        export_action = QAction('Export', self)
+        export_action.setShortcut('Ctrl+E')
+        export_action.setStatusTip('Ctrl+E')
+        file_menu.addAction(export_action)
+        export_action.triggered.connect(self.export_config)
 
         communication_menu = menubar.addMenu('Communication')
 
@@ -147,6 +154,22 @@ class MainWindow(QMainWindow):
         self.right_widget = MQConfigurationWidget(self)
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
+    def export_config(self):
+        try:
+            if config_manager is None or config_manager.config_id is None:
+                QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
+                return
+
+            options = QFileDialog.Options()
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options)
+            
+            if file_path:
+                export_to_xml_function(file_path, config_manager.config_id)
+                QMessageBox.information(self, "Success", "Data exported to XML successfully.")
+            else:
+                QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to export data: {e}")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

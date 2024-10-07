@@ -1,5 +1,7 @@
 -- Drop dependent tables in reverse order of creation to avoid foreign key conflicts
-DROP TABLE IF EXISTS AlternateNameList;
+DROP TABLE IF EXISTS Comment;
+DROP TABLE IF EXISTS AlternateName;
+DROP TABLE IF EXISTS NameList;
 DROP TABLE IF EXISTS CommandParam;
 DROP TABLE IF EXISTS Command;
 DROP TABLE IF EXISTS Location;
@@ -27,7 +29,7 @@ CREATE TABLE BasicConfig (
     watcherEscalationTimeout VARCHAR(255) NOT NULL,
     watcherSleepTime VARCHAR(255) NOT NULL,
     description VARCHAR(255),
-	configFileName VARCHAR(255)
+    configFileName VARCHAR(255)
 );
 
 -- Create LzbConfig table with reference to BasicConfig
@@ -90,7 +92,7 @@ CREATE TABLE IPQueue (
     queue VARCHAR(255) NOT NULL,
     errorQueue VARCHAR(255),
     numberOfThreads VARCHAR(255),
-	description VARCHAR(255),
+    description VARCHAR(255),
     FOREIGN KEY (mqConfig_id) REFERENCES MqConfig(id) ON DELETE CASCADE
 );
 
@@ -99,7 +101,7 @@ CREATE TABLE Communication (
     id INTEGER PRIMARY KEY,
     basicConfig_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
-    --alternateNameList VARCHAR(255),
+    alternateNameList VARCHAR(255),
     watcherEscalationTimeout VARCHAR(255),
     isToPoll BOOLEAN,
     pollUntilFound BOOLEAN,
@@ -141,6 +143,7 @@ CREATE TABLE Location (
     id INTEGER PRIMARY KEY,
     communication_id INT NOT NULL,
     location VARCHAR(255) NOT NULL,
+    location_id VARCHAR(255),
     useLocalFilename BOOLEAN,
     usePathFromConfig BOOLEAN,
     targetMustBeArchived BOOLEAN,
@@ -173,27 +176,29 @@ CREATE TABLE CommandParam (
     FOREIGN KEY (command_id) REFERENCES Command(id) ON DELETE CASCADE
 );
 
--- Create AlternateNameList table with reference to Communication
-CREATE TABLE AlternateNameList (
+-- Create NameList table with reference to Communication
+CREATE TABLE NameList (
     id INTEGER PRIMARY KEY,
+    basicConfig_id INT NOT NULL,
     communication_id INT NOT NULL,
     listName VARCHAR(255) NOT NULL,
-    alternateName VARCHAR(255) NOT NULL,
+    FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
     FOREIGN KEY (communication_id) REFERENCES Communication(id) ON DELETE CASCADE
 );
 
-/* -- Create AlternateName table with reference to NameList
+-- Create AlternateName table with reference to NameList
 CREATE TABLE AlternateName (
     id INTEGER PRIMARY KEY,
     nameList_id INT,
-    name VARCHAR(255) NOT NULL,
+    alternateName VARCHAR(255) NOT NULL,
     FOREIGN KEY (nameList_id) REFERENCES NameList(id) ON DELETE CASCADE
-); */
+);
 
 /* -- Create Description table with reference to Communication
 /CREATE TABLE Description (
     id INTEGER PRIMARY KEY,
-    communication_id INT,
-    description TEXT,
+    element_id INT  NOT NULL,
+    description TEXT  NOT NULL,
+    element_type VARCHAR(255) NOT NULL,
     FOREIGN KEY (communication_id) REFERENCES Communication(id) ON DELETE CASCADE
 ); */
