@@ -1,7 +1,10 @@
 import sqlite3
 import os
 from lxml import etree
-import db_to_xml_map
+from database import db_to_xml_map
+
+db_path = 'C:/Users/MichalisPantazis/MPA/WORK/github/xml-viewer/database/database.db'
+db_name = os.path.basename(db_path)
 
 def get_columns_from_table(cursor, table_name):
     cursor.execute(f"PRAGMA table_info({table_name})")
@@ -64,7 +67,7 @@ def create_xml_from_dbconfig(config_id):
 
     # IPQueue
     columns = get_columns_from_table(cursor, 'IPQueue')
-    rows = get_rows_from_db_table(cursor, 'IPQueue', columns)
+    rows = get_rows_from_db_table(cursor, 'IPQueue', columns, f"WHERE mqConfig_id = {mqConfig_id}")
     for row in rows:
         xml_tree = db_to_xml_map.create_xml_from_ipqueue(mqconfig, row)
 
@@ -110,18 +113,10 @@ def create_xml_from_dbconfig(config_id):
     conn.close()
     return pretty_xml_tree
 
-try:
-    config_id = input("Please enter the config id of the configuration to be exported to XML: ")
-    output_xml_path = input("Please enter the full Output XML file path: ")
-    output_xml_name = os.path.basename(output_xml_path)
-    print(f"The XML file name is: {output_xml_name}")
-    db_path = input("Please enter the full DB file path: ")
-    db_name = os.path.basename(db_path)
-    print(f"The DB file name is: {db_name}")
-    print(f"Exporting configuration with ID {config_id} to XML ...")
-    pretty_xml_tree = create_xml_from_dbconfig(config_id)
-    #print(pretty_xml_tree)
-    save_xml_to_file(pretty_xml_tree, output_xml_path)
-    print(f"Data has been written to {output_xml_path}")
-except Exception as e:
-    print(f"An error occurred: {e}")
+def export_to_xml(file_path, config_id):
+    try:
+        pretty_xml_tree = create_xml_from_dbconfig(config_id)
+        save_xml_to_file(pretty_xml_tree, file_path)
+        print(f"Data has been written to {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
