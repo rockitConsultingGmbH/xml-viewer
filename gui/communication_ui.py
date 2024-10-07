@@ -1,7 +1,6 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
     QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox
-from PyQt5.QtCore import Qt
-
 
 # Clickable Label class for transforming labels into clickable buttons
 class ClickableLabel(QLabel):
@@ -20,7 +19,6 @@ def setup_right_interface(right_widget):
     scroll_content = QWidget()
     scroll_layout = QVBoxLayout(scroll_content)
 
-    # Create Save and Reset buttons
     button_layout = QHBoxLayout()
     button_layout.addStretch()
 
@@ -52,7 +50,8 @@ def setup_right_interface(right_widget):
 
 # Group interface builder
 def create_group(group_name, layout):
-    global input_labels, input_fields, source_labels, source_inputs, target_labels, target_inputs
+    global input_labels, input_fields, source_labels, source_inputs, target_labels, target_inputs, settings_labels, \
+        settings_inputs, other_settings_labels, other_settings_inputs, post_command_labels, post_command_inputs
     group_box = QGroupBox(group_name)
     group_box.setStyleSheet("QGroupBox { font-weight: bold; font-size: 15px; border: none; }")
     group_layout = QVBoxLayout()
@@ -65,6 +64,11 @@ def create_group(group_name, layout):
         source_inputs = []
         target_labels = []
         target_inputs = []
+    elif group_name == "Settings":
+        settings_labels = []
+        settings_inputs = []
+        other_settings_labels = []
+        other_settings_inputs = []
 
     # Overview group
     if group_name == "Overview":
@@ -76,6 +80,7 @@ def create_group(group_name, layout):
 
         hbox1 = QHBoxLayout()
         checkbox = QCheckBox("Polling aktiviert")
+        checkbox.setObjectName("polling_activate_checkbox")
         checkbox.setStyleSheet(checkbox_style)
         hbox1.addWidget(checkbox)
         hbox1.addStretch()
@@ -89,6 +94,7 @@ def create_group(group_name, layout):
         name_label.setStyleSheet(label_style)
         name_input = QLineEdit()
         name_input.setFixedSize(450, 30)
+        name_input.setObjectName("name_input")
         form_layout_left.addRow(name_label, name_input)
 
         alt_name_label = QLabel("Alternate Namelist")
@@ -127,7 +133,8 @@ def create_group(group_name, layout):
         description_label.mousePressEvent = lambda event: toggle_inputs(input_labels, input_fields)
 
         description_input = QLineEdit()
-        description_input.setFixedSize(450, 30)
+        description_input.setObjectName("description_input")
+        description_input.setFixedSize(550, 30)
 
         form_layout_right.addRow(description_label, description_input)
 
@@ -135,7 +142,8 @@ def create_group(group_name, layout):
             input_label = QLabel(f"Description {i + 1}")
             input_label.setStyleSheet(label_style)
             input_field = QLineEdit()
-            input_field.setFixedSize(450, 30)
+            input_field.setFixedSize(550, 30)
+            input_field.setObjectName(f"description_{i + 1}_input")
             input_labels.append(input_label)
             input_fields.append(input_field)
 
@@ -160,6 +168,7 @@ def create_group(group_name, layout):
         source_label = ClickableLabel("Source")
         source_label.setStyleSheet(label_children_style)
         source_input = QLineEdit()
+        source_input.setObjectName("source_input")
         source_input.setFixedHeight(30)
 
         form_layout.addRow(source_label, source_input)
@@ -172,12 +181,14 @@ def create_group(group_name, layout):
         userid_label.setStyleSheet(label_children_style)
         userid_label.setFixedWidth(60)
         userid_input = QLineEdit()
+        userid_input.setObjectName("userid_source_input")
         userid_input.setFixedSize(450, 30)
 
         password_label = QLabel("Password")
         password_label.setStyleSheet(label_children_style)
         password_label.setFixedWidth(80)
         password_input = QLineEdit()
+        password_input.setObjectName("password_source_input")
         password_input.setFixedSize(450, 30)
 
         hbox_userid_password.addWidget(userid_label)
@@ -233,7 +244,9 @@ def create_group(group_name, layout):
 
         form_layout.addRow(hbox_target)
 
-        target_count = 3
+        # communication_ui.py
+
+        target_count = 5
         for i in range(1, target_count + 1):
             target_label = ClickableLabel(f"Target ({i})")
             target_label.setFixedWidth(130)
@@ -241,18 +254,21 @@ def create_group(group_name, layout):
 
             target_input = QLineEdit()
             target_input.setFixedHeight(30)
+            target_input.setObjectName(f"target_{i}_input")  # Присваиваем objectName
 
             userid_target_label = QLabel("UserID")
             userid_target_label.setStyleSheet(label_children_style)
             userid_target_label.setFixedWidth(60)
             userid_target_input = QLineEdit()
             userid_target_input.setFixedSize(450, 30)
+            userid_target_input.setObjectName(f"userid_target_{i}_input")  # Присваиваем objectName
 
             password_target_label = QLabel("Password")
             password_target_label.setStyleSheet(label_children_style)
             password_target_label.setFixedWidth(80)
             password_target_input = QLineEdit()
             password_target_input.setFixedSize(450, 30)
+            password_target_input.setObjectName(f"password_target_{i}_input")  # Присваиваем objectName
 
             target_labels.append(userid_target_label)
             target_labels.append(password_target_label)
@@ -302,7 +318,7 @@ def create_group(group_name, layout):
 
         group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        polling_label = QLabel("Polling")
+        polling_label = ClickableLabel("Polling")
         polling_label.setFixedWidth(120)
         polling_label.setStyleSheet(label_style)
         hbox.addWidget(polling_label)
@@ -312,10 +328,12 @@ def create_group(group_name, layout):
         polling_active_checkbox.setFixedWidth(200)
 
         poll_until_found_checkbox = QCheckBox("Poll until found")
+        poll_until_found_checkbox.setObjectName("poll_until_found_checkbox")
         poll_until_found_checkbox.setStyleSheet(checkbox_style)
         poll_until_found_checkbox.setFixedWidth(200)
 
         no_transfer_checkbox = QCheckBox("No transfer")
+        no_transfer_checkbox.setObjectName("no_transfer_checkbox")
         no_transfer_checkbox.setStyleSheet(checkbox_style)
 
         hbox.addWidget(polling_active_checkbox)
@@ -334,10 +352,17 @@ def create_group(group_name, layout):
         input1_label.setFixedWidth(100)
         input1_label.setStyleSheet(label_children_style)
         input1 = QLineEdit()
+        input1.setObjectName("befoerderung_ab_input")
         input1.setFixedSize(450, 30)
         hbox_input1.addWidget(input1_label)
         hbox_input1.addWidget(input1)
         form_layout_left.addLayout(hbox_input1)
+
+        input1_label.hide()
+        input1.hide()
+
+        settings_labels.append(input1_label)
+        settings_inputs.append(input1)
 
         hbox_input2 = QHBoxLayout()
         hbox_input2.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
@@ -345,10 +370,17 @@ def create_group(group_name, layout):
         input2_label.setFixedWidth(100)
         input2_label.setStyleSheet(label_children_style)
         input2 = QLineEdit()
+        input2.setObjectName("poll_interval_input")
         input2.setFixedSize(450, 30)
         hbox_input2.addWidget(input2_label)
         hbox_input2.addWidget(input2)
         form_layout_left.addLayout(hbox_input2)
+
+        input2_label.hide()
+        input2.hide()
+
+        settings_labels.append(input2_label)
+        settings_inputs.append(input2)
 
         form_layout_right = QVBoxLayout()
 
@@ -357,20 +389,36 @@ def create_group(group_name, layout):
         input3_label.setFixedWidth(120)
         input3_label.setStyleSheet(label_children_style)
         input3 = QLineEdit()
+        input3.setObjectName("befoerderung_bis_input")
         input3.setFixedSize(450, 30)
         hbox_input3.addWidget(input3_label)
         hbox_input3.addWidget(input3)
         form_layout_right.addLayout(hbox_input3)
+
+        input3_label.hide()
+        input3.hide()
+
+        settings_labels.append(input3_label)
+        settings_inputs.append(input3)
 
         hbox_input4 = QHBoxLayout()
         input4_label = QLabel("Escalation timeout")
         input4_label.setFixedWidth(120)
         input4_label.setStyleSheet(label_children_style)
         input4 = QLineEdit()
+        input4.setObjectName("escalation_timeout_input")
         input4.setFixedSize(450, 30)
         hbox_input4.addWidget(input4_label)
         hbox_input4.addWidget(input4)
         form_layout_right.addLayout(hbox_input4)
+
+        input4_label.hide()
+        input4.hide()
+
+        settings_labels.append(input4_label)
+        settings_inputs.append(input4)
+
+        polling_label.mousePressEvent = lambda event: toggle_inputs(settings_labels, settings_inputs)
 
         hbox_columns = QHBoxLayout()
         hbox_columns.addLayout(form_layout_left)
@@ -388,11 +436,13 @@ def create_group(group_name, layout):
         hbox_new_settings.addWidget(new_label)
 
         new_checkbox1 = QCheckBox("Pre-Unzip")
+        new_checkbox1.setObjectName("pre_unzip_checkbox")
         new_checkbox1.setStyleSheet(checkbox_style)
         new_checkbox1.setFixedWidth(200)
         hbox_new_settings.addWidget(new_checkbox1)
 
         new_checkbox2 = QCheckBox("Post-Zip")
+        new_checkbox2.setObjectName("post_zip_checkbox")
         new_checkbox2.setStyleSheet(checkbox_style)
         hbox_new_settings.addWidget(new_checkbox2)
 
@@ -401,12 +451,13 @@ def create_group(group_name, layout):
         group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         hbox_additional_settings = QHBoxLayout()
-        additional_label = QLabel("Other Settings")
+        additional_label = ClickableLabel("Other Settings")
         additional_label.setStyleSheet(label_style)
         additional_label.setFixedWidth(120)
         hbox_additional_settings.addWidget(additional_label)
 
         additional_checkbox1 = QCheckBox("Rename with Timestamp")
+        additional_checkbox1.setObjectName("rename_with_timestamp_checkbox")
         additional_checkbox1.setStyleSheet(checkbox_style)
         hbox_additional_settings.addWidget(additional_checkbox1)
 
@@ -423,10 +474,17 @@ def create_group(group_name, layout):
         new_input_label1.setFixedWidth(100)
         new_input_label1.setStyleSheet(label_children_style)
         new_input1 = QLineEdit()
+        new_input1.setObjectName("gueltig_ab_input")
         new_input1.setFixedSize(450, 30)
         hbox_new_input1.addWidget(new_input_label1)
         hbox_new_input1.addWidget(new_input1)
         vbox_left.addLayout(hbox_new_input1)
+
+        new_input_label1.hide()
+        new_input1.hide()
+
+        other_settings_labels.append(new_input_label1)
+        other_settings_inputs.append(new_input1)
 
         vbox_right = QVBoxLayout()
         hbox_new_input2 = QHBoxLayout()
@@ -434,16 +492,25 @@ def create_group(group_name, layout):
         new_input_label2.setFixedWidth(120)
         new_input_label2.setStyleSheet(label_children_style)
         new_input2 = QLineEdit()
+        new_input2.setObjectName("gueltig_bis_input")
         new_input2.setFixedSize(450, 30)
         hbox_new_input2.addWidget(new_input_label2)
         hbox_new_input2.addWidget(new_input2)
         vbox_right.addLayout(hbox_new_input2)
+
+        new_input_label2.hide()
+        new_input2.hide()
+
+        other_settings_labels.append(new_input_label2)
+        other_settings_inputs.append(new_input2)
 
         hbox_new_inputs.addLayout(vbox_left)
         hbox_new_inputs.addStretch()
         hbox_new_inputs.addLayout(vbox_right)
 
         group_layout.addLayout(hbox_new_inputs)
+
+        additional_label.mousePressEvent = lambda event: toggle_inputs(other_settings_labels, other_settings_inputs)
 
         line = QFrame()
         line.setFrameShape(QFrame.HLine)
@@ -467,6 +534,7 @@ def create_group(group_name, layout):
         pattern_label1.setFixedWidth(100)
         pattern_label1.setStyleSheet(label_style)
         pattern_input1 = QLineEdit()
+        pattern_input1.setObjectName("find_pattern_input")
         pattern_input1.setFixedSize(450, 30)
         form_layout_left.addRow(pattern_label1, pattern_input1)
 
@@ -474,6 +542,7 @@ def create_group(group_name, layout):
         pattern_label2.setFixedWidth(100)
         pattern_label2.setStyleSheet(label_style)
         pattern_input2 = QLineEdit()
+        pattern_input2.setObjectName("quit_pattern_input")
         pattern_input2.setFixedSize(450, 30)
         form_layout_left.addRow(pattern_label2, pattern_input2)
 
@@ -481,6 +550,7 @@ def create_group(group_name, layout):
         pattern_label3.setFixedWidth(100)
         pattern_label3.setStyleSheet(label_style)
         pattern_input3 = QLineEdit()
+        pattern_input3.setObjectName("ack_pattern_input")
         pattern_input3.setFixedSize(450, 30)
         form_layout_left.addRow(pattern_label3, pattern_input3)
 
@@ -488,6 +558,7 @@ def create_group(group_name, layout):
         pattern_label4.setFixedWidth(100)
         pattern_label4.setStyleSheet(label_style)
         pattern_input4 = QLineEdit()
+        pattern_input4.setObjectName("zip_pattern_input")
         pattern_input4.setFixedSize(450, 30)
         form_layout_left.addRow(pattern_label4, pattern_input4)
 
@@ -495,6 +566,7 @@ def create_group(group_name, layout):
         pattern_label5.setFixedWidth(120)
         pattern_label5.setStyleSheet(label_style)
         pattern_input5 = QLineEdit()
+        pattern_input5.setObjectName("mov_pattern_input")
         pattern_input5.setFixedSize(450, 30)
         form_layout_right.addRow(pattern_label5, pattern_input5)
 
@@ -502,6 +574,7 @@ def create_group(group_name, layout):
         pattern_label6.setFixedWidth(120)
         pattern_label6.setStyleSheet(label_style)
         pattern_input6 = QLineEdit()
+        pattern_input6.setObjectName("put_pattern_input")
         pattern_input6.setFixedSize(450, 30)
         form_layout_right.addRow(pattern_label6, pattern_input6)
 
@@ -509,6 +582,7 @@ def create_group(group_name, layout):
         pattern_label7.setFixedWidth(120)
         pattern_label7.setStyleSheet(label_style)
         pattern_input7 = QLineEdit()
+        pattern_input7.setObjectName("rcv_pattern_input")
         pattern_input7.setFixedSize(450, 30)
         form_layout_right.addRow(pattern_label7, pattern_input7)
 
@@ -685,3 +759,6 @@ def toggle_inputs(labels, inputs):
         else:
             label.show()
             input_field.show()
+
+
+
