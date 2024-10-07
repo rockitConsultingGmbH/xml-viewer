@@ -5,7 +5,7 @@ import database.sql_statements as sql_statements
 import database.dictionaries as dictionaries
 
 # DB file path
-db_path = os.path.join(os.path.dirname(__file__), 'acsfiletransfer.db')
+db_path = os.path.join(os.path.dirname(__file__), 'database.db')
 
 
 def get_db_connection():
@@ -99,11 +99,12 @@ def insert_command_param(cursor, command_id, param):
     return sql_statements.InsertIntoCommandParam(cursor, dictionaries.createCommandParamDict(command_id, param))
 
 
-# AlternateNameList
-def insert_alternate_name_list(cursor, communication_id, listName, alternateName):
-    return sql_statements.InsertIntoAlternateNameList(cursor, dictionaries.createAlternateNameListDict(communication_id,
-                                                                                                       listName,
-                                                                                                       alternateName))
+def insert_name_list(cursor, basicConfig_id, communication_id, listName):
+    return sql_statements.InsertIntoNameList(cursor, dictionaries.createNameListDict(basicConfig_id, communication_id, listName))
+
+				   
+def insert_alternate_name(cursor, nameList_id, alternateName):
+    return sql_statements.InsertIntoAlternateName(cursor, dictionaries.createAlternateNameDict(nameList_id, alternateName))
 
 
 # Insert data into the database
@@ -118,58 +119,69 @@ def insert_data_into_db(xml_tree, config_file_name):
     cursor = conn.cursor()
     rows_created = 0
 
-    root = xml_tree.getroot()
-    acsfiletransfer = root.find('.//acsfiletransfer')
+    try:
+        root = xml_tree.getroot()
+        acsfiletransfer = root.find('.//acsfiletransfer')
 
-    basicConfig_id = insert_basic_config(cursor, acsfiletransfer, config_file_name).lastrowid
-    rows_created += cursor.rowcount
-
-    lzb = acsfiletransfer.find('lzb')
-    insert_lzb_config(cursor, basicConfig_id, lzb)
-    rows_created += cursor.rowcount
-
-    mq = acsfiletransfer.find('mq')
-    mqConfig_id = insert_mq_config(cursor, basicConfig_id, mq).lastrowid
-    rows_created += cursor.rowcount
-
-    mqtrigger = mq.find('trigger')
-    insert_mq_trigger(cursor, mqConfig_id, mqtrigger)
-    rows_created += cursor.rowcount
-
-    for ipqueue in mq.findall('IPQueue'):
-        insert_ip_queue(cursor, mqConfig_id, ipqueue)
+        basicConfig_id = insert_basic_config(cursor, acsfiletransfer, config_file_name).lastrowid
         rows_created += cursor.rowcount
 
-    for communication in acsfiletransfer.findall('communication'):
-        communication_id = insert_communication(cursor, basicConfig_id, communication).lastrowid
+        lzb = acsfiletransfer.find('lzb')
+        insert_lzb_config(cursor, basicConfig_id, lzb)
         rows_created += cursor.rowcount
 
-        for communicationElement in communication.findall('./*'):
-            match communicationElement.tag:
-                case 'sourceLocation' | 'targetLocation':
-                    insert_location(cursor, communication_id, communicationElement, communicationElement.tag)
-                    rows_created += cursor.rowcount
+        mq = acsfiletransfer.find('mq')
+        mqConfig_id = insert_mq_config(cursor, basicConfig_id, mq).lastrowid
+        rows_created += cursor.rowcount
 
-                case 'preCommand' | 'postCommand':
-                    command_id = insert_command(cursor, communication_id, communicationElement,
-                                                communicationElement.tag).lastrowid
-                    rows_created += cursor.rowcount
+        mqtrigger = mq.find('trigger')
+        insert_mq_trigger(cursor, mqConfig_id, mqtrigger)
+        rows_created += cursor.rowcount
 
-                    for commandparam in communicationElement.findall('param'):
-                        param = commandparam.text if commandparam.text is not None else ''
-                        if param != '':
-                            insert_command_param(cursor, command_id, param)
-                            rows_created += cursor.rowcount
+        for ipqueue in mq.findall('IPQueue'):
+            insert_ip_queue(cursor, mqConfig_id, ipqueue)
+            rows_created += cursor.rowcount
 
-                case 'alternateNameList' if communicationElement.tag is not None:
-                    namelist = acsfiletransfer.find(f".//nameList[@name='{communicationElement.text}']")
-                    if namelist is not None:
-                        for entry in namelist.findall('entry'):
-                            if entry.text is not None:
-                                insert_alternate_name_list(cursor, communication_id, namelist.get('name', ''),
-                                                           entry.text)
+        for communication in acsfiletransfer.findall('communication'):
+            communication_id = insert_communication(cursor, basicConfig_id, communication).lastrowid
+            rows_created += cursor.rowcount
+
+            for communicationElement in communication.findall('./*'):
+                match communicationElement.tag:
+                    case 'sourceLocation' | 'targetLocation':
+                        insert_location(cursor, communication_id, communicationElement, communicationElement.tag)
+                        rows_created += cursor.rowcount
+
+                    case 'preCommand' | 'postCommand':
+                        command_id = insert_command(cursor, communication_id, communicationElement,
+                                                    communicationElement.tag).lastrowid
+                        rows_created += cursor.rowcount
+
+                        for commandparam in communicationElement.findall('param'):
+                            param = commandparam.text if commandparam.text is not None else ''
+                            if param != '':
+                                insert_command_param(cursor, command_id, param)
                                 rows_created += cursor.rowcount
 
-    # Save the changes to the database
-    conn.commit()
-    conn.close()
+                            rows_created += cursor.rowcount
+
+                    case 'alternateNameList' if communicationElement.tag is not None:
+                        namelist = acsfiletransfer.find(f".//nameList[@name='{communicationElement.text}']")
+                        if namelist is not None:
+                            nameList_id = insert_name_list(cursor, basicConfig_id, communication_id, namelist.get('name', '')).lastrowid
+                            rows_created += cursor.rowcount
+                            for entry in namelist.findall('entry'):
+                                if entry.text is not None:
+                                    insert_alternate_name(cursor, nameList_id, entry.text)
+                                    rows_created += cursor.rowcount
+
+        # Save the changes to the database
+        conn.commit()
+        return basicConfig_id
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        conn.close()

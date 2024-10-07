@@ -5,7 +5,10 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidg
 
 from gui.dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
+from gui.basic_configuration_ui import BasicConfigurationWidget
+from gui.lzb_configuration_ui import LZBConfigurationWidget
 from database.xml_data_to_db import get_db_connection
+from gui.mq_configuration_ui import MQConfigurationWidget
 
 
 
@@ -14,6 +17,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.input_field = None
         self.recent_files = []
+        self.basic_config_item = None  # Initialize as an instance variable
 
         self.resize(1800, 900)
         self.setWindowTitle("XML Editor")
@@ -68,6 +72,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.splitter)
 
         setup_right_interface(self.right_widget)  
+        
 
     def open_xml(self):
         dialog = FileDialog(self)
@@ -86,8 +91,9 @@ class MainWindow(QMainWindow):
 
         for table in tables:
             table_name = table[0]
-            table_item = QTreeWidgetItem([table_name])
-            tree_widget.addTopLevelItem(table_item)
+            if table_name in ('BasicConfig', 'LzbConfig', 'MqConfig', 'Communication', 'NameList'):
+                table_item = QTreeWidgetItem([table_name])
+                tree_widget.addTopLevelItem(table_item)
 
             if table_name == "Communication":
                 cursor.execute(f"SELECT name FROM {table_name};")
@@ -97,21 +103,50 @@ class MainWindow(QMainWindow):
                     column_item = QTreeWidgetItem([name[0]])
                     table_item.addChild(column_item)
 
-            else:
-                cursor.execute(f"PRAGMA table_info({table_name});")
-                columns = cursor.fetchall()
+            if table_name == "BasicConfig":
+                table_item.setExpanded(False)
+                self.basic_config_item = table_item  # Store the BasicConfig item as an instance variable
 
-                for column in columns:
-                    column_name = column[1]
-                    column_item = QTreeWidgetItem([column_name])
-                    table_item.addChild(column_item)
+            if table_name == "LzbConfig":
+                table_item.setExpanded(False)
+                self.lzb_config_item = table_item
 
-            table_item.setExpanded(False)
+            if table_name == "MqConfig":
+                table_item.setExpanded(False)
+                self.mq_config_item = table_item
+
+        tree_widget.itemClicked.connect(self.on_item_clicked)  # Connect the itemClicked signal
 
         layout = QVBoxLayout()
         layout.addWidget(tree_widget)
         self.left_widget.setLayout(layout)
 
+    def on_item_clicked(self, item, column):
+        if item == self.basic_config_item:
+            self.load_basic_config_view()
+        if item == self.lzb_config_item:
+            self.load_lzb_config_view()
+        if item == self.mq_config_item:
+            self.load_mq_config_view()
+
+    def load_basic_config_view(self):
+        # Clear right widget and add BasicConfigurationWidget
+        self.right_widget.setParent(None)
+        self.right_widget = BasicConfigurationWidget(self)
+        self.splitter.addWidget(self.right_widget)
+        self.splitter.setSizes([250, 1000])
+
+    def load_lzb_config_view(self):
+        self.right_widget.setParent(None)
+        self.right_widget = LZBConfigurationWidget(self)
+        self.splitter.addWidget(self.right_widget)
+        self.splitter.setSizes([250, 1000])
+
+    def load_mq_config_view(self):
+        self.right_widget.setParent(None)
+        self.right_widget = MQConfigurationWidget(self)
+        self.splitter.addWidget(self.right_widget)
+        self.splitter.setSizes([250, 1000])
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
