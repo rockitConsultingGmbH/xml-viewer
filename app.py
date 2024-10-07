@@ -5,9 +5,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidg
 
 from gui.dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
+
+from database.populating_data import data_populating
 from database.xml_data_to_db import get_db_connection
-
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -34,15 +34,11 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        save_action = QAction('Save changes', self)
-        save_action.setShortcut('Ctrl+S')
-        save_action.setStatusTip('Ctrl+S')
-        file_menu.addAction(save_action)  # TODO: add functionality
+        export_action = QAction('Export', self)
+        file_menu.addAction(export_action)  # TODO: add functionality
 
-        reset_action = QAction('Reset', self)
-        reset_action.setShortcut('Ctrl+R')
-        reset_action.setStatusTip('Ctrl+R')
-        file_menu.addAction(reset_action)  # TODO: add functionality
+        export_as_action = QAction('Export as ...', self)
+        file_menu.addAction(export_as_action)  # TODO: add functionality
 
         communication_menu = menubar.addMenu('Communication')
 
@@ -67,12 +63,13 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.splitter)
 
-        setup_right_interface(self.right_widget)  
+        setup_right_interface(self.right_widget)
 
     def open_xml(self):
         dialog = FileDialog(self)
         if dialog.exec_():
             self.display_db_tables()
+
 
     def display_db_tables(self):
         conn = get_db_connection()
@@ -108,10 +105,17 @@ class MainWindow(QMainWindow):
 
             table_item.setExpanded(False)
 
+        tree_widget.itemClicked.connect(self.on_item_clicked)
+
         layout = QVBoxLayout()
         layout.addWidget(tree_widget)
         self.left_widget.setLayout(layout)
 
+    def on_item_clicked(self, item, column):
+        parent = item.parent()
+        if parent and parent.text(0) == "Communication":
+            name = item.text(0)
+            data_populating(name)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
