@@ -7,10 +7,11 @@ from gui.dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
+from database.populating_data import data_populating
 from database.xml_data_to_db import get_db_connection
 from gui.mq_configuration_ui import MQConfigurationWidget
 
-from database.db_to_xml import export_to_xml as export_to_xml_function  # Import the function with an alias to avoid name conflict
+from database.db_to_xml import export_to_xml as export_to_xml_function
 from common import config_manager
 
 class MainWindow(QMainWindow):
@@ -18,7 +19,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.input_field = None
         self.recent_files = []
-        self.basic_config_item = None  # Initialize as an instance variable
+        self.basic_config_item = None
 
         self.resize(1800, 900)
         self.setWindowTitle("XML Editor")
@@ -78,8 +79,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.splitter)
 
-        setup_right_interface(self.right_widget)  
-        
+        #setup_right_interface(self.right_widget)
 
     def open_xml(self):
         dialog = FileDialog(self)
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
             if table_name == "Communication":
                 cursor.execute(f"SELECT name FROM {table_name};")
                 names = cursor.fetchall()
+                self.communication_config_item = table_item
 
                 for name in names:
                     column_item = QTreeWidgetItem([name[0]])
@@ -112,23 +113,43 @@ class MainWindow(QMainWindow):
 
             if table_name == "BasicConfig":
                 table_item.setExpanded(False)
-                self.basic_config_item = table_item  # Store the BasicConfig item as an instance variable
+                self.basic_config_item = table_item
 
             if table_name == "LzbConfig":
                 table_item.setExpanded(False)
                 self.lzb_config_item = table_item
 
+
             if table_name == "MqConfig":
                 table_item.setExpanded(False)
                 self.mq_config_item = table_item
 
-        tree_widget.itemClicked.connect(self.on_item_clicked)  # Connect the itemClicked signal
+        tree_widget.itemClicked.connect(self.on_item_clicked)
 
         layout = QVBoxLayout()
         layout.addWidget(tree_widget)
         self.left_widget.setLayout(layout)
 
     def on_item_clicked(self, item, column):
+        #parent = item.parent()
+        if item.parent() == self.communication_config_item:
+            self.right_widget.setParent(None)
+
+            #self.left_widget = QWidget()
+            self.right_widget = QWidget()
+
+            #self.left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+            self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+
+            #self.splitter.addWidget(self.left_widget)
+            self.splitter.addWidget(self.right_widget)
+
+            self.splitter.setSizes([250, 1000])
+
+            self.setCentralWidget(self.splitter)
+            setup_right_interface(self.right_widget)
+            name = item.text(0)
+            data_populating(name)
         if item == self.basic_config_item:
             self.load_basic_config_view()
         if item == self.lzb_config_item:
@@ -137,7 +158,6 @@ class MainWindow(QMainWindow):
             self.load_mq_config_view()
 
     def load_basic_config_view(self):
-        # Clear right widget and add BasicConfigurationWidget
         self.right_widget.setParent(None)
         self.right_widget = BasicConfigurationWidget(self)
         self.splitter.addWidget(self.right_widget)
@@ -162,7 +182,7 @@ class MainWindow(QMainWindow):
 
             options = QFileDialog.Options()
             file_path, _ = QFileDialog.getSaveFileName(self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options)
-            
+
             if file_path:
                 export_to_xml_function(file_path, config_manager.config_id)
                 QMessageBox.information(self, "Success", "Data exported to XML successfully.")
