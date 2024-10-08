@@ -93,7 +93,32 @@ class MainWindow(QMainWindow):
         tables = cursor.fetchall()
 
         tree_widget = QTreeWidget()
-        tree_widget.setStyleSheet("border: none; outline: 0;")
+        tree_widget.setStyleSheet("""
+                QTreeWidget {
+                    border: none;
+                    outline: 0;
+                    background-color: white;
+                }
+                QTreeWidget::item {
+                    font-size: 16px;  
+                    padding: 10px;    
+                }
+                QTreeWidget::item:has-children {
+                    border: 1px solid black; 
+                }
+                QTreeWidget::item:!has-children {
+                    border: none;  
+                    padding-left: 20px; 
+                }
+                QTreeWidget::item:hover {
+                    background-color: lightgray;
+                }
+                QTreeWidget::item:selected {
+                    background-color: #83acf7;  
+                }
+            """)
+
+        tree_widget.setIndentation(0)
         tree_widget.setHeaderHidden(True)
 
         for table in tables:

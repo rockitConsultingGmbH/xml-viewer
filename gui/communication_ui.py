@@ -761,4 +761,3 @@ def toggle_inputs(labels, inputs):
             input_field.show()
 
 
-
