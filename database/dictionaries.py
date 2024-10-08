@@ -7,7 +7,7 @@ def createBasicConfigDict(acsfiletransfer, cofigFileName):
         'tempDir2':                     acsfiletransfer.find('tempDir2').text,
         'historyFile':                  acsfiletransfer.find('historyFile').text,
         'historyFile1':                 acsfiletransfer.find('historyFile1').text,
-        'historyFile2':                 acsfiletransfer.find('historyFile1').text,
+        'historyFile2':                 acsfiletransfer.find('historyFile2').text,
         'alreadyTransferedFile':        acsfiletransfer.find('alreadyTransferedFile').text,
         'historyDays':                  acsfiletransfer.find('historyDays').text,
         'archiverTime':                 acsfiletransfer.find('archiverTime').text,
@@ -21,8 +21,8 @@ def createBasicConfigDict(acsfiletransfer, cofigFileName):
 def createLzbConfigDict(basicConfig_id, lzb):
     LzbConfigDict = {
         'basicConfig_id':               basicConfig_id,
-        'encrypt_key':                  lzb.find('encrypt').find('enabled').text,
-        'encrypt_enabled':              lzb.find('encrypt').find('key').text,
+        'encrypt_key':                  lzb.find('encrypt').find('key').text,
+        'encrypt_enabled':              lzb.find('encrypt').find('enabled').text,
         'keystore_path':                lzb.find('ssl').find('keystore').find('path').text,
         'keystore_password':            lzb.find('ssl').find('keystore').find('password').text,
         'truststore_path':              lzb.find('ssl').find('truststore').find('path').text,
@@ -51,7 +51,7 @@ def createMqConfigDict(basicConfig_id, mq):
         'commandQueue':                 mq.find('commandQueue').text,
         'commandReplyQueue':            mq.find('commandReplyQueue').text,
         'waitinterval':                 mq.find('waitinterval').text,
-        'description':                  mq.find('description').text
+        'description':                  '' #mq.find('description').text
     }
     return MqConfigDict
 
@@ -83,8 +83,8 @@ def createCommunicationDict(basicConfig_id, communication):
     CommunicationDict = {
         'basicConfig_id':               basicConfig_id,
         'name':                         communication.get('name', ''),
-        'watcherEscalationTimeout':     communication.find('watcherEscalationTimeout').text if communication.find('watcherEscalationTimeout')   is not None else '',
         'alternateNameList':            communication.find('alternateNameList').text        if communication.find('alternateNameList')          is not None else '',
+        'watcherEscalationTimeout':     communication.find('watcherEscalationTimeout').text if communication.find('watcherEscalationTimeout')   is not None else '',
         'isToPoll':                     communication.find('isToPoll').text                 if communication.find('isToPoll')                   is not None else '',
         'pollUntilFound':               communication.find('pollUntilFound').text           if communication.find('pollUntilFound')             is not None else '',
         'noTransfer':                   communication.find('noTransfer').text               if communication.find('noTransfer')                 is not None else '',
@@ -122,6 +122,7 @@ def createLocationDict(communication_id, location, locationType):
     LocationDict = {
         'communication_id':             communication_id,
         'location':                     location.find('location').text,
+        'location_id':                  location.get('id', ''),
         'useLocalFilename':             location.find('useLocalFilename').text              if location.find('useLocalFilename')                is not None else '',
         'usePathFromConfig':            location.find('usePathFromConfig').text             if location.find('usePathFromConfig')               is not None else '',
         'targetMustBeArchived':         location.find('targetMustBeArchived').text          if location.find('targetMustBeArchived')            is not None else '',
@@ -152,10 +153,17 @@ def createCommandParamDict(command_id, param):
     }
     return CommandParamDict
 
-def createAlternateNameListDict(communication_id, listName, alternateName):
-    AlternateNameListDict = {
+def createNameListDict(basicConfig_id, communication_id, listName):
+    NameListDict = {
+        'basicConfig_id':               basicConfig_id,
         'communication_id':             communication_id,
-        'listName':                     listName,
+        'listName':                     listName
+    }
+    return NameListDict
+    
+def createAlternateNameDict(nameList_id, alternateName):
+    AlternateNameDict = {
+        'nameList_id':                  nameList_id,
         'alternateName':                alternateName
     }
-    return AlternateNameListDict
+    return AlternateNameDict
