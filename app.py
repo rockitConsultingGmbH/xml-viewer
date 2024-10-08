@@ -134,18 +134,13 @@ class MainWindow(QMainWindow):
         #parent = item.parent()
         if item.parent() == self.communication_config_item:
             self.right_widget.setParent(None)
-
             #self.left_widget = QWidget()
             self.right_widget = QWidget()
-
             #self.left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
             self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
-
             #self.splitter.addWidget(self.left_widget)
             self.splitter.addWidget(self.right_widget)
-
             self.splitter.setSizes([250, 1000])
-
             self.setCentralWidget(self.splitter)
             setup_right_interface(self.right_widget)
             name = item.text(0)
@@ -160,20 +155,27 @@ class MainWindow(QMainWindow):
     def load_basic_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = BasicConfigurationWidget(self)
+        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
+        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
     def load_lzb_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = LZBConfigurationWidget(self)
+        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
+        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
     def load_mq_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = MQConfigurationWidget(self)
+        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
+        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
+
     def export_config(self):
         try:
             if config_manager is None or config_manager.config_id is None:

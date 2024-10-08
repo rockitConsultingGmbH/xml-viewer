@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
-    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox
+    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox, QMessageBox
 from PyQt5.QtCore import Qt
 
 from common import config_manager
@@ -23,12 +23,12 @@ class MQConfigurationWidget(QWidget):
         reset_button = QPushButton("Reset")
         reset_button.setFixedSize(100, 30)
         reset_button.setStyleSheet("background-color: #960e0e; color: white;")
-        #reset_button.clicked.connect(self.reset_fields)  # Connect to reset function
+        reset_button.clicked.connect(self.populate_fields_from_db)
 
         save_button = QPushButton("Save")
         save_button.setFixedSize(100, 30)
         save_button.setStyleSheet("background-color: #41414a; color: white;")
-        #save_button.clicked.connect(self.save_fields_to_db)  # Connect to save function
+        save_button.clicked.connect(self.save_fields_to_db)
 
         button_layout.addWidget(reset_button)
         button_layout.addWidget(save_button)
@@ -37,7 +37,7 @@ class MQConfigurationWidget(QWidget):
         form_layout.addRow(button_layout)
 
         # Define the input fields
-        self.is_remote_input = QLineEdit()
+        self.is_remote_input = QCheckBox()
         self.qmgr_input = QLineEdit()
         self.hostname_input = QLineEdit()
         self.port_input = QLineEdit()
@@ -53,6 +53,22 @@ class MQConfigurationWidget(QWidget):
         self.command_queue_input = QLineEdit()
         self.command_reply_queue_input = QLineEdit()
         self.wait_interval_input = QLineEdit()
+
+        self.qmgr_input.setFixedSize(500, 35)
+        self.hostname_input.setFixedSize(500, 35)
+        self.port_input.setFixedSize(100, 35)
+        self.channel_input.setFixedSize(500, 35)
+        self.userid_input.setFixedSize(500, 35)
+        self.password_input.setFixedSize(500, 35)
+        self.cipher_input.setFixedSize(500, 35)
+        self.sslPeer_input.setFixedSize(500, 35)
+        self.ccsid_input.setFixedSize(100, 35)
+        self.queue_input.setFixedSize(500, 35)
+        self.number_of_threads_input.setFixedSize(100, 35)
+        self.error_queue_input.setFixedSize(500, 35)
+        self.command_queue_input.setFixedSize(500, 35)
+        self.command_reply_queue_input.setFixedSize(500, 35)
+        self.wait_interval_input.setFixedSize(100, 35)
 
         self.populate_fields_from_db()
 
@@ -84,7 +100,8 @@ class MQConfigurationWidget(QWidget):
         # Ensure data is available
         if data:
             # Populate the fields
-            self.is_remote_input.setText(data[0])
+            #self.is_remote_input.setText(data[0])
+            self.is_remote_input.setChecked(True) if data[0] == 1 else self.is_remote_input.setChecked(False)
             self.qmgr_input.setText(data[1])
             self.hostname_input.setText(data[2])
             self.port_input.setText(data[3])
@@ -118,3 +135,52 @@ class MQConfigurationWidget(QWidget):
             return row
         else:
             return None
+
+    def save_fields_to_db(self):
+        # Get the values from the input fields
+        is_remote = 1 if self.is_remote_input.isChecked() else 0
+        qmgr = self.qmgr_input.text()
+        hostname = self.hostname_input.text()
+        port = self.port_input.text()
+        channel = self.channel_input.text()
+        userid = self.userid_input.text()
+        password = self.password_input.text()
+        cipher = self.cipher_input.text()
+        sslPeer = self.sslPeer_input.text()
+        ccsid = self.ccsid_input.text()
+        queue = self.queue_input.text()
+        number_of_threads = self.number_of_threads_input.text()
+        error_queue = self.error_queue_input.text()
+        command_queue = self.command_queue_input.text()
+        command_reply_queue = self.command_reply_queue_input.text()
+        wait_interval = self.wait_interval_input.text()
+
+        # Connect to the database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Execute the update query
+        cursor.execute("""
+            UPDATE MqConfig 
+            SET isRemote = ?, qmgr = ?, hostname = ?, port = ?, channel = ?, userid = ?, 
+                password = ?, cipher = ?, sslPeer = ?, ccsid = ?, queue = ?, numberOfThreads = ?, 
+                errorQueue = ?, commandQueue = ?, commandReplyQueue = ?, waitinterval = ?
+            WHERE basicConfig_id = ?
+        """, (is_remote, qmgr, hostname, port, channel, userid, password, cipher, sslPeer,
+            ccsid, queue, number_of_threads, error_queue, command_queue, command_reply_queue, 
+            wait_interval, config_manager.config_id))
+
+        # Commit the changes and close the connection
+        conn.commit()
+        conn.close()
+
+        # Optionally, show a message box or print a message to confirm saving
+        print("Configuration updated successfully.")
+
+        # Show success message
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Changes in MQ Configuration have been successfully saved.")
+        msg.setWindowTitle("Save Successful")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
