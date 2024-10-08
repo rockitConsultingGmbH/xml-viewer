@@ -77,7 +77,7 @@ class LZBConfigurationWidget(QWidget):
             # Populate the fields
             self.encrypt_key_input.setText(data[0])
             #self.encrypt_enabled_input.setText(str(data[1]))
-            self.encrypt_enabled_input.setChecked(True) if data[1] == 1 else self.encrypt_enabled_input.setChecked(False)
+            self.encrypt_enabled_input.setChecked(True) if data[1] == "true" else self.encrypt_enabled_input.setChecked(False)
             self.keystore_path_input.setText(data[2])
             self.keystore_password_input.setText(data[3])
             self.truststore_path_input.setText(data[4])
@@ -106,7 +106,7 @@ class LZBConfigurationWidget(QWidget):
     def save_fields_to_db(self):
         # Get the values from the input fields
         encrypt_key = self.encrypt_key_input.text()
-        encrypt_enabled = 1 if self.encrypt_enabled_input.isChecked() else 0
+        encrypt_enabled = "true" if self.encrypt_enabled_input.isChecked() else "false"
         keystore_path = self.keystore_path_input.text()
         keystore_password = self.keystore_password_input.text()
         truststore_path = self.truststore_path_input.text()

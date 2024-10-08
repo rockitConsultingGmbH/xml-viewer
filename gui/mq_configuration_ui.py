@@ -101,7 +101,7 @@ class MQConfigurationWidget(QWidget):
         if data:
             # Populate the fields
             #self.is_remote_input.setText(data[0])
-            self.is_remote_input.setChecked(True) if data[0] == 1 else self.is_remote_input.setChecked(False)
+            self.is_remote_input.setChecked(True) if data[0] == "true" else self.is_remote_input.setChecked(False)
             self.qmgr_input.setText(data[1])
             self.hostname_input.setText(data[2])
             self.port_input.setText(data[3])
@@ -138,7 +138,7 @@ class MQConfigurationWidget(QWidget):
 
     def save_fields_to_db(self):
         # Get the values from the input fields
-        is_remote = 1 if self.is_remote_input.isChecked() else 0
+        is_remote = "true" if self.is_remote_input.isChecked() else "false"
         qmgr = self.qmgr_input.text()
         hostname = self.hostname_input.text()
         port = self.port_input.text()

@@ -97,7 +97,7 @@ class BasicConfigurationWidget(QWidget):
             self.history_file1_input.setText(data[5])
             self.history_file2_input.setText(data[6])
             #self.already_transferred_file_input.setText(data[7])
-            self.already_transferred_file_input.setChecked(True) if data[7] == "1" else self.already_transferred_file_input.setChecked(False) #TODO: Type in DB should be changed to int
+            self.already_transferred_file_input.setChecked(True) if data[7] == "true" else self.already_transferred_file_input.setChecked(False) #TODO: Type in DB should be changed to int
             self.history_days_input.setText(data[8])
             self.archiver_time_input.setText(data[9])
             self.watcher_escalation_timeout_input.setText(data[10])
@@ -130,7 +130,7 @@ class BasicConfigurationWidget(QWidget):
         history_file = self.history_file_input.text()
         history_file1 = self.history_file1_input.text()
         history_file2 = self.history_file2_input.text()
-        already_transferred_file = 1 if self.already_transferred_file_input.isChecked() else 0
+        already_transferred_file = "true" if self.already_transferred_file_input.isChecked() else "false"
         history_days = self.history_days_input.text() #int(self.history_days_input.text()) if self.history_days_input.text().isdigit() else 0
         archiver_time = self.archiver_time_input.text()
         watcher_escalation_timeout = self.watcher_escalation_timeout_input.text() #int(self.watcher_escalation_timeout_input.text()) if self.watcher_escalation_timeout_input.text().isdigit() else 0
