@@ -29,7 +29,7 @@ CREATE TABLE BasicConfig (
     watcherEscalationTimeout VARCHAR(255) NOT NULL,
     watcherSleepTime VARCHAR(255) NOT NULL,
     description VARCHAR(255),
-    configFileName VARCHAR(255)
+    configFilePath VARCHAR(255)
 );
 
 -- Create LzbConfig table with reference to BasicConfig

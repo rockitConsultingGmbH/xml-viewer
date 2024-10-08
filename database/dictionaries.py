@@ -1,5 +1,5 @@
 # Dictionaries
-def createBasicConfigDict(acsfiletransfer, cofigFileName):
+def createBasicConfigDict(acsfiletransfer, configFilePath):
     BasicConfigDict = {
         'stage':                        acsfiletransfer.find('stage').text,
         'tempDir':                      acsfiletransfer.find('tempDir').text,
@@ -14,7 +14,7 @@ def createBasicConfigDict(acsfiletransfer, cofigFileName):
         'watcherEscalationTimeout':     acsfiletransfer.find('watcherEscalationTimeout').text,
         'watcherSleepTime':             acsfiletransfer.find('watcherSleepTime').text,
         'description':                  acsfiletransfer.find('description').text            if acsfiletransfer.find('description')              is not None else '',
-        'configFileName':               cofigFileName
+        'configFilePath':               configFilePath
     }
     return BasicConfigDict
 

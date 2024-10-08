@@ -17,7 +17,7 @@ def InsertIntoBasicConfig(cursor, row):
         watcherEscalationTimeout,
         watcherSleepTime,
         description,
-        configFileName
+        configFilePath
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
@@ -34,7 +34,7 @@ def InsertIntoBasicConfig(cursor, row):
         row['watcherEscalationTimeout'],
         row['watcherSleepTime'],
         row['description'],
-        row['configFileName']
+        row['configFilePath']
     ))
     return cursor
 
@@ -54,7 +54,7 @@ def UpdateBasicConfig(cursor, row):
         watcherEscalationTimeout = ?,
         watcherSleepTime = ?,
         description = ?,
-        configFileName = ?
+        configFilePath = ?
     WHERE id = ?
     """, (
         row['stage'],
@@ -70,7 +70,7 @@ def UpdateBasicConfig(cursor, row):
         row['watcherEscalationTimeout'],
         row['watcherSleepTime'],
         row['description'],
-        row['configFileName'],
+        row['configFilePath'],
         row['id']
     ))
     return cursor
