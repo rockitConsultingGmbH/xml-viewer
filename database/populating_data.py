@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
-from database.xml_data_to_db import get_db_connection
+from database.xml_to_db import get_db_connection
 
 def data_populating(name):
     conn = get_db_connection()

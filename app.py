@@ -8,7 +8,7 @@ from gui.communication_ui import setup_right_interface
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
 from database.populating_data import data_populating
-from database.xml_data_to_db import get_db_connection
+from database.xml_to_db import get_db_connection
 from gui.mq_configuration_ui import MQConfigurationWidget
 
 from database.db_to_xml import export_to_xml as export_to_xml_function
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
 
     def export_config(self):
         try:
-            if config_manager is None or config_manager.config_id is None:
+            if config_manager is None or not config_manager.config_id:
                 QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
                 return
 
@@ -216,7 +216,8 @@ class MainWindow(QMainWindow):
             else:
                 QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to export data: {e}")
+            #QMessageBox.critical(self, "Error", f"Failed to export data: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to export data")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
