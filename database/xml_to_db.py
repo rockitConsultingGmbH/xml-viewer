@@ -50,9 +50,9 @@ def validate_xml(xml_path, xsd_path):
     return xml_tree
 
 # BasicConfiguration
-def insert_basic_config(cursor, acsfiletransfer, config_file_name):
+def insert_basic_config(cursor, acsfiletransfer, config_file_path):
     return sql_statements.InsertIntoBasicConfig(cursor,
-                                                dictionaries.createBasicConfigDict(acsfiletransfer, config_file_name))
+                                                dictionaries.createBasicConfigDict(acsfiletransfer, config_file_path))
 
 # Lzb
 def insert_lzb_config(cursor, basicConfig_id, lzb):
@@ -99,12 +99,12 @@ def insert_description(cursor, communication_id, description, descriptionType):
     return sql_statements.InsertIntoDescription(cursor, dictionaries.createDescriptionDict(communication_id, description, descriptionType))
 
 # Insert data into the database
-def insert_data_into_db(xml_tree, config_file_name):
+def insert_data_into_db(xml_tree, config_file_path):
     """
     Insert data from the parsed XML tree into the SQLite database.
 
     :param xml_tree: Parsed XML tree
-    :param config_file_name: Name of the configuration file
+    :param config_file_path: Path of the configuration file
     """
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -114,7 +114,7 @@ def insert_data_into_db(xml_tree, config_file_name):
         root = xml_tree.getroot()
         acsfiletransfer = root.find('.//acsfiletransfer')
 
-        basicConfig_id = insert_basic_config(cursor, acsfiletransfer, config_file_name).lastrowid
+        basicConfig_id = insert_basic_config(cursor, acsfiletransfer, config_file_path).lastrowid
         rows_created += cursor.rowcount
 
         lzb = acsfiletransfer.find('lzb')
