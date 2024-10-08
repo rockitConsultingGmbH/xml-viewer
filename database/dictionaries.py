@@ -109,12 +109,7 @@ def createCommunicationDict(basicConfig_id, communication):
         'befoerderungCron':             communication.find('befoerderungCron').text         if communication.find('befoerderungCron')           is not None else '',
         'preunzip':                     communication.find('preunzip').text                 if communication.find('preunzip')                   is not None else '',
         'postzip':                      communication.find('postzip').text,     
-        'renameWithTimestamp':          communication.find('renameWithTimestamp').text,     
-        'description':                  communication.find('description').text              if communication.find('description')                is not None else '',
-        'description1':                 communication.find('description1').text             if communication.find('description1')               is not None else '',
-        'description2':                 communication.find('description2').text             if communication.find('description2')               is not None else '',
-        'description3':                 communication.find('description3').text             if communication.find('description3')               is not None else '',
-        'description4':                 communication.find('description4').text             if communication.find('description4')               is not None else ''
+        'renameWithTimestamp':          communication.find('renameWithTimestamp').text
     }
     return CommunicationDict
 
@@ -167,3 +162,11 @@ def createAlternateNameDict(nameList_id, alternateName):
         'alternateName':                alternateName
     }
     return AlternateNameDict
+
+def createDescriptionDict(communication_id, description, descriptionType):
+    DescriptionDict = {
+        'communication_id':             communication_id,
+        'description':                  description.text,
+        'descriptionType':              descriptionType
+    }
+    return DescriptionDict

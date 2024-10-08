@@ -110,14 +110,10 @@ def create_xml_from_ipqueue(root, row):
 
 # Communication
 def create_xml_from_communication(root, row):
-    xml_element = etree.SubElement(root, 'communication')
+    #xml_element = etree.SubElement(root, 'communication')
+    xml_element = root
     xml_element.set('name', row['name'])
 
-    add_xml_element_if_not_empty(xml_element, 'description',                row['description'])
-    add_xml_element_if_not_empty(xml_element, 'description1',               row['description1'])
-    add_xml_element_if_not_empty(xml_element, 'description2',               row['description2'])
-    add_xml_element_if_not_empty(xml_element, 'description3',               row['description3'])
-    add_xml_element_if_not_empty(xml_element, 'description4',               row['description4'])
     add_xml_element_if_not_empty(xml_element, 'alternateNameList',          row['alternateNameList'])
     add_xml_element_if_not_empty(xml_element, 'watcherEscalationTimeout',   row['watcherEscalationTimeout'])
     add_xml_element_if_not_empty(xml_element, 'isToPoll',                   row['isToPoll'])
@@ -145,7 +141,7 @@ def create_xml_from_communication(root, row):
     add_xml_element(xml_element, 'preunzip',                                row['preunzip'])
     add_xml_element(xml_element, 'postzip',                                 row['postzip'])
     add_xml_element_if_not_empty(xml_element, 'renameWithTimestamp',        row['renameWithTimestamp'])
-    return etree, xml_element
+    return etree
 
 # Location
 def create_xml_from_location(root, row, columns):
@@ -190,16 +186,9 @@ def create_xml_from_alternatename(root, row):
     xml_element = add_xml_element_if_not_empty(root, 'entry',                row['alternateName'])
     return etree, xml_element
 
-# Comment
-def insert_comment_at_index(root, row):
-    comment_text = row['comment']
-    index = row['xmlIndex']
+# Description
+def create_xml_from_description(root, row):
+    #xml_element = add_xml_element_if_not_empty(root, 'description',          row['description'])
+    xml_element = add_xml_element_if_not_empty(root, row['descriptionType'],          row['description'])
+    return etree, xml_element
 
-    if comment_text and isinstance(index, int):
-        comment = etree.Comment(comment_text)
-        if index <= len(root):
-            root.insert(index, comment)
-        else:
-            print(f"Index {index} is out of bounds, appending comment at the end.")
-            root.append(comment)
-    return etree
