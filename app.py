@@ -40,21 +40,23 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        save_action = QAction('Save changes', self)
+        save_action = QAction('Save', self)
         save_action.setShortcut('Ctrl+S')
         save_action.setStatusTip('Ctrl+S')
-        file_menu.addAction(save_action)  # TODO: add functionality
+        save_action.triggered.connect(self.save_config)
 
-        reset_action = QAction('Reset', self)
-        reset_action.setShortcut('Ctrl+R')
-        reset_action.setStatusTip('Ctrl+R')
-        file_menu.addAction(reset_action)  # TODO: add functionality
-
-        export_action = QAction('Export', self)
+        export_action = QAction('Saves As..', self)
         export_action.setShortcut('Ctrl+E')
         export_action.setStatusTip('Ctrl+E')
         file_menu.addAction(export_action)
         export_action.triggered.connect(self.export_config)
+
+        file_menu.addSeparator()
+        exit_action = QAction('Exit', self)
+        exit_action.setShortcut('Ctrl+X')
+        exit_action.setStatusTip('Ctrl+X')
+        file_menu.addAction(exit_action)
+        exit_action.triggered.connect(self.exit_application)
 
         communication_menu = menubar.addMenu('Communication')
 
@@ -201,6 +203,24 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
+    def save_config(self):
+        try:
+            if config_manager is None or not config_manager.config_id:
+                QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
+                return
+
+            options = QFileDialog.Options()
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options)
+
+            if file_path:
+                export_to_xml_function(file_path, config_manager.config_id)
+                QMessageBox.information(self, "Success", "Data exported to XML successfully.")
+            else:
+                QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
+        except Exception as e:
+            #QMessageBox.critical(self, "Error", f"Failed to export data: {e}")
+            QMessageBox.critical(self, "Error", f"Failed to export data")
+
     def export_config(self):
         try:
             if config_manager is None or not config_manager.config_id:
@@ -218,6 +238,10 @@ class MainWindow(QMainWindow):
         except Exception as e:
             #QMessageBox.critical(self, "Error", f"Failed to export data: {e}")
             QMessageBox.critical(self, "Error", f"Failed to export data")
+
+    def exit_application(self):
+        # Perform any cleanup or show a confirmation dialog here if needed
+        QApplication.quit()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
