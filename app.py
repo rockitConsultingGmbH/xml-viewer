@@ -43,9 +43,10 @@ class MainWindow(QMainWindow):
         save_action = QAction('Save', self)
         save_action.setShortcut('Ctrl+S')
         save_action.setStatusTip('Ctrl+S')
+        file_menu.addAction(save_action)
         save_action.triggered.connect(self.save_config)
 
-        export_action = QAction('Saves As..', self)
+        export_action = QAction('Saves As...', self)
         export_action.setShortcut('Ctrl+E')
         export_action.setStatusTip('Ctrl+E')
         file_menu.addAction(export_action)
@@ -209,12 +210,12 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
                 return
 
-            options = QFileDialog.Options()
-            file_path, _ = QFileDialog.getSaveFileName(self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options)
-
+            #options = QFileDialog.Options()
+            #file_path, _ = QFileDialog.getSaveFileName(self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options)
+            file_path = config_manager.config_filepath
             if file_path:
                 export_to_xml_function(file_path, config_manager.config_id)
-                QMessageBox.information(self, "Success", "Data exported to XML successfully.")
+                QMessageBox.information(self, "Success", f"Data saved successfully to:\n{file_path}")
             else:
                 QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
         except Exception as e:
@@ -232,7 +233,7 @@ class MainWindow(QMainWindow):
 
             if file_path:
                 export_to_xml_function(file_path, config_manager.config_id)
-                QMessageBox.information(self, "Success", "Data exported to XML successfully.")
+                QMessageBox.information(self, "Success", f"Data saved successfully to:\n{file_path}")
             else:
                 QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
         except Exception as e:

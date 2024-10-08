@@ -92,12 +92,12 @@ def createCommunicationDict(basicConfig_id, communication):
         'mustBeArchived':               communication.find('mustBeArchived').text           if communication.find('mustBeArchived')             is not None else '',
         'historyDays':                  communication.find('historyDays').text              if communication.find('historyDays')                is not None else '',
         'targetHistoryDays':            communication.find('targetHistoryDays').text        if communication.find('targetHistoryDays')          is not None else '',
-        'findPattern':                  communication.find('findPattern').text,     
-        'movPattern':                   communication.find('movPattern').text,      
+        'findPattern':                  communication.find('findPattern').text              if communication.find('findPattern')                is not None else '',
+        'movPattern':                   communication.find('movPattern').text               if communication.find('movPattern')                 is not None else '',
         'tmpPattern':                   communication.find('tmpPattern').text               if communication.find('tmpPattern')                 is not None else '',
         'quitPattern':                  communication.find('quitPattern').text              if communication.find('quitPattern')                is not None else '',
-        'putPattern':                   communication.find('putPattern').text,      
-        'ackPattern':                   communication.find('ackPattern').text,      
+        'putPattern':                   communication.find('putPattern').text               if communication.find('putPattern')                 is not None else '',
+        'ackPattern':                   communication.find('ackPattern').text               if communication.find('ackPattern')                 is not None else '',
         'rcvPattern':                   communication.find('rcvPattern').text               if communication.find('rcvPattern')                 is not None else '',
         'zipPattern':                   communication.find('zipPattern').text               if communication.find('zipPattern')                 is not None else '',
         'befoerderung':                 communication.find('befoerderung').text             if communication.find('befoerderung')               is not None else '',
@@ -108,8 +108,8 @@ def createCommunicationDict(basicConfig_id, communication):
         'befoerderungBis':              communication.find('befoerderungBis').text          if communication.find('befoerderungBis')            is not None else '',
         'befoerderungCron':             communication.find('befoerderungCron').text         if communication.find('befoerderungCron')           is not None else '',
         'preunzip':                     communication.find('preunzip').text                 if communication.find('preunzip')                   is not None else '',
-        'postzip':                      communication.find('postzip').text,     
-        'renameWithTimestamp':          communication.find('renameWithTimestamp').text
+        'postzip':                      communication.find('postzip').text                  if communication.find('postzip')                    is not None else '',
+        'renameWithTimestamp':          communication.find('renameWithTimestamp').text      if communication.find('renameWithTimestamp')        is not None else '',
     }
     return CommunicationDict
 
