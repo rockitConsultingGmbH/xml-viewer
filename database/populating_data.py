@@ -1,11 +1,8 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
 from database.xml_data_to_db import get_db_connection
 
-def data_populating(name):
-    conn = get_db_connection()
-    cursor = conn.cursor()
 
-    # Communication table
+def fetch_communication_data(cursor, name):
     cursor.execute(
         """SELECT isToPoll, description, description1, description2, description3,
                   pollUntilFound, noTransfer, befoerderungAb, befoerderungBis,
@@ -13,9 +10,58 @@ def data_populating(name):
                   renameWithTimestamp, gueltigAb, gueltigBis, findPattern, quitPattern,
                   ackPattern, zipPattern, movPattern, putPattern, rcvPattern
            FROM Communication WHERE name = ?""",
-        (name,))
-    result = cursor.fetchone()  # Getting data from the Communication table
+        (name,)
+    )
+    return cursor.fetchone()
 
+
+def fetch_source_locations(cursor, name):
+    cursor.execute(
+        "SELECT location, userid, password FROM Location WHERE communication_id = (SELECT id FROM Communication WHERE name = ?) AND locationType = 'sourceLocation'",
+        (name,)
+    )
+    return cursor.fetchall()
+
+
+def fetch_target_locations(cursor, name):
+    cursor.execute(
+        "SELECT location, userid, password FROM Location WHERE communication_id = (SELECT id FROM Communication WHERE name = ?) AND locationType = 'targetLocation'",
+        (name,)
+    )
+    return cursor.fetchall()
+
+
+def fetch_alternate_name_list(cursor, name):
+    cursor.execute(
+        "SELECT alternateName FROM AlternateNameList WHERE communication_id = (SELECT id FROM Communication WHERE name = ?)",
+        (name,)
+    )
+    alternate_name_list_result = cursor.fetchall()
+
+    alternate_name_list_input = next((widget for widget in QApplication.allWidgets() if
+                                      isinstance(widget, QLineEdit) and widget.objectName() == "alternate_name_list_input"),
+                                     None)
+    if alternate_name_list_input:
+        alternate_name_list_input.blockSignals(True)
+        alternate_name_list_input.setText(", ".join(item[0] for item in alternate_name_list_result))
+        alternate_name_list_input.blockSignals(False)
+
+
+def update_widget_text(widget, text):
+    if widget:
+        widget.blockSignals(True)
+        widget.setText(text)
+        widget.blockSignals(False)
+
+
+def update_checkbox_state(widget, state):
+    if widget:
+        widget.blockSignals(True)
+        widget.setChecked(state in [1, '1', True, 'true'])
+        widget.blockSignals(False)
+
+
+def update_interface_with_communication_data(result, name):
     if result:
         (is_to_poll, description, description1, description2, description3,
          poll_until_found, no_transfer, befoerderung_ab, befoerderung_bis,
@@ -23,130 +69,65 @@ def data_populating(name):
          gueltig_ab, gueltig_bis, find_pattern, quit_pattern, ack_pattern, zip_pattern,
          mov_pattern, put_pattern, rcv_pattern) = result
 
-        # Updating the name field in the interface
         name_input = next((widget for widget in QApplication.allWidgets() if
                            isinstance(widget, QLineEdit) and widget.objectName() == "name_input"), None)
-        if name_input:
-            name_input.blockSignals(True)
-            name_input.setText(name)
-            name_input.blockSignals(False)
+        update_widget_text(name_input, name)
 
-        # Updating the Polling enabled checkbox in the interface
-        checkbox = next((widget for widget in QApplication.allWidgets() if
-                         isinstance(widget, QCheckBox) and widget.objectName() == "polling_activate_checkbox"), None)
-        if checkbox:
-            checkbox.blockSignals(True)
-            checkbox.setChecked(is_to_poll in [1, '1', True, 'true'])
-            checkbox.blockSignals(False)
+        polling_checkbox = next((widget for widget in QApplication.allWidgets() if
+                                 isinstance(widget, QCheckBox) and widget.objectName() == "polling_activate_checkbox"), None)
+        update_checkbox_state(polling_checkbox, is_to_poll)
 
-        # Updating the description inputs in the interface
-        description_input = next((widget for widget in QApplication.allWidgets() if
-                                  isinstance(widget, QLineEdit) and widget.objectName() == "description_input"), None)
-        if description_input:
-            description_input.blockSignals(True)
-            description_input.setText(description)
-            description_input.blockSignals(False)
-
-        for i, desc in enumerate([description1, description2, description3], start=1):
+        description_inputs = [description, description1, description2]
+        for i, desc in enumerate(description_inputs, start=1):
             desc_input = next((widget for widget in QApplication.allWidgets() if
                                isinstance(widget, QLineEdit) and widget.objectName() == f"description_{i}_input"), None)
-            if desc_input:
-                desc_input.blockSignals(True)
-                desc_input.setText(desc)
-                desc_input.blockSignals(False)
+            update_widget_text(desc_input, desc)
 
-        # Updating checkboxes for "Poll until found" and "No transfer"
+        static_description_input = next((widget for widget in QApplication.allWidgets() if
+                                          isinstance(widget, QLineEdit) and widget.objectName() == "description_input"), None)
+        update_widget_text(static_description_input, description)
+
         poll_until_found_checkbox = next((widget for widget in QApplication.allWidgets() if
-                                          isinstance(widget,
-                                                     QCheckBox) and widget.objectName() == "poll_until_found_checkbox"),
-                                         None)
-        if poll_until_found_checkbox:
-            poll_until_found_checkbox.blockSignals(True)
-            poll_until_found_checkbox.setChecked(poll_until_found in [1, '1', True, 'true'])
-            poll_until_found_checkbox.blockSignals(False)
+                                          isinstance(widget, QCheckBox) and widget.objectName() == "poll_until_found_checkbox"), None)
+        update_checkbox_state(poll_until_found_checkbox, poll_until_found)
 
         no_transfer_checkbox = next((widget for widget in QApplication.allWidgets() if
-                                     isinstance(widget, QCheckBox) and widget.objectName() == "no_transfer_checkbox"),
-                                    None)
-        if no_transfer_checkbox:
-            no_transfer_checkbox.blockSignals(True)
-            no_transfer_checkbox.setChecked(no_transfer in [1, '1', True, 'true'])
-            no_transfer_checkbox.blockSignals(False)
+                                     isinstance(widget, QCheckBox) and widget.objectName() == "no_transfer_checkbox"), None)
+        update_checkbox_state(no_transfer_checkbox, no_transfer)
 
-        # Updating inputs for "Beförderung ab", "Poll Intervall", "Beförderung bis", "Escalation timeout"
-        befoerderung_ab_input = next((widget for widget in QApplication.allWidgets() if
-                                      isinstance(widget, QLineEdit) and widget.objectName() == "befoerderung_ab_input"),
-                                     None)
-        if befoerderung_ab_input:
-            befoerderung_ab_input.blockSignals(True)
-            befoerderung_ab_input.setText(befoerderung_ab)
-            befoerderung_ab_input.blockSignals(False)
+        fields = {
+            "befoerderung_ab_input": befoerderung_ab,
+            "befoerderung_bis_input": befoerderung_bis,
+            "poll_interval_input": poll_interval,
+            "escalation_timeout_input": escalation_timeout
+        }
 
-        befoerderung_bis_input = next((widget for widget in QApplication.allWidgets() if
-                                       isinstance(widget,
-                                                  QLineEdit) and widget.objectName() == "befoerderung_bis_input"), None)
-        if befoerderung_bis_input:
-            befoerderung_bis_input.blockSignals(True)
-            befoerderung_bis_input.setText(befoerderung_bis)
-            befoerderung_bis_input.blockSignals(False)
+        for field_name, value in fields.items():
+            field_widget = next((widget for widget in QApplication.allWidgets() if
+                                 isinstance(widget, QLineEdit) and widget.objectName() == field_name), None)
+            update_widget_text(field_widget, value)
 
-        poll_interval_input = next((widget for widget in QApplication.allWidgets() if
-                                    isinstance(widget, QLineEdit) and widget.objectName() == "poll_interval_input"),
-                                   None)
-        if poll_interval_input:
-            poll_interval_input.blockSignals(True)
-            poll_interval_input.setText(poll_interval)
-            poll_interval_input.blockSignals(False)
+        checkboxes = {
+            "pre_unzip_checkbox": pre_unzip,
+            "post_zip_checkbox": post_zip,
+            "rename_with_timestamp_checkbox": rename_with_timestamp
+        }
 
-        escalation_timeout_input = next((widget for widget in QApplication.allWidgets() if
-                                         isinstance(widget,
-                                                    QLineEdit) and widget.objectName() == "escalation_timeout_input"),
-                                        None)
-        if escalation_timeout_input:
-            escalation_timeout_input.blockSignals(True)
-            escalation_timeout_input.setText(escalation_timeout)
-            escalation_timeout_input.blockSignals(False)
+        for checkbox_name, state in checkboxes.items():
+            checkbox_widget = next((widget for widget in QApplication.allWidgets() if
+                                    isinstance(widget, QCheckBox) and widget.objectName() == checkbox_name), None)
+            update_checkbox_state(checkbox_widget, state)
 
-        # Updating checkboxes for "Pre-Unzip", "Post-Zip", and "Rename with Timestamp"
-        pre_unzip_checkbox = next((widget for widget in QApplication.allWidgets() if
-                                   isinstance(widget, QCheckBox) and widget.objectName() == "pre_unzip_checkbox"), None)
-        if pre_unzip_checkbox:
-            pre_unzip_checkbox.blockSignals(True)
-            pre_unzip_checkbox.setChecked(pre_unzip in [1, '1', True, 'true'])
-            pre_unzip_checkbox.blockSignals(False)
+        valid_fields = {
+            "gueltig_ab_input": gueltig_ab,
+            "gueltig_bis_input": gueltig_bis
+        }
 
-        post_zip_checkbox = next((widget for widget in QApplication.allWidgets() if
-                                  isinstance(widget, QCheckBox) and widget.objectName() == "post_zip_checkbox"), None)
-        if post_zip_checkbox:
-            post_zip_checkbox.blockSignals(True)
-            post_zip_checkbox.setChecked(post_zip in [1, '1', True, 'true'])
-            post_zip_checkbox.blockSignals(False)
+        for field_name, value in valid_fields.items():
+            field_widget = next((widget for widget in QApplication.allWidgets() if
+                                 isinstance(widget, QLineEdit) and widget.objectName() == field_name), None)
+            update_widget_text(field_widget, value)
 
-        rename_with_timestamp_checkbox = next((widget for widget in QApplication.allWidgets() if
-                                               isinstance(widget,
-                                                          QCheckBox) and widget.objectName() == "rename_with_timestamp_checkbox"),
-                                              None)
-        if rename_with_timestamp_checkbox:
-            rename_with_timestamp_checkbox.blockSignals(True)
-            rename_with_timestamp_checkbox.setChecked(rename_with_timestamp in [1, '1', True, 'true'])
-            rename_with_timestamp_checkbox.blockSignals(False)
-
-        # Updating inputs for "Gültig ab" and "Gültig bis"
-        gueltig_ab_input = next((widget for widget in QApplication.allWidgets() if
-                                 isinstance(widget, QLineEdit) and widget.objectName() == "gueltig_ab_input"), None)
-        if gueltig_ab_input:
-            gueltig_ab_input.blockSignals(True)
-            gueltig_ab_input.setText(gueltig_ab)
-            gueltig_ab_input.blockSignals(False)
-
-        gueltig_bis_input = next((widget for widget in QApplication.allWidgets() if
-                                  isinstance(widget, QLineEdit) and widget.objectName() == "gueltig_bis_input"), None)
-        if gueltig_bis_input:
-            gueltig_bis_input.blockSignals(True)
-            gueltig_bis_input.setText(gueltig_bis)
-            gueltig_bis_input.blockSignals(False)
-
-        # Updating inputs for "findPattern", "quitPattern", "ackPattern", "zipPattern", "movPattern", "putPattern", and "rcvPattern"
         patterns = {
             "find_pattern_input": find_pattern,
             "quit_pattern_input": quit_pattern,
@@ -157,119 +138,48 @@ def data_populating(name):
             "rcv_pattern_input": rcv_pattern
         }
 
-        for pattern_object_name, pattern_value in patterns.items():
-            pattern_input = next((widget for widget in QApplication.allWidgets() if
-                                  isinstance(widget, QLineEdit) and widget.objectName() == pattern_object_name), None)
-            if pattern_input:
-                pattern_input.blockSignals(True)
-                pattern_input.setText(pattern_value)
-                pattern_input.blockSignals(False)
+        for pattern_name, pattern_value in patterns.items():
+            pattern_widget = next((widget for widget in QApplication.allWidgets() if
+                                   isinstance(widget, QLineEdit) and widget.objectName() == pattern_name), None)
+            update_widget_text(pattern_widget, pattern_value)
 
-        # Location table
-        cursor.execute(
-            "SELECT location, userid, password FROM Location WHERE communication_id = (SELECT id FROM Communication WHERE name = ?) AND locationType = 'sourceLocation'",
-            (name,))
-        source_result = cursor.fetchall()  # Getting data from the Location table
 
-        # Updating the Source input in the interface
-        source_input = next((widget for widget in QApplication.allWidgets() if
-                             isinstance(widget, QLineEdit) and widget.objectName() == "source_input"), None)
-        if source_input:
-            source_input.blockSignals(True)
-            source_input.setText(", ".join(location[0] for location in source_result))
-            source_input.blockSignals(False)
+def update_interface_with_source_data(source_result):
+    source_input = next((widget for widget in QApplication.allWidgets() if
+                         isinstance(widget, QLineEdit) and widget.objectName() == "source_input"), None)
+    if source_input:
+        update_widget_text(source_input, ", ".join(location[0] for location in source_result))
 
-        # Updating the UserID and Password inputs in the interface
-        for location in source_result:
-            userid = location[1]
-            password = location[2]
 
-            # Update the UserID input
-            userid_input = next((widget for widget in QApplication.allWidgets() if
-                                 isinstance(widget, QLineEdit) and widget.objectName() == "userid_source_input"), None)
-            if userid_input:
-                userid_input.blockSignals(True)
-                userid_input.setText(userid)
-                userid_input.blockSignals(False)
+def update_interface_with_target_data(target_result):
+    for i, (location, userid, password) in enumerate(target_result, start=1):
+        target_location_input = next((widget for widget in QApplication.allWidgets() if
+                                      isinstance(widget, QLineEdit) and widget.objectName() == f"target_{i}_input"),
+                                     None)
+        update_widget_text(target_location_input, location)
 
-            # Updating the Password input
-            password_input = next((widget for widget in QApplication.allWidgets() if
-                                   isinstance(widget, QLineEdit) and widget.objectName() == "password_source_input"), None)
-            if password_input:
-                password_input.blockSignals(True)
-                password_input.setText(password)
-                password_input.blockSignals(False)
+        user_id_input = next((widget for widget in QApplication.allWidgets() if
+                              isinstance(widget, QLineEdit) and widget.objectName() == f"user_id_{i}_input"), None)
+        update_widget_text(user_id_input, userid)
 
-            cursor.execute(
-                "SELECT location, userid, password FROM Location WHERE communication_id = (SELECT id FROM Communication WHERE name = ?) AND locationType = 'targetLocation'",
-                (name,))
-            target_result = cursor.fetchall()
+        password_input = next((widget for widget in QApplication.allWidgets() if
+                               isinstance(widget, QLineEdit) and widget.objectName() == f"password_{i}_input"), None)
+        update_widget_text(password_input, password)
 
-            # Лог для диагностики
-            print(f"Target result for '{name}':", target_result)
 
-            # Обновление Target inputs
-            target_count = len(target_result)  # Количество записей для targetLocation
-            for i in range(target_count):
-                if i < 5:  # Если количество записей больше 5, не обрабатываем их
-                    location, userid, password = target_result[i]
+def data_populating(name):
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
-                    # Обновление полей для Target
-                    target_input = next((widget for widget in QApplication.allWidgets() if
-                                         isinstance(widget,
-                                                    QLineEdit) and widget.objectName() == f"target_{i + 1}_input"),
-                                        None)
-                    if target_input:
-                        target_input.blockSignals(True)
-                        target_input.setText(location)
-                        target_input.blockSignals(False)
+    communication_result = fetch_communication_data(cursor, name)
+    update_interface_with_communication_data(communication_result, name)
 
-                    # Обновление UserID для Target
-                    userid_target_input = next((widget for widget in QApplication.allWidgets() if
-                                                isinstance(widget,
-                                                           QLineEdit) and widget.objectName() == f"userid_target_{i + 1}_input"),
-                                               None)
-                    if userid_target_input:
-                        userid_target_input.blockSignals(True)
-                        userid_target_input.setText(userid)
-                        userid_target_input.blockSignals(False)
+    source_result = fetch_source_locations(cursor, name)
+    update_interface_with_source_data(source_result)
 
-                    # Обновление Password для Target
-                    password_target_input = next((widget for widget in QApplication.allWidgets() if
-                                                  isinstance(widget,
-                                                             QLineEdit) and widget.objectName() == f"password_target_{i + 1}_input"),
-                                                 None)
-                    if password_target_input:
-                        password_target_input.blockSignals(True)
-                        password_target_input.setText(password)
-                        password_target_input.blockSignals(False)
+    target_result = fetch_target_locations(cursor, name)
+    update_interface_with_target_data(target_result)
 
-            # Очистка полей, если записей меньше 5
-            for i in range(5):
-                if i >= target_count:
-                    target_input = next((widget for widget in QApplication.allWidgets() if
-                                         isinstance(widget,
-                                                    QLineEdit) and widget.objectName() == f"target_{i + 1}_input"),
-                                        None)
-                    if target_input:
-                        target_input.blockSignals(True)
-                        target_input.clear()
-                        target_input.blockSignals(False)
+    fetch_alternate_name_list(cursor, name)
 
-                    userid_target_input = next((widget for widget in QApplication.allWidgets() if
-                                                isinstance(widget,
-                                                           QLineEdit) and widget.objectName() == f"userid_target_{i + 1}_input"),
-                                               None)
-                    if userid_target_input:
-                        userid_target_input.blockSignals(True)
-                        userid_target_input.clear()
-                        userid_target_input.blockSignals(False)
-
-                    password_target_input = next((widget for widget in QApplication.allWidgets() if
-                                                  isinstance(widget,
-                                                             QLineEdit) and widget.objectName() == f"password_target_{i + 1}_input"),
-                                                 None)
-                    if password_target_input:
-                        password_target_input.blockSignals(True)
-                        password_target_input.clear()
-                        password_target_input.blockSignals(False)
+    conn.close()

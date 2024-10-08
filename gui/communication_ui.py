@@ -100,6 +100,7 @@ def create_group(group_name, layout):
         alt_name_label = QLabel("Alternate Namelist")
         alt_name_label.setStyleSheet(label_style)
         alt_name_input = QLineEdit()
+        alt_name_input.setObjectName("alternate_name_list_input")
         alt_name_input.setFixedSize(400, 30)
         go_button = QPushButton("GO")
         go_button.setObjectName("goButton")
@@ -244,8 +245,6 @@ def create_group(group_name, layout):
 
         form_layout.addRow(hbox_target)
 
-        # communication_ui.py
-
         target_count = 5
         for i in range(1, target_count + 1):
             target_label = ClickableLabel(f"Target ({i})")
@@ -254,21 +253,21 @@ def create_group(group_name, layout):
 
             target_input = QLineEdit()
             target_input.setFixedHeight(30)
-            target_input.setObjectName(f"target_{i}_input")  # Присваиваем objectName
+            target_input.setObjectName(f"target_{i}_input")
 
             userid_target_label = QLabel("UserID")
             userid_target_label.setStyleSheet(label_children_style)
             userid_target_label.setFixedWidth(60)
             userid_target_input = QLineEdit()
             userid_target_input.setFixedSize(450, 30)
-            userid_target_input.setObjectName(f"userid_target_{i}_input")  # Присваиваем objectName
+            userid_target_input.setObjectName(f"userid_target_{i}_input")
 
             password_target_label = QLabel("Password")
             password_target_label.setStyleSheet(label_children_style)
             password_target_label.setFixedWidth(80)
             password_target_input = QLineEdit()
             password_target_input.setFixedSize(450, 30)
-            password_target_input.setObjectName(f"password_target_{i}_input")  # Присваиваем objectName
+            password_target_input.setObjectName(f"password_target_{i}_input")
 
             target_labels.append(userid_target_label)
             target_labels.append(password_target_label)
@@ -286,7 +285,7 @@ def create_group(group_name, layout):
 
             hbox_userid_target_password_row = QHBoxLayout()
             hbox_userid_target_password_row.addItem(
-                QSpacerItem(130, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Add spacer
+                QSpacerItem(130, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
             hbox_userid_target_password_row.addWidget(userid_target_label)
             hbox_userid_target_password_row.addWidget(userid_target_input)
             hbox_userid_target_password_row.addStretch()
@@ -526,10 +525,6 @@ def create_group(group_name, layout):
 
         group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        hbox_left_column = QHBoxLayout()
-        hbox_left_column.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
-        hbox_left_column.addLayout(form_layout_left)
-
         pattern_label1 = QLabel("findPattern")
         pattern_label1.setFixedWidth(100)
         pattern_label1.setStyleSheet(label_style)
@@ -587,9 +582,11 @@ def create_group(group_name, layout):
         form_layout_right.addRow(pattern_label7, pattern_input7)
 
         hbox_columns = QHBoxLayout()
-        hbox_columns.addLayout(hbox_left_column)
-        hbox_columns.addStretch()
+        hbox_columns.addSpacing(130)
+        hbox_columns.addLayout(form_layout_left)
+        hbox_columns.addStretch(1)
         hbox_columns.addLayout(form_layout_right)
+        hbox_columns.addStretch(0)
 
         group_layout.addLayout(hbox_columns)
 
@@ -759,6 +756,3 @@ def toggle_inputs(labels, inputs):
         else:
             label.show()
             input_field.show()
-
-
-
