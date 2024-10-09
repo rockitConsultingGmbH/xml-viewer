@@ -1,6 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
-    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox
+    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox, QMessageBox
+
+from database.populating_data import save_data
 
 # Clickable Label class for transforming labels into clickable buttons
 class ClickableLabel(QLabel):
@@ -10,7 +12,10 @@ class ClickableLabel(QLabel):
 
 
 # Group Builder
-def setup_right_interface(right_widget):
+from PyQt5.QtWidgets import QMessageBox
+
+
+def setup_right_interface(right_widget, communication_id):
     scroll_area = QScrollArea()
     scroll_area.setWidgetResizable(True)
     scroll_area.setStyleSheet("QScrollArea { border: none; } QWidget { border: none; } "
@@ -24,11 +29,48 @@ def setup_right_interface(right_widget):
 
     reset_button = QPushButton("Reset")
     reset_button.setFixedSize(100, 30)
-    reset_button.setStyleSheet("background-color: #960e0e; color: white;")
+    reset_button.setObjectName("resetButton")
+    reset_button.setStyleSheet("""
+        #resetButton {
+            background-color: #9c9c9c; color: white;
+        }
+
+        #resetButton:hover {
+            background-color: #8c8c8c;
+        }
+
+        #resetButton:pressed {
+            background-color: #2d2d33;
+        }
+    """)
 
     save_button = QPushButton("Save")
     save_button.setFixedSize(100, 30)
-    save_button.setStyleSheet("background-color: #41414a; color: white;")
+    save_button.setObjectName("saveButton")
+    save_button.setStyleSheet("""
+        #saveButton {
+            background-color: #db0d0d; color: white;
+        }
+
+        #saveButton:hover {
+            background-color: #b00c0c;
+        }
+
+        #saveButton:pressed {
+            background-color: #910909;
+        }
+    """)
+
+    def save_and_show_message():
+        save_data(communication_id)
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText("Changes in Communication have been successfully saved.")
+        msg.setWindowTitle("Save Successful")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+    save_button.clicked.connect(save_and_show_message)
 
     button_layout.addWidget(reset_button)
     button_layout.addWidget(save_button)
@@ -100,6 +142,7 @@ def create_group(group_name, layout):
         alt_name_label = QLabel("Alternate Namelist")
         alt_name_label.setStyleSheet(label_style)
         alt_name_input = QLineEdit()
+        alt_name_input.setObjectName("alt_name_input")
         alt_name_input.setFixedSize(400, 30)
         go_button = QPushButton("GO")
         go_button.setObjectName("goButton")
@@ -244,8 +287,6 @@ def create_group(group_name, layout):
 
         form_layout.addRow(hbox_target)
 
-        # communication_ui.py
-
         target_count = 5
         for i in range(1, target_count + 1):
             target_label = ClickableLabel(f"Target ({i})")
@@ -254,21 +295,21 @@ def create_group(group_name, layout):
 
             target_input = QLineEdit()
             target_input.setFixedHeight(30)
-            target_input.setObjectName(f"target_{i}_input")  # Присваиваем objectName
+            target_input.setObjectName(f"target_{i}_input")
 
             userid_target_label = QLabel("UserID")
             userid_target_label.setStyleSheet(label_children_style)
             userid_target_label.setFixedWidth(60)
             userid_target_input = QLineEdit()
             userid_target_input.setFixedSize(450, 30)
-            userid_target_input.setObjectName(f"userid_target_{i}_input")  # Присваиваем objectName
+            userid_target_input.setObjectName(f"userid_target_{i}_input")
 
             password_target_label = QLabel("Password")
             password_target_label.setStyleSheet(label_children_style)
             password_target_label.setFixedWidth(80)
             password_target_input = QLineEdit()
             password_target_input.setFixedSize(450, 30)
-            password_target_input.setObjectName(f"password_target_{i}_input")  # Присваиваем objectName
+            password_target_input.setObjectName(f"password_target_{i}_input")
 
             target_labels.append(userid_target_label)
             target_labels.append(password_target_label)
