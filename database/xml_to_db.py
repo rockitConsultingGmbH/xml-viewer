@@ -139,21 +139,21 @@ def insert_data_into_db(xml_tree, config_file_path):
 
             for communicationElement in communication.findall('./*'):
                 if communicationElement.tag in ['description', 'description1', 'description2', 'description3', 'description4', 'description5', 'description6']:
-                    #insert_description(cursor, communication_id, communicationElement, communicationElement.tag)
+                    insert_description(cursor, communication_id, communicationElement, communicationElement.tag)
                     rows_created += cursor.rowcount
                 
                 elif communicationElement.tag in ['sourceLocation', 'targetLocation']:
-                    #insert_location(cursor, communication_id, communicationElement, communicationElement.tag)
+                    insert_location(cursor, communication_id, communicationElement, communicationElement.tag)
                     rows_created += cursor.rowcount
 
                 elif communicationElement.tag in ['preCommand', 'postCommand']:
-                    #command_id = insert_command(cursor, communication_id, communicationElement, communicationElement.tag).lastrowid
+                    command_id = insert_command(cursor, communication_id, communicationElement, communicationElement.tag).lastrowid
                     rows_created += cursor.rowcount
 
                     for commandparam in communicationElement.findall('param'):
                         param = commandparam.text if commandparam.text is not None else ''
                         if param != '':
-                           # insert_command_param(cursor, command_id, param)
+                            insert_command_param(cursor, command_id, param)
                             rows_created += cursor.rowcount
 
                         rows_created += cursor.rowcount
@@ -161,11 +161,11 @@ def insert_data_into_db(xml_tree, config_file_path):
                 elif communicationElement.tag == 'alternateNameList' and communicationElement.tag is not None:
                     namelist = acsfiletransfer.find(f".//nameList[@name='{communicationElement.text}']")
                     if namelist is not None:
-                        #nameList_id = insert_name_list(cursor, basicConfig_id, communication_id, namelist.get('name', '')).lastrowid
+                        nameList_id = insert_name_list(cursor, basicConfig_id, communication_id, namelist.get('name', '')).lastrowid
                         rows_created += cursor.rowcount
                         for entry in namelist.findall('entry'):
                             if entry.text is not None:
-                                #insert_alternate_name(cursor, nameList_id, entry.text)
+                                insert_alternate_name(cursor, nameList_id, entry.text)
                                 rows_created += cursor.rowcount
 
         # Save the changes to the database
