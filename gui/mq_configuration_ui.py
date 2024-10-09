@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
     QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 
 from common import config_manager
 from database.xml_to_db import get_db_connection
@@ -15,7 +15,14 @@ class MQConfigurationWidget(QWidget):
         # Create the layout and form layout
         layout = QVBoxLayout(self)
         form_layout = QFormLayout()
-    
+
+         # Create the success message label
+        self.success_message = QLabel()
+        self.success_message.setStyleSheet("background-color: lightgreen; color: black; padding: 5px;")
+        self.success_message.setAlignment(Qt.AlignCenter)
+        self.success_message.setFixedHeight(30)
+        self.success_message.setVisible(False)
+
         # Create Save and Reset buttons
         button_layout = QHBoxLayout()
         button_layout.addStretch()
@@ -34,6 +41,7 @@ class MQConfigurationWidget(QWidget):
         button_layout.addWidget(save_button)
 
         # Add button layout to form layout
+        form_layout.addRow(self.success_message)
         form_layout.addRow(button_layout)
 
         # Define the input fields
@@ -56,19 +64,19 @@ class MQConfigurationWidget(QWidget):
 
         self.qmgr_input.setFixedSize(500, 35)
         self.hostname_input.setFixedSize(500, 35)
-        self.port_input.setFixedSize(100, 35)
+        self.port_input.setFixedSize(500, 35)
         self.channel_input.setFixedSize(500, 35)
         self.userid_input.setFixedSize(500, 35)
         self.password_input.setFixedSize(500, 35)
         self.cipher_input.setFixedSize(500, 35)
         self.sslPeer_input.setFixedSize(500, 35)
-        self.ccsid_input.setFixedSize(100, 35)
+        self.ccsid_input.setFixedSize(500, 35)
         self.queue_input.setFixedSize(500, 35)
-        self.number_of_threads_input.setFixedSize(100, 35)
+        self.number_of_threads_input.setFixedSize(500, 35)
         self.error_queue_input.setFixedSize(500, 35)
         self.command_queue_input.setFixedSize(500, 35)
         self.command_reply_queue_input.setFixedSize(500, 35)
-        self.wait_interval_input.setFixedSize(100, 35)
+        self.wait_interval_input.setFixedSize(500, 35)
 
         self.populate_fields_from_db()
 
@@ -92,6 +100,12 @@ class MQConfigurationWidget(QWidget):
 
         # Set form layout to the main layout
         layout.addLayout(form_layout)
+
+        self.setLayout(layout)
+        # Initialize the timer for the success message
+        self.message_timer = QTimer()
+        self.message_timer.setSingleShot(True)
+        self.message_timer.timeout.connect(self.hide_success_message)
 
     def populate_fields_from_db(self):
         # Call the function to fetch data from the database
@@ -176,11 +190,21 @@ class MQConfigurationWidget(QWidget):
 
         # Optionally, show a message box or print a message to confirm saving
         print("Configuration updated successfully.")
+        self.show_success_message("Changes in MQ Configuration have been successfully saved.")
 
         # Show success message
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Changes in MQ Configuration have been successfully saved.")
-        msg.setWindowTitle("Save Successful")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        #msg = QMessageBox()
+        #msg.setIcon(QMessageBox.Information)
+        #msg.setText("Changes in MQ Configuration have been successfully saved.")
+        #msg.setWindowTitle("Save Successful")
+        #msg.setStandardButtons(QMessageBox.Ok)
+        #msg.exec_()
+
+    def show_success_message(self, text):
+        # Set the message text and show the label
+        self.success_message.setText(text)
+        self.success_message.setVisible(True)
+        self.message_timer.start(3000)  # Show message for 3 seconds
+											  
+    def hide_success_message(self):
+        self.success_message.setVisible(False)

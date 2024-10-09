@@ -1,6 +1,6 @@
 from lxml import etree
 
-excluded_columns = ['id', 'configFileName', 'basicConfig_id', 'mqConfig_id', 'communication_id', 'command_id', 'location_id', 'locationType', 'commandType', 'nameList_id']
+excluded_columns = ['id', 'configFilePath', 'basicConfig_id', 'mqConfig_id', 'communication_id', 'command_id', 'location_id', 'locationType', 'commandType', 'nameList_id']
 
 def add_row_element_if_not_empty(xml_element, tag_name, value):
     if value:
