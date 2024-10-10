@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
                 conn = get_db_connection()
                 cursor = conn.cursor()
                 conn.row_factory = sqlite3.Row
-                cursor.execute(f"SELECT id, name FROM Communication;")
+                cursor.execute(f"SELECT id, name FROM Communication WHERE basicConfig_id = {config_manager.config_id};")
                 rows = cursor.fetchall()
                 self.communication_config_item = table_item
 
