@@ -1,13 +1,11 @@
-import os
-import sqlite3
-from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QFormLayout, QCheckBox, QPushButton, QLabel,
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
                              QLineEdit, QWidget)
-from PyQt5.QtCore import Qt, QTimer
 from common import config_manager
 from database.connection_manager import ConnectionManager
 from database.sql_statements import select_from_mqconfig, update_mqconfig
 from database.xml_to_db import get_db_connection
 from gui.popup_message_ui import PopupMessage
+from gui.buttons import create_button_layout
 
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -20,7 +18,7 @@ class MQConfigurationWidget(QWidget):
         layout = QVBoxLayout(self)
 
         # Initialize buttons and add them at the top
-        button_layout = self.create_button_layout()
+        button_layout = create_button_layout(self)
         layout.addLayout(button_layout)
 
         # Create and add the form layout
@@ -79,25 +77,6 @@ class MQConfigurationWidget(QWidget):
         form_layout.addRow("Command Queue:", self.command_queue_input)
         form_layout.addRow("Command Reply Queue:", self.command_reply_queue_input)
         form_layout.addRow("Wait Interval:", self.wait_interval_input)
-
-    def create_button_layout(self):
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-
-        reset_button = QPushButton("Reset")
-        reset_button.setFixedSize(100, 30)
-        reset_button.setStyleSheet("background-color: #960e0e; color: white;")
-        reset_button.clicked.connect(self.populate_fields_from_db)
-
-        save_button = QPushButton("Save")
-        save_button.setFixedSize(100, 30)
-        save_button.setStyleSheet("background-color: #41414a; color: white;")
-        save_button.clicked.connect(self.save_fields_to_db)
-
-        button_layout.addWidget(reset_button)
-        button_layout.addWidget(save_button)
-        
-        return button_layout
 
     def populate_fields_from_db(self):
         data = self.get_mq_configuration()

@@ -1,10 +1,9 @@
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QCheckBox, QPushButton, QLineEdit, QFormLayout, QWidget
-from PyQt5.QtCore import Qt
-
+from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QPushButton, QLineEdit, QFormLayout, QWidget
 from common import config_manager
 from database.connection_manager import ConnectionManager
 from database.xml_to_db import get_db_connection
 from gui.popup_message_ui import PopupMessage
+from gui.buttons import create_button_layout
 
 # Define constants for button and field styling
 BUTTON_STYLE = "background-color: {}; color: white;"
@@ -24,7 +23,7 @@ class LZBConfigurationWidget(QWidget):
         form_layout = QFormLayout()
 
         # Set up Save and Reset buttons
-        button_layout = self.create_button_layout()
+        button_layout = create_button_layout(self)
         form_layout.addRow(button_layout)
 
         # Initialize input fields
@@ -38,27 +37,6 @@ class LZBConfigurationWidget(QWidget):
 
         # Populate fields with data from the database
         self.populate_fields_from_db()
-
-    def create_button_layout(self):
-        """Creates the layout for the Save and Reset buttons."""
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-
-        reset_button = self.create_button("Reset", "#960e0e", self.populate_fields_from_db)
-        save_button = self.create_button("Save", "#41414a", self.save_fields_to_db)
-
-        button_layout.addWidget(reset_button)
-        button_layout.addWidget(save_button)
-        
-        return button_layout
-
-    def create_button(self, label, color, callback):
-        """Helper function to create a styled button with a callback."""
-        button = QPushButton(label)
-        button.setFixedSize(*BUTTON_SIZE)
-        button.setStyleSheet(BUTTON_STYLE.format(color))
-        button.clicked.connect(callback)
-        return button
 
     def initialize_fields(self):
         """Initialize input fields with specific properties."""

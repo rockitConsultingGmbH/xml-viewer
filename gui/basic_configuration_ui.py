@@ -1,12 +1,10 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QHBoxLayout, QFormLayout, QCheckBox, QPushButton, 
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, 
                              QLineEdit, QWidget)
-from PyQt5.QtCore import Qt
-
 from common import config_manager
 from database.connection_manager import ConnectionManager
 from database.xml_to_db import get_db_connection
 from gui.popup_message_ui import PopupMessage
-
+from gui.buttons import create_button_layout
 
 class BasicConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -20,7 +18,7 @@ class BasicConfigurationWidget(QWidget):
         layout = QVBoxLayout(self)
 
         # Button layout
-        button_layout = self.create_button_layout()
+        button_layout = create_button_layout(self)
 
         # Form layout for input fields
         form_layout = QFormLayout()
@@ -32,26 +30,6 @@ class BasicConfigurationWidget(QWidget):
         layout.addLayout(button_layout)
         layout.addLayout(form_layout)
         self.setLayout(layout)
-
-    def create_button_layout(self):
-        # Creates and configures the Save and Reset buttons
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-
-        reset_button = QPushButton("Reset")
-        reset_button.setFixedSize(100, 30)
-        reset_button.setStyleSheet("background-color: #960e0e; color: white;")
-        reset_button.clicked.connect(self.populate_fields_from_db)
-
-        save_button = QPushButton("Save")
-        save_button.setFixedSize(100, 30)
-        save_button.setStyleSheet("background-color: #41414a; color: white;")
-        save_button.clicked.connect(self.save_fields_to_db)
-
-        button_layout.addWidget(reset_button)
-        button_layout.addWidget(save_button)
-        
-        return button_layout
 
     def init_input_fields(self):
         # Initialize all input fields
