@@ -1,6 +1,7 @@
 from lxml import etree
 import sqlite3
 import os
+from database.connection_manager import ConnectionManager
 import database.sql_statements as sql_statements
 import database.dictionaries as dictionaries
 
@@ -9,17 +10,8 @@ db_path = os.path.join(os.path.dirname(__file__), 'database.db')
 
 
 def get_db_connection():
-    """
-    Get a connection to the SQLite database.
-
-    :return: SQLite connection object
-    """
-    if not os.path.exists(db_path):
-        raise FileNotFoundError(f"The specified database file was not found: {db_path}")
-
-    conn=sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-
+    conn_manager = ConnectionManager()
+    conn = conn_manager.get_db_connection()
     return conn
 
 def validate_xml(xml_path, xsd_path):
@@ -109,6 +101,7 @@ def insert_data_into_db(xml_tree, config_file_path):
     :param config_file_path: Path of the configuration file
     """
     conn = get_db_connection()
+
     cursor = conn.cursor()
     rows_created = 0
 

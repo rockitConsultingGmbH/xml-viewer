@@ -182,7 +182,32 @@ def InsertIntoMqConfig(cursor, row):
     ))
     return cursor
 
-def UpdateMqConfig(cursor, row):
+def select_from_mqconfig(cursor, basicConfig_id):
+    cursor.execute("""
+    SELECT
+        isRemote,
+        qmgr,
+        hostname,
+        port,
+        channel,
+        userid,
+        password,
+        cipher,
+        sslPeer,
+        ccsid,
+        queue,
+        numberOfThreads,
+        errorQueue,
+        commandQueue,
+        commandReplyQueue,
+        waitinterval,
+        description
+    FROM MqConfig
+    WHERE basicConfig_id = ?
+    """, (basicConfig_id,))
+    return cursor
+
+def update_mqconfig(cursor, row):
     cursor.execute("""
     UPDATE MqConfig
     SET isRemote = ?,
