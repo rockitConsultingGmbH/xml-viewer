@@ -1,3 +1,4 @@
+import sqlite3
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
@@ -90,10 +91,6 @@ class MainWindow(QMainWindow):
             self.display_db_tables()
 
     def display_db_tables(self):
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cursor.fetchall()
 
         tree_widget = QTreeWidget()
         tree_widget.setStyleSheet("""
@@ -124,33 +121,34 @@ class MainWindow(QMainWindow):
         tree_widget.setIndentation(0)
         tree_widget.setHeaderHidden(True)
 
+        tables = [('Basic Configuration',), ('LZB Configuration',), ('MQ Configuration',), ('Communications',),
+                  ('NameLists',)]
         for table in tables:
             table_name = table[0]
-            if table_name in ('BasicConfig', 'LzbConfig', 'MqConfig', 'Communication', 'NameList'):
-                table_item = QTreeWidgetItem([table_name])
-                tree_widget.addTopLevelItem(table_item)
-
-            if table_name == "Communication":
-                cursor.execute(f"SELECT name FROM {table_name};")
-                names = cursor.fetchall()
+            table_item = QTreeWidgetItem([table_name])
+            table_item.setExpanded(False)
+            tree_widget.addTopLevelItem(table_item)
+            if table_name == ('Basic Configuration'):
+                self.basic_config_item = table_item
+            if table_name == ('LZB Configuration'):
+                self.lzb_config_item = table_item
+            if table_name == ('MQ Configuration'):
+                self.mq_config_item = table_item
+            if table_name == "Communications":
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                conn.row_factory = sqlite3.Row
+                cursor.execute(f"SELECT id, name FROM Communication;")
+                rows = cursor.fetchall()
                 self.communication_config_item = table_item
 
-                for name in names:
-                    column_item = QTreeWidgetItem([name[0]])
+                for row in rows:
+                    communication_id = row['id']
+                    communication_name = row['name']
+
+                    column_item = QTreeWidgetItem([communication_name])
+                    column_item.setData(0, Qt.UserRole, communication_id)
                     table_item.addChild(column_item)
-
-            if table_name == "BasicConfig":
-                table_item.setExpanded(False)
-                self.basic_config_item = table_item
-
-            if table_name == "LzbConfig":
-                table_item.setExpanded(False)
-                self.lzb_config_item = table_item
-
-
-            if table_name == "MqConfig":
-                table_item.setExpanded(False)
-                self.mq_config_item = table_item
 
         tree_widget.itemClicked.connect(self.on_item_clicked)
 
@@ -159,25 +157,26 @@ class MainWindow(QMainWindow):
         self.left_widget.setLayout(layout)
 
     def on_item_clicked(self, item, column):
-        #parent = item.parent()
         if item.parent() == self.communication_config_item:
-            self.right_widget.setParent(None)
-            #self.left_widget = QWidget()
-            self.right_widget = QWidget()
-            #self.left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
-            self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
-            #self.splitter.addWidget(self.left_widget)
-            self.splitter.addWidget(self.right_widget)
-            self.splitter.setSizes([250, 1000])
-            self.setCentralWidget(self.splitter)
-            setup_right_interface(self.right_widget)
-            name = item.text(0)
-            data_populating(name)
-        if item == self.basic_config_item:
+            communication_id = item.data(0, Qt.UserRole)
+            if communication_id is not None:
+
+                self.right_widget.setParent(None)
+                self.right_widget = QWidget()
+                self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+                self.splitter.addWidget(self.right_widget)
+                self.splitter.setSizes([250, 1000])
+                self.setCentralWidget(self.splitter)
+
+                setup_right_interface(self.right_widget, communication_id)
+
+                data_populating(communication_id)
+
+        elif item == self.basic_config_item:
             self.load_basic_config_view()
-        if item == self.lzb_config_item:
+        elif item == self.lzb_config_item:
             self.load_lzb_config_view()
-        if item == self.mq_config_item:
+        elif item == self.mq_config_item:
             self.load_mq_config_view()
 
     def load_basic_config_view(self):
