@@ -391,7 +391,7 @@ def InsertIntoCommunication(cursor, row):
     ))
     return cursor
 
-def UpdateCommunication(cursor, row):
+def update_communication(cursor, row):
     cursor.execute("""
     UPDATE Communication
     SET name = ?,
@@ -422,7 +422,7 @@ def UpdateCommunication(cursor, row):
         preunzip = ?,
         postzip = ?,
         renameWithTimestamp = ?
-    WHERE basicConfig_id = ?
+    WHERE id = ? AND basicConfig_id = ?
     """, (
         row['name'],
         row['alternateNameList'],
@@ -452,6 +452,7 @@ def UpdateCommunication(cursor, row):
         row['preunzip'],
         row['postzip'],
         row['renameWithTimestamp'],
+        row['communication_id'],
         row['basicConfig_id']
     ))
     return cursor

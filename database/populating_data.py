@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
+from common import config_manager
 from database.xml_to_db import get_db_connection
-
+from database.sql_statements import update_communication
 
 # Communication table
 def fetch_record_data(cursor, record_id):
@@ -9,8 +10,8 @@ def fetch_record_data(cursor, record_id):
                   pollInterval, watcherEscalationTimeout, preunzip, postzip,
                   renameWithTimestamp, gueltigAb, gueltigBis, findPattern, quitPattern,
                   ackPattern, zipPattern, movPattern, putPattern, rcvPattern, alternateNameList
-           FROM Communication WHERE id = ?""",
-        (record_id,))
+           FROM Communication WHERE id = ? AND basicConfig_id = ?""",
+        (record_id, config_manager.config_id))
     return cursor.fetchone()
 
 
@@ -73,48 +74,49 @@ def data_populating(communication_id):
 def save_data(communication_id):
     conn = get_db_connection()
     cursor = conn.cursor()
+    name = get_input_value("name_input"),
 
-    name = get_input_value("name_input")
-    is_to_poll = get_checkbox_value("polling_activate_checkbox")
-    poll_until_found = get_checkbox_value("poll_until_found_checkbox")
-    no_transfer = get_checkbox_value("no_transfer_checkbox")
-    befoerderung_ab = get_input_value("befoerderung_ab_input")
-    befoerderung_bis = get_input_value("befoerderung_bis_input")
-    poll_interval = get_input_value("poll_interval_input")
-    escalation_timeout = get_input_value("escalation_timeout_input")
-    pre_unzip = get_checkbox_value("pre_unzip_checkbox")
-    post_zip = get_checkbox_value("post_zip_checkbox")
-    rename_with_timestamp = get_checkbox_value("rename_with_timestamp_checkbox")
-    gueltig_ab = get_input_value("gueltig_ab_input")
-    gueltig_bis = get_input_value("gueltig_bis_input")
-    find_pattern = get_input_value("find_pattern_input")
-    quit_pattern = get_input_value("quit_pattern_input")
-    ack_pattern = get_input_value("ack_pattern_input")
-    zip_pattern = get_input_value("zip_pattern_input")
-    mov_pattern = get_input_value("mov_pattern_input")
-    put_pattern = get_input_value("put_pattern_input")
-    rcv_pattern = get_input_value("rcv_pattern_input")
-    alternate_name_list = get_input_value("alt_name_input")
+    print(f"Saving data for communication_id: {communication_id}")
+    print(f"Saving data for config_id: {config_manager.config_id}")
+    communication_row = {
+        'name': get_input_value("name_input"),
+        'alternateNameList': get_input_value("alt_name_input"),
+        'watcherEscalationTimeout':  get_input_value("escalation_timeout_input"),
+        'isToPoll': convert_checkbox_to_string(get_checkbox_value("polling_activate_checkbox")),
+        'pollUntilFound': convert_checkbox_to_string(get_checkbox_value("poll_until_found_checkbox")),
+        'noTransfer': convert_checkbox_to_string(get_checkbox_value("no_transfer_checkbox")),
+        'targetMustBeArchived': '',
+        'mustBeArchived': '',
+        'historyDays': '',
+        'targetHistoryDays': '',
+        'findPattern': get_input_value("find_pattern_input"),
+        'movPattern': get_input_value("mov_pattern_input"),
+        'tmpPattern': '',
+        'quitPattern': get_input_value("quit_pattern_input"),
+        'putPattern': get_input_value("put_pattern_input"),
+        'ackPattern': get_input_value("ack_pattern_input"),
+        'rcvPattern': get_input_value("rcv_pattern_input"),
+        'zipPattern': get_input_value("zip_pattern_input"),
+        'befoerderung': '',
+        'pollInterval': get_input_value("poll_interval_input"),
+        'gueltigAb': get_input_value("gueltig_ab_input"),
+        'gueltigBis': get_input_value("gueltig_bis_input"),
+        'befoerderungAb': get_input_value("befoerderung_ab_input"),
+        'befoerderungBis': get_input_value("befoerderung_bis_input"),
+        'befoerderungCron': '',
+        'preunzip': convert_checkbox_to_string(get_checkbox_value("pre_unzip_checkbox")),
+        'postzip': convert_checkbox_to_string(get_checkbox_value("post_zip_checkbox")),
+        'renameWithTimestamp': convert_checkbox_to_string(get_checkbox_value("rename_with_timestamp_checkbox")),
+        'communication_id': communication_id,
+        'basicConfig_id': config_manager.config_id
+    }	
 
-    if name is None or name.strip() == "":
-        conn.close()
-        return
+    #if name is None or name.strip() == "":
+    #    conn.close()
+    #    return
 
     try:
-        cursor.execute(
-            """UPDATE Communication
-               SET name = ?, isToPoll = ?, pollUntilFound = ?, noTransfer = ?, befoerderungAb = ?, befoerderungBis = ?,
-                   pollInterval = ?, watcherEscalationTimeout = ?, preunzip = ?, postzip = ?,
-                   renameWithTimestamp = ?, gueltigAb = ?, gueltigBis = ?, findPattern = ?, quitPattern = ?,
-                   ackPattern = ?, zipPattern = ?, movPattern = ?, putPattern = ?, rcvPattern = ?, alternateNameList = ?
-               WHERE id = ?""",
-            (name, is_to_poll, poll_until_found, no_transfer, befoerderung_ab,
-             befoerderung_bis, poll_interval, escalation_timeout, pre_unzip, post_zip,
-             rename_with_timestamp, gueltig_ab, gueltig_bis, find_pattern,
-             quit_pattern, ack_pattern, zip_pattern, mov_pattern, put_pattern,
-             rcv_pattern, alternate_name_list, communication_id)
-        )
-
+        update_communication(cursor, communication_row)
         conn.commit()
     except Exception as e:
         print(f"Error while saving data: {e}")
@@ -132,3 +134,5 @@ def get_checkbox_value(widget_name):
     checkbox = next((widget for widget in QApplication.allWidgets() if
                      isinstance(widget, QCheckBox) and widget.objectName() == widget_name), None)
     return checkbox.isChecked() if checkbox else False
+
+def convert_checkbox_to_string(checkbox_value):    return "true" if checkbox_value else "false"
