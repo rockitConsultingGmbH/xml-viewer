@@ -2,17 +2,12 @@ from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
 from common import config_manager
 from database.xml_to_db import get_db_connection
 from database.sql_statements import update_communication
+from database.sql_statements import select_from_communication
+
 
 # Communication table
-def fetch_record_data(cursor, record_id):
-    cursor.execute(
-        """SELECT name, isToPoll, pollUntilFound, noTransfer, befoerderungAb, befoerderungBis,
-                  pollInterval, watcherEscalationTimeout, preunzip, postzip,
-                  renameWithTimestamp, gueltigAb, gueltigBis, findPattern, quitPattern,
-                  ackPattern, zipPattern, movPattern, putPattern, rcvPattern, alternateNameList
-           FROM Communication WHERE id = ? AND basicConfig_id = ?""",
-        (record_id, config_manager.config_id))
-    return cursor.fetchone()
+def fetch_record_data(cursor, record_id, basic_config_id):
+    return select_from_communication(cursor, record_id, basic_config_id)
 
 
 def set_input_value(widget_name, value):
@@ -33,11 +28,12 @@ def set_checkbox_value(widget_name, value):
         checkbox.blockSignals(False)
 
 
-def data_populating(communication_id):
+def populate_communication_table_fields(communication_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    result = fetch_record_data(cursor, communication_id)
+    result = fetch_record_data(cursor, communication_id, config_manager.config_id)
+
     if result:
         (name, is_to_poll, poll_until_found, no_transfer, befoerderung_ab, befoerderung_bis,
          poll_interval, escalation_timeout, pre_unzip, post_zip, rename_with_timestamp,
@@ -71,10 +67,9 @@ def data_populating(communication_id):
     conn.close()
 
 
-def save_data(communication_id):
+def save_communication_data(communication_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    name = get_input_value("name_input"),
 
     print(f"Saving data for communication_id: {communication_id}")
     print(f"Saving data for config_id: {config_manager.config_id}")
