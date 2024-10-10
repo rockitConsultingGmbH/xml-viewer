@@ -3,7 +3,8 @@ import os
 from lxml import etree
 from database import db_to_xml_map
 
-db_path = 'C:/Users/MichalisPantazis/MPA/WORK/github/xml-viewer/database/database.db'
+# DB file path
+db_path = os.path.join(os.path.dirname(__file__), 'database.db')
 db_name = os.path.basename(db_path)
 
 def get_columns_from_table(cursor, table_name):
@@ -71,12 +72,21 @@ def create_xml_from_dbconfig(config_id):
     for row in rows:
         xml_tree = db_to_xml_map.create_xml_from_ipqueue(mqconfig, row)
 
-    # Communication
+    # Communications
     columns = get_columns_from_table(cursor, 'Communication')
-    rows = get_rows_from_db_table(cursor, 'Communication', columns, f"WHERE basicConfig_id = {basicConfig_id}")
-    for row in rows:
-        xml_tree, communication = db_to_xml_map.create_xml_from_communication(acsfiletransfer, row)
-        communication_id = row['id']
+    communicationRows = get_rows_from_db_table(cursor, 'Communication', columns, f"WHERE basicConfig_id = {basicConfig_id}")
+    for communicationRow in communicationRows:
+        communication_id = communicationRow['id']
+        communication = etree.SubElement(acsfiletransfer, 'communication')
+
+        # Description
+        columns = get_columns_from_table(cursor, 'Description')
+        rows = get_rows_from_db_table(cursor, 'Description', columns, f"WHERE communication_id = {communication_id}")
+        for row in rows:
+            xml_tree = db_to_xml_map.create_xml_from_description(communication, row)
+
+        # Communication
+        xml_tree = db_to_xml_map.create_xml_from_communication(communication, communicationRow)
 
         # Location
         columns = get_columns_from_table(cursor, 'Location')

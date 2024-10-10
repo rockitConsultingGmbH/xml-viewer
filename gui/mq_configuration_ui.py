@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPus
 from PyQt5.QtCore import Qt
 
 from common import config_manager
-from database.xml_data_to_db import get_db_connection
+from database.xml_to_db import get_db_connection
 from gui.communication_ui import ClickableLabel, create_group, toggle_inputs
 
 class MQConfigurationWidget(QWidget):

@@ -1,20 +1,26 @@
+def add_xml_element(root, tag_name):
+    value = (
+        root.find(tag_name).text if root.find(tag_name) is not None and root.find(tag_name).text else ''
+    )
+    return value
+
 # Dictionaries
-def createBasicConfigDict(acsfiletransfer, cofigFileName):
+def createBasicConfigDict(acsfiletransfer, configFilePath):
     BasicConfigDict = {
-        'stage':                        acsfiletransfer.find('stage').text,
-        'tempDir':                      acsfiletransfer.find('tempDir').text,
-        'tempDir1':                     acsfiletransfer.find('tempDir1').text,
-        'tempDir2':                     acsfiletransfer.find('tempDir2').text,
-        'historyFile':                  acsfiletransfer.find('historyFile').text,
-        'historyFile1':                 acsfiletransfer.find('historyFile1').text,
-        'historyFile2':                 acsfiletransfer.find('historyFile2').text,
-        'alreadyTransferedFile':        acsfiletransfer.find('alreadyTransferedFile').text,
-        'historyDays':                  acsfiletransfer.find('historyDays').text,
-        'archiverTime':                 acsfiletransfer.find('archiverTime').text,
-        'watcherEscalationTimeout':     acsfiletransfer.find('watcherEscalationTimeout').text,
-        'watcherSleepTime':             acsfiletransfer.find('watcherSleepTime').text,
-        'description':                  acsfiletransfer.find('description').text            if acsfiletransfer.find('description')              is not None else '',
-        'configFileName':               cofigFileName
+        'stage':                        add_xml_element(acsfiletransfer, 'stage'),
+        'tempDir':                      add_xml_element(acsfiletransfer, 'tempDir'),
+        'tempDir1':                     add_xml_element(acsfiletransfer, 'tempDir1'),
+        'tempDir2':                     add_xml_element(acsfiletransfer, 'tempDir2'),
+        'historyFile':                  add_xml_element(acsfiletransfer, 'historyFile'),
+        'historyFile1':                 add_xml_element(acsfiletransfer, 'historyFile1'),
+        'historyFile2':                 add_xml_element(acsfiletransfer, 'historyFile2'),
+        'alreadyTransferedFile':        add_xml_element(acsfiletransfer, 'alreadyTransferedFile'),
+        'historyDays':                  add_xml_element(acsfiletransfer, 'historyDays'),
+        'archiverTime':                 add_xml_element(acsfiletransfer, 'archiverTime'),
+        'watcherEscalationTimeout':     add_xml_element(acsfiletransfer, 'watcherEscalationTimeout'),
+        'watcherSleepTime':             add_xml_element(acsfiletransfer, 'watcherSleepTime'),
+        'description':                  add_xml_element(acsfiletransfer, 'description'),
+        'configFilePath':               configFilePath
     }
     return BasicConfigDict
 
@@ -46,7 +52,7 @@ def createMqConfigDict(basicConfig_id, mq):
         'sslPeer':                      mq.find('sslPeer').text,
         'ccsid':                        mq.find('ccsid').text,
         'queue':                        mq.find('queue').text,
-        'numberOfThreads':              mq.find('numberOfThreads').text                     if mq.find('numberOfThreads')                       is not None else '',
+        'numberOfThreads':              add_xml_element(mq, 'numberOfThreads'),
         'errorQueue':                   mq.find('errorQueue').text,
         'commandQueue':                 mq.find('commandQueue').text,
         'commandReplyQueue':            mq.find('commandReplyQueue').text,
@@ -74,8 +80,15 @@ def createIPQueueDict(mqConfig_id, ipqueue):
         'queue':                        ipqueue.find('queue').text,
         'errorQueue':                   ipqueue.find('errorQueue').text,
         'numberOfThreads':              ipqueue.find('numberOfThreads').text,
-        #'description':                  ipqueue.find('description').text                    if ipqueue.find('description')                      is not None else ''
-        'description':                  ipqueue.getprevious().text                          if ipqueue.getprevious() is not None and ipqueue.getprevious().tag == 'description' else ''
+        'description':                  (
+                                            ipqueue.find('description').text 
+                                            if ipqueue.find('description') is not None 
+                                            else (
+                                                ipqueue.getprevious().text 
+                                                if ipqueue.getprevious() is not None and ipqueue.getprevious().tag == 'description' 
+                                                else ''
+                                            )
+                                        )
     }
     return IPQueueDict
 
@@ -83,54 +96,49 @@ def createCommunicationDict(basicConfig_id, communication):
     CommunicationDict = {
         'basicConfig_id':               basicConfig_id,
         'name':                         communication.get('name', ''),
-        'alternateNameList':            communication.find('alternateNameList').text        if communication.find('alternateNameList')          is not None else '',
-        'watcherEscalationTimeout':     communication.find('watcherEscalationTimeout').text if communication.find('watcherEscalationTimeout')   is not None else '',
-        'isToPoll':                     communication.find('isToPoll').text                 if communication.find('isToPoll')                   is not None else '',
-        'pollUntilFound':               communication.find('pollUntilFound').text           if communication.find('pollUntilFound')             is not None else '',
-        'noTransfer':                   communication.find('noTransfer').text               if communication.find('noTransfer')                 is not None else '',
-        'targetMustBeArchived':         communication.find('targetMustBeArchived').text     if communication.find('targetMustBeArchived')       is not None else '',
-        'mustBeArchived':               communication.find('mustBeArchived').text           if communication.find('mustBeArchived')             is not None else '',
-        'historyDays':                  communication.find('historyDays').text              if communication.find('historyDays')                is not None else '',
-        'targetHistoryDays':            communication.find('targetHistoryDays').text        if communication.find('targetHistoryDays')          is not None else '',
-        'findPattern':                  communication.find('findPattern').text,     
-        'movPattern':                   communication.find('movPattern').text,      
-        'tmpPattern':                   communication.find('tmpPattern').text               if communication.find('tmpPattern')                 is not None else '',
-        'quitPattern':                  communication.find('quitPattern').text              if communication.find('quitPattern')                is not None else '',
-        'putPattern':                   communication.find('putPattern').text,      
-        'ackPattern':                   communication.find('ackPattern').text,      
-        'rcvPattern':                   communication.find('rcvPattern').text               if communication.find('rcvPattern')                 is not None else '',
-        'zipPattern':                   communication.find('zipPattern').text               if communication.find('zipPattern')                 is not None else '',
-        'befoerderung':                 communication.find('befoerderung').text             if communication.find('befoerderung')               is not None else '',
-        'pollInterval':                 communication.find('pollInterval').text             if communication.find('pollInterval')               is not None else '',
-        'gueltigAb':                    communication.find('gueltigAb').text                if communication.find('gueltigAb')                  is not None else '',
-        'gueltigBis':                   communication.find('gueltigBis').text               if communication.find('gueltigBis')                 is not None else '',
-        'befoerderungAb':               communication.find('befoerderungAb').text           if communication.find('befoerderungAb')             is not None else '',
-        'befoerderungBis':              communication.find('befoerderungBis').text          if communication.find('befoerderungBis')            is not None else '',
-        'befoerderungCron':             communication.find('befoerderungCron').text         if communication.find('befoerderungCron')           is not None else '',
-        'preunzip':                     communication.find('preunzip').text                 if communication.find('preunzip')                   is not None else '',
-        'postzip':                      communication.find('postzip').text,     
-        'renameWithTimestamp':          communication.find('renameWithTimestamp').text,     
-        'description':                  communication.find('description').text              if communication.find('description')                is not None else '',
-        'description1':                 communication.find('description1').text             if communication.find('description1')               is not None else '',
-        'description2':                 communication.find('description2').text             if communication.find('description2')               is not None else '',
-        'description3':                 communication.find('description3').text             if communication.find('description3')               is not None else '',
-        'description4':                 communication.find('description4').text             if communication.find('description4')               is not None else ''
+        'alternateNameList':            add_xml_element(communication, 'alternateNameList'),
+        'watcherEscalationTimeout':     add_xml_element(communication, 'watcherEscalationTimeout'),
+        'isToPoll':                     add_xml_element(communication, 'isToPoll'),
+        'pollUntilFound':               add_xml_element(communication, 'pollUntilFound'),
+        'noTransfer':                   add_xml_element(communication, 'noTransfer'),
+        'targetMustBeArchived':         add_xml_element(communication, 'targetMustBeArchived'),
+        'mustBeArchived':               add_xml_element(communication, 'mustBeArchived'),
+        'historyDays':                  add_xml_element(communication, 'historyDays'),
+        'targetHistoryDays':            add_xml_element(communication, 'targetHistoryDays'),
+        'findPattern':                  add_xml_element(communication, 'findPattern'),
+        'movPattern':                   add_xml_element(communication, 'movPattern'),
+        'tmpPattern':                   add_xml_element(communication, 'tmpPattern'),
+        'quitPattern':                  add_xml_element(communication, 'quitPattern'),
+        'putPattern':                   add_xml_element(communication, 'putPattern'),
+        'ackPattern':                   add_xml_element(communication, 'ackPattern'),
+        'rcvPattern':                   add_xml_element(communication, 'rcvPattern'),
+        'zipPattern':                   add_xml_element(communication, 'zipPattern'),
+        'befoerderung':                 add_xml_element(communication, 'befoerderung'),
+        'pollInterval':                 add_xml_element(communication, 'pollInterval'),
+        'gueltigAb':                    add_xml_element(communication, 'gueltigAb'),
+        'gueltigBis':                   add_xml_element(communication, 'gueltigBis'),
+        'befoerderungAb':               add_xml_element(communication, 'befoerderungAb'),
+        'befoerderungBis':              add_xml_element(communication, 'befoerderungBis'),
+        'befoerderungCron':             add_xml_element(communication, 'befoerderungCron'),
+        'preunzip':                     add_xml_element(communication, 'preunzip'),
+        'postzip':                      add_xml_element(communication, 'postzip'),
+        'renameWithTimestamp':          add_xml_element(communication, 'renameWithTimestamp'),
     }
     return CommunicationDict
 
 def createLocationDict(communication_id, location, locationType):
     LocationDict = {
         'communication_id':             communication_id,
-        'location':                     location.find('location').text,
+        'location':                     add_xml_element(location, 'location'),
         'location_id':                  location.get('id', ''),
-        'useLocalFilename':             location.find('useLocalFilename').text              if location.find('useLocalFilename')                is not None else '',
-        'usePathFromConfig':            location.find('usePathFromConfig').text             if location.find('usePathFromConfig')               is not None else '',
-        'targetMustBeArchived':         location.find('targetMustBeArchived').text          if location.find('targetMustBeArchived')            is not None else '',
-        'targetHistoryDays':            location.find('targetHistoryDays').text             if location.find('targetHistoryDays')               is not None else '',
-        'renameExistingFile':           location.find('renameExistingFile').text            if location.find('renameExistingFile')              is not None else '',
-        'userid':                       location.find('userid').text,
-        'password':                     location.find('password').text,
-        'description':                  location.find('description').text                   if location.find('description')                     is not None else '',
+        'useLocalFilename':             add_xml_element(location, 'useLocalFilename'),
+        'usePathFromConfig':            add_xml_element(location, 'usePathFromConfig'),
+        'targetMustBeArchived':         add_xml_element(location, 'targetMustBeArchived'),
+        'targetHistoryDays':            add_xml_element(location, 'targetHistoryDays'),
+        'renameExistingFile':           add_xml_element(location, 'renameExistingFile'),
+        'userid':                       add_xml_element(location, 'userid'),
+        'password':                     add_xml_element(location, 'password'),
+        'description':                  add_xml_element(location, 'description'),
         'locationType':                 locationType
     }
     return LocationDict
@@ -138,10 +146,10 @@ def createLocationDict(communication_id, location, locationType):
 def createCommandDict(communication_id, command, commandType):
     CommandDict = {
         'communication_id':             communication_id,
-        'className':                    command.find('className').text,
-        'validForTargetLocations':      command.find('validForTargetLocations').text        if command.find('validForTargetLocations')          is not None else '',
-        'userid':                       command.find('userid').text                         if command.find('userid')                           is not None else '',
-        'password':                     command.find('password').text                       if command.find('password')                         is not None else '',
+        'className':                    add_xml_element(command, 'className'),
+        'validForTargetLocations':      add_xml_element(command, 'validForTargetLocations'),
+        'userid':                       add_xml_element(command, 'userid'),
+        'password':                     add_xml_element(command, 'password'),
         'commandType':                  commandType
     }
     return CommandDict
@@ -167,3 +175,11 @@ def createAlternateNameDict(nameList_id, alternateName):
         'alternateName':                alternateName
     }
     return AlternateNameDict
+
+def createDescriptionDict(communication_id, description, descriptionType):
+    DescriptionDict = {
+        'communication_id':             communication_id,
+        'description':                  description.text,
+        'descriptionType':              descriptionType
+    }
+    return DescriptionDict

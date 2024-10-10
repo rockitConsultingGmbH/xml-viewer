@@ -1,5 +1,5 @@
 -- Drop dependent tables in reverse order of creation to avoid foreign key conflicts
-DROP TABLE IF EXISTS Comment;
+DROP TABLE IF EXISTS Description;
 DROP TABLE IF EXISTS AlternateName;
 DROP TABLE IF EXISTS NameList;
 DROP TABLE IF EXISTS CommandParam;
@@ -29,7 +29,7 @@ CREATE TABLE BasicConfig (
     watcherEscalationTimeout VARCHAR(255) NOT NULL,
     watcherSleepTime VARCHAR(255) NOT NULL,
     description VARCHAR(255),
-    configFileName VARCHAR(255)
+    configFilePath VARCHAR(255)
 );
 
 -- Create LzbConfig table with reference to BasicConfig
@@ -128,12 +128,6 @@ CREATE TABLE Communication (
     preunzip BOOLEAN,
     postzip BOOLEAN,
     renameWithTimestamp BOOLEAN,
-    description VARCHAR(255),
-    description1 VARCHAR(255),
-    description2 VARCHAR(255),
-    description3 VARCHAR(255),
-    description4 VARCHAR(255),
-    description5 VARCHAR(255),
     FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id)
     --UNIQUE (basicConfig_id, name)
 );
@@ -194,11 +188,11 @@ CREATE TABLE AlternateName (
     FOREIGN KEY (nameList_id) REFERENCES NameList(id) ON DELETE CASCADE
 );
 
-/* -- Create Description table with reference to Communication
-/CREATE TABLE Description (
+-- Create Description table with reference to Communication
+CREATE TABLE Description (
     id INTEGER PRIMARY KEY,
-    element_id INT  NOT NULL,
-    description TEXT  NOT NULL,
-    element_type VARCHAR(255) NOT NULL,
+    communication_id INT  NOT NULL,
+    description TEXT,
+    descriptionType VARCHAR(255) NOT NULL,
     FOREIGN KEY (communication_id) REFERENCES Communication(id) ON DELETE CASCADE
-); */
+);

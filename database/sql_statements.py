@@ -1,6 +1,5 @@
 # SQL Statements
 
-
 # BasicConfig
 def InsertIntoBasicConfig(cursor, row):
     cursor.execute("""
@@ -18,7 +17,7 @@ def InsertIntoBasicConfig(cursor, row):
         watcherEscalationTimeout,
         watcherSleepTime,
         description,
-        configFileName
+        configFilePath
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
@@ -35,10 +34,9 @@ def InsertIntoBasicConfig(cursor, row):
         row['watcherEscalationTimeout'],
         row['watcherSleepTime'],
         row['description'],
-        row['configFileName']
+        row['configFilePath']
     ))
     return cursor
-
 
 def UpdateBasicConfig(cursor, row):
     cursor.execute("""
@@ -56,7 +54,7 @@ def UpdateBasicConfig(cursor, row):
         watcherEscalationTimeout = ?,
         watcherSleepTime = ?,
         description = ?,
-        configFileName = ?
+        configFilePath = ?
     WHERE id = ?
     """, (
         row['stage'],
@@ -72,7 +70,7 @@ def UpdateBasicConfig(cursor, row):
         row['watcherEscalationTimeout'],
         row['watcherSleepTime'],
         row['description'],
-        row['configFileName'],
+        row['configFilePath'],
         row['id']
     ))
     return cursor
@@ -80,7 +78,6 @@ def UpdateBasicConfig(cursor, row):
 def DeleteFromBasicConfig(cursor, id):
     cursor.execute("DELETE FROM BasicConfig WHERE id = ?", (id,))
     return cursor
-
 
 # LzbConfig
 def InsertIntoLzbConfig(cursor, row):
@@ -138,7 +135,6 @@ def UpdateLzbConfig(cursor, row):
 def DeleteFromLzbConfig(cursor, basicConfig_id):
     cursor.execute("DELETE FROM LzbConfig WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
-
 
 # MqConfig
 def InsertIntoMqConfig(cursor, row):
@@ -233,7 +229,6 @@ def DeleteFromMqConfig(cursor, basicConfig_id):
     cursor.execute("DELETE FROM MqConfig WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
 
-
 # MqTrigger
 def InsertIntoMqTrigger(cursor, row):
     cursor.execute("""
@@ -287,7 +282,6 @@ def DeleteFromMqTrigger(cursor, mqConfig_id):
     cursor.execute("DELETE FROM MqTrigger WHERE mqConfig_id = ?", (mqConfig_id,))
     return cursor
 
-
 # IPQueue
 def InsertIntoIPQueue(cursor, row):
     cursor.execute("""
@@ -329,7 +323,6 @@ def DeleteFromIPQueue(cursor, mqConfig_id):
     cursor.execute("DELETE FROM IPQueue WHERE mqConfig_id = ?", (mqConfig_id,))
     return cursor
 
-
 # Communication
 def InsertIntoCommunication(cursor, row):
     cursor.execute("""
@@ -362,14 +355,9 @@ def InsertIntoCommunication(cursor, row):
         befoerderungCron,
         preunzip,
         postzip,
-        renameWithTimestamp,
-        description,
-        description1,
-        description2,
-        description3,
-        description4
+        renameWithTimestamp
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         row['basicConfig_id'],
         row['name'],
@@ -399,12 +387,7 @@ def InsertIntoCommunication(cursor, row):
         row['befoerderungCron'],
         row['preunzip'],
         row['postzip'],
-        row['renameWithTimestamp'],
-        row['description'],
-        row['description1'],
-        row['description2'],
-        row['description3'],
-        row['description4']
+        row['renameWithTimestamp']
     ))
     return cursor
 
@@ -438,12 +421,7 @@ def UpdateCommunication(cursor, row):
         befoerderungCron = ?,
         preunzip = ?,
         postzip = ?,
-        renameWithTimestamp = ?,
-        description = ?,
-        description1 = ?,
-        description2 = ?,
-        description3 = ?,
-        description4 = ?
+        renameWithTimestamp = ?
     WHERE basicConfig_id = ?
     """, (
         row['name'],
@@ -474,11 +452,6 @@ def UpdateCommunication(cursor, row):
         row['preunzip'],
         row['postzip'],
         row['renameWithTimestamp'],
-        row['description'],
-        row['description1'],
-        row['description2'],
-        row['description3'],
-        row['description4'],
         row['basicConfig_id']
     ))
     return cursor
@@ -486,7 +459,6 @@ def UpdateCommunication(cursor, row):
 def DeleteFromCommunication(cursor, basicConfig_id):
     cursor.execute("DELETE FROM Communication WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
-
 
 # Location
 def InsertIntoLocation(cursor, row):
@@ -557,7 +529,6 @@ def DeleteFromLocation(cursor, communication_id):
     cursor.execute("DELETE FROM Location WHERE communication_id = ?", (communication_id,))
     return cursor
 
-
 # Command
 def InsertIntoCommand(cursor, row):
     cursor.execute("""
@@ -603,7 +574,6 @@ def DeleteFromCommand(cursor, communication_id):
     cursor.execute("DELETE FROM Command WHERE communication_id = ?", (communication_id,))
     return cursor
 
-
 # Command
 def InsertIntoCommandParam(cursor, row):
     cursor.execute("""
@@ -632,7 +602,6 @@ def UpdateCommandParam(cursor, row):
 def DeleteFromCommandParam(cursor, command_id):
     cursor.execute("DELETE FROM CommandParam WHERE command_id = ?", (command_id,))
     return cursor
-
 
 # NameList
 def InsertIntoNameList(cursor, row):
@@ -666,7 +635,6 @@ def DeleteFromNameList(cursor, basicConfig_id, communication_id):
     cursor.execute("DELETE FROM NameList WHERE basicConfig_id = ? AND communication_id = ?", (basicConfig_id, communication_id,))
     return cursor
 
-
 # AlternateName
 def InsertIntoAlternateName(cursor, row):
     cursor.execute("""
@@ -694,4 +662,40 @@ def UpdateAlternateName(cursor, row):
 
 def DeleteFromAlternateName(cursor, nameList_id):
     cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (nameList_id,))
+    return cursor
+
+# Description
+def InsertIntoDescription(cursor, row):
+    cursor.execute("""
+    INSERT INTO Description (
+        communication_id,
+        description,
+        descriptionType
+    )
+    VALUES (?, ?, ?)
+    """, (
+        row['communication_id'],
+        row['description'],
+        row['descriptionType']
+    ))
+    return cursor
+
+def UpdateDescription(cursor, row):
+    cursor.execute("""
+    UPDATE Description
+    SET communication_id = ?,
+        description = ?,
+        descriptionType = ?
+    WHERE communication_id = ? and id = ?
+    """, (
+        row['communication_id'],
+        row['description'],
+        row['descriptionType'],
+        row['communication_id'],
+        row['description_id']
+    ))
+    return cursor
+
+def DeleteDescription(cursor, description_id):
+    cursor.execute("DELETE FROM Description WHERE id = ?", (description_id,))
     return cursor
