@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
 from common import config_manager
-from database.xml_to_db import get_db_connection
-from database.sql_statements import update_communication
+from controllers.connection_manager import ConnectionManager
+from database.utils import update_communication
 
 # Communication table
 def fetch_record_data(cursor, record_id):
@@ -34,7 +34,8 @@ def set_checkbox_value(widget_name, value):
 
 
 def data_populating(communication_id):
-    conn = get_db_connection()
+    conn_manager = ConnectionManager()
+    conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
 
     result = fetch_record_data(cursor, communication_id)
@@ -72,7 +73,8 @@ def data_populating(communication_id):
 
 
 def save_data(communication_id):
-    conn = get_db_connection()
+    conn_manager = ConnectionManager()
+    conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
     name = get_input_value("name_input"),
 

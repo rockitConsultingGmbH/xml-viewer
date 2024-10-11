@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
                              QLineEdit, QWidget)
 from common import config_manager
-from database.connection_manager import ConnectionManager
-from database.sql_statements import select_from_mqconfig, update_mqconfig
-from database.xml_to_db import get_db_connection
+from controllers.connection_manager import ConnectionManager
+from database.utils import select_from_mqconfig, update_mqconfig
 from gui.popup_message_ui import PopupMessage
 from gui.buttons import create_button_layout
 

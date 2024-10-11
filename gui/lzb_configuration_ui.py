@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QPushButton, QLineEdit, QFormLayout, QWidget
 from common import config_manager
-from database.connection_manager import ConnectionManager
-from database.xml_to_db import get_db_connection
+from controllers.connection_manager import ConnectionManager
 from gui.popup_message_ui import PopupMessage
 from gui.buttons import create_button_layout
 
@@ -86,7 +85,7 @@ class LZBConfigurationWidget(QWidget):
 
     def get_lzb_configuration(self):
         """Retrieve LZB configuration from the database."""
-        conn = get_db_connection()
+        conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
         
         query = """
@@ -115,7 +114,7 @@ class LZBConfigurationWidget(QWidget):
             config_manager.config_id
         )
 
-        conn = get_db_connection()
+        conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
 
         query = """

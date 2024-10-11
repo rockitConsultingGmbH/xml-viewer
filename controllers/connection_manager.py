@@ -6,7 +6,7 @@ class ConnectionManager:
         self.db_path = db_path
 
     def __init__(self):
-        self.db_path = os.path.join(os.path.dirname(__file__), 'database.db')
+        self.db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'database.db')
 
     def get_db_connection(self):
         try:

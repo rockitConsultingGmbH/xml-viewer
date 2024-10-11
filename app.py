@@ -8,11 +8,11 @@ from gui.dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
-from database.populating_data import data_populating
-from database.xml_to_db import get_db_connection
+from controllers.populating_data import data_populating
+from controllers.connection_manager import ConnectionManager
 from gui.mq_configuration_ui import MQConfigurationWidget
 
-from database.db_to_xml import export_to_xml as export_to_xml_function
+from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
 from common import config_manager
 
 class MainWindow(QMainWindow):
@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
         self.input_field = None
         self.recent_files = []
         self.basic_config_item = None
+        self.conn_manager = ConnectionManager()
 
         self.resize(1800, 900)
         self.setWindowTitle("XML Editor")
@@ -135,7 +136,7 @@ class MainWindow(QMainWindow):
             if table_name == ('MQ Configuration'):
                 self.mq_config_item = table_item
             if table_name == "Communications":
-                conn = get_db_connection()
+                conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
                 conn.row_factory = sqlite3.Row
                 cursor.execute(f"SELECT id, name FROM Communication WHERE basicConfig_id = {config_manager.config_id};")
@@ -204,40 +205,32 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([250, 1000])
 
     def save_config(self):
-        try:
-            if config_manager is None or not config_manager.config_id:
-                QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
-                return
-
-            #options = QFileDialog.Options()
-            #file_path, _ = QFileDialog.getSaveFileName(self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options)
-            file_path = config_manager.config_filepath
-            if file_path:
-                export_to_xml_function(file_path, config_manager.config_id)
-                QMessageBox.information(self, "Success", f"Data saved successfully to:\n{file_path}")
-            else:
-                QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
-        except Exception as e:
-            #QMessageBox.critical(self, "Error", f"Failed to export data: {e}")
-            QMessageBox.critical(self, "Error", f"Failed to export data")
+        """Save configuration to a predetermined file path."""
+        file_path = config_manager.config_filepath
+        self._export_to_file(file_path)
 
     def export_config(self):
-        try:
-            if config_manager is None or not config_manager.config_id:
-                QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
-                return
+        """Export configuration with a user-specified file path."""
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options
+        )
+        self._export_to_file(file_path)
 
-            options = QFileDialog.Options()
-            file_path, _ = QFileDialog.getSaveFileName(self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options)
+    def _export_to_file(self, file_path):
+        """Handles file export operations for configuration data."""
+        if not config_manager or not config_manager.config_id:
+            QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
+            return
 
-            if file_path:
+        if file_path:
+            try:
                 export_to_xml_function(file_path, config_manager.config_id)
                 QMessageBox.information(self, "Success", f"Data saved successfully to:\n{file_path}")
-            else:
-                QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
-        except Exception as e:
-            #QMessageBox.critical(self, "Error", f"Failed to export data: {e}")
-            QMessageBox.critical(self, "Error", f"Failed to export data")
+            except Exception:
+                QMessageBox.critical(self, "Error", "Failed to export data")
+        else:
+            QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
 
     def exit_application(self):
         # Perform any cleanup or show a confirmation dialog here if needed

@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
     QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox, QMessageBox
 
-from database.populating_data import save_data
+from controllers.populating_data import save_data
 
 # Clickable Label class for transforming labels into clickable buttons
 class ClickableLabel(QLabel):
