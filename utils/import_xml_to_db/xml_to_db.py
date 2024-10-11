@@ -39,16 +39,16 @@ def validate_xml(xml_path, xsd_path):
 
 # BasicConfiguration
 def insert_basic_config(cursor, acsfiletransfer, config_file_path):
-    return utils.InsertIntoBasicConfig(cursor,
+    return utils.insert_into_basicconfig(cursor,
                                                 dictionaries.createBasicConfigDict(acsfiletransfer, config_file_path))
 
 # Lzb
 def insert_lzb_config(cursor, basicConfig_id, lzb):
-    return utils.InsertIntoLzbConfig(cursor, dictionaries.createLzbConfigDict(basicConfig_id, lzb))
+    return utils.insert_into_lzbconfig(cursor, dictionaries.createLzbConfigDict(basicConfig_id, lzb))
 
 # Mq
 def insert_mq_config(cursor, basicConfig_id, mq):
-    return utils.InsertIntoMqConfig(cursor, dictionaries.createMqConfigDict(basicConfig_id, mq))
+    return utils.insert_into_mqconfig(cursor, dictionaries.createMqConfigDict(basicConfig_id, mq))
 
 # MqTrigger
 def insert_mq_trigger(cursor, mqConfig_id, mqtrigger):
@@ -60,11 +60,11 @@ def insert_ip_queue(cursor, mqConfig_id, ipqueue):
 
 # Communication
 def insert_communication(cursor, basicConfig_id, communication):
-    return utils.InsertIntoCommunication(cursor, dictionaries.createCommunicationDict(basicConfig_id,
+    return utils.insert_into_communication(cursor, dictionaries.createCommunicationDict(basicConfig_id,
                                                                                                communication))
 # Location
 def insert_location(cursor, communication_id, location, locationType):
-    return utils.InsertIntoLocation(cursor, dictionaries.createLocationDict(communication_id, location,
+    return utils.insert_into_location(cursor, dictionaries.createLocationDict(communication_id, location,
                                                                                      locationType))
 # Command
 def insert_command(cursor, communication_id, command, commandType):
@@ -84,7 +84,7 @@ def insert_alternate_name(cursor, nameList_id, alternateName):
 
 # Description
 def insert_description(cursor, communication_id, description, descriptionType):
-    return utils.InsertIntoDescription(cursor, dictionaries.createDescriptionDict(communication_id, description, descriptionType))
+    return utils.insert_into_description(cursor, dictionaries.createDescriptionDict(communication_id, description, descriptionType))
 
 # Insert data into the database
 def insert_data_into_db(xml_tree, config_file_path):

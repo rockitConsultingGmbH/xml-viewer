@@ -1,7 +1,7 @@
 # SQL Statements
 
 # BasicConfig
-def insert_into_basic_config(cursor, row):
+def insert_into_basicconfig(cursor, row):
     cursor.execute("""
     INSERT INTO BasicConfig (
         stage,
@@ -38,7 +38,7 @@ def insert_into_basic_config(cursor, row):
     ))
     return cursor
 
-def update_basic_config(cursor, row):
+def update_basicconfig(cursor, row):
     cursor.execute("""
     UPDATE BasicConfig
     SET stage = ?,
@@ -75,12 +75,12 @@ def update_basic_config(cursor, row):
     ))
     return cursor
 
-def delete_from_basic_config(cursor, id):
+def delete_from_basicconfig(cursor, id):
     cursor.execute("DELETE FROM BasicConfig WHERE id = ?", (id,))
     return cursor
 
 # LzbConfig
-def insert_into_lzb_config(cursor, row):
+def insert_into_lzbconfig(cursor, row):
     cursor.execute("""
     INSERT INTO LzbConfig (
         basicConfig_id,
@@ -107,7 +107,7 @@ def insert_into_lzb_config(cursor, row):
     ))
     return cursor
 
-def update_lzb_config(cursor, row):
+def update_lzbconfig(cursor, row):
     cursor.execute("""
     UPDATE LzbConfig
     SET encrypt_key = ?,
@@ -132,12 +132,12 @@ def update_lzb_config(cursor, row):
     ))
     return cursor
 
-def delete_from_lzb_config(cursor, basic_config_id):
+def delete_from_lzbconfig(cursor, basic_config_id):
     cursor.execute("DELETE FROM LzbConfig WHERE basic_config_id = ?", (basic_config_id,))
     return cursor
 
 # MqConfig
-def InsertIntoMqConfig(cursor, row):
+def insert_into_mqconfig(cursor, row):
     cursor.execute("""
     INSERT INTO MqConfig (
         basicConfig_id,
@@ -250,7 +250,7 @@ def update_mqconfig(cursor, row):
     ))
     return cursor
 
-def DeleteFromMqConfig(cursor, basicConfig_id):
+def delete_from_mqconfig(cursor, basicConfig_id):
     cursor.execute("DELETE FROM MqConfig WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
 
@@ -349,37 +349,7 @@ def DeleteFromIPQueue(cursor, mqConfig_id):
     return cursor
 
 # Communication
-def select_from_communication(cursor, communication_id, basicConfig_id):
-    cursor.execute("""
-    SELECT 
-        name, 
-        isToPoll, 
-        pollUntilFound, 
-        noTransfer, 
-        befoerderungAb, 
-        befoerderungBis,
-        pollInterval, 
-        watcherEscalationTimeout, 
-        preunzip, 
-        postzip,
-        renameWithTimestamp, 
-        gueltigAb, 
-        gueltigBis, 
-        findPattern, 
-        quitPattern,
-        ackPattern,
-        zipPattern,
-        movPattern,
-        putPattern, 
-        rcvPattern, 
-        alternateNameList
-    FROM Communication
-    WHERE id = ? AND basicConfig_id = ?
-    """,
-    (communication_id, basicConfig_id))
-    return cursor.fetchone()
-
-def InsertIntoCommunication(cursor, row):
+def insert_into_communication(cursor, row):
     cursor.execute("""
     INSERT INTO Communication (
         basicConfig_id,
@@ -445,6 +415,36 @@ def InsertIntoCommunication(cursor, row):
         row['renameWithTimestamp']
     ))
     return cursor
+
+def select_from_communication(cursor, communication_id, basicConfig_id):
+    cursor.execute("""
+    SELECT 
+        name, 
+        isToPoll, 
+        pollUntilFound, 
+        noTransfer, 
+        befoerderungAb, 
+        befoerderungBis,
+        pollInterval, 
+        watcherEscalationTimeout, 
+        preunzip, 
+        postzip,
+        renameWithTimestamp, 
+        gueltigAb, 
+        gueltigBis, 
+        findPattern, 
+        quitPattern,
+        ackPattern,
+        zipPattern,
+        movPattern,
+        putPattern, 
+        rcvPattern, 
+        alternateNameList
+    FROM Communication
+    WHERE id = ? AND basicConfig_id = ?
+    """,
+    (communication_id, basicConfig_id))
+    return cursor.fetchone()
 
 def update_communication(cursor, row):
     cursor.execute("""
@@ -512,35 +512,12 @@ def update_communication(cursor, row):
     ))
     return cursor
 
-def DeleteFromCommunication(cursor, basicConfig_id):
+def delete_from_communication(cursor, basicConfig_id):
     cursor.execute("DELETE FROM Communication WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
 
 # Location
-def select_from_location(cursor, communication_id, locationType):
-    cursor.execute("""
-    SELECT
-		id,
-        communication_id,
-        location,
-        location_id,
-        useLocalFilename,
-        usePathFromConfig,
-        targetMustBeArchived,
-        targetHistoryDays,
-        renameExistingFile,
-        userid,
-        password,
-        description,
-        locationType
-    FROM Location
-    WHERE communication_id = ? AND locationType = ?
-    """,
-    (communication_id,locationType))
-    return cursor.fetchone()
-
-
-def InsertIntoLocation(cursor, row):
+def insert_into_location(cursor, row):
     cursor.execute("""
     INSERT INTO Location (
         communication_id,
@@ -573,6 +550,28 @@ def InsertIntoLocation(cursor, row):
     ))
     return cursor
 
+def select_from_location(cursor, communication_id, locationType):
+    cursor.execute("""
+    SELECT
+		id,
+        communication_id,
+        location,
+        location_id,
+        useLocalFilename,
+        usePathFromConfig,
+        targetMustBeArchived,
+        targetHistoryDays,
+        renameExistingFile,
+        userid,
+        password,
+        description,
+        locationType
+    FROM Location
+    WHERE communication_id = ? AND locationType = ?
+    """,
+    (communication_id,locationType))
+    return cursor.fetchone()
+
 def update_data_location(cursor, row):
     cursor.execute("""
     UPDATE Location
@@ -604,7 +603,7 @@ def update_data_location(cursor, row):
     ))
     return cursor
 
-def DeleteFromLocation(cursor, communication_id):
+def delete_from_location(cursor, communication_id):
     cursor.execute("DELETE FROM Location WHERE communication_id = ?", (communication_id,))
     return cursor
 
@@ -653,7 +652,7 @@ def DeleteFromCommand(cursor, communication_id):
     cursor.execute("DELETE FROM Command WHERE communication_id = ?", (communication_id,))
     return cursor
 
-# Command
+# CommandParam
 def InsertIntoCommandParam(cursor, row):
     cursor.execute("""
     INSERT INTO CommandParam (
@@ -744,20 +743,7 @@ def DeleteFromAlternateName(cursor, nameList_id):
     return cursor
 
 # Description
-def select_from_description(cursor, communication_id, descriptionType):
-    cursor.execute("""
-    SELECT
-        id,
-        communication_id,
-        description,
-        descriptionType
-    FROM Description
-    WHERE communication_id = ? AND descriptionType = ?
-    """,
-    (communication_id, descriptionType))
-    return cursor.fetchone()
-
-def InsertIntoDescription(cursor, row):
+def insert_into_description(cursor, row):
     cursor.execute("""
     INSERT INTO Description (
         communication_id,
@@ -785,7 +771,7 @@ def select_from_description(cursor, communication_id, descriptionType):
     (communication_id, descriptionType))
     return cursor.fetchone()
 
-def UpdateDescription(cursor, row):
+def update_description(cursor, row):
     cursor.execute("""
     UPDATE Description
     SET communication_id = ?,
@@ -801,6 +787,6 @@ def UpdateDescription(cursor, row):
     ))
     return cursor
 
-def DeleteDescription(cursor, description_id):
+def delete_from_description(cursor, description_id):
     cursor.execute("DELETE FROM Description WHERE id = ?", (description_id,))
     return cursor
