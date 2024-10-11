@@ -9,7 +9,7 @@ from gui.communication_ui import setup_right_interface
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
 from controllers.populating_data import data_populating
-from controllers.connection_manager import ConnectionManager
+from common.connection_manager import ConnectionManager
 from gui.mq_configuration_ui import MQConfigurationWidget
 
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function

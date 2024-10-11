@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
 from common import config_manager
-from controllers.connection_manager import ConnectionManager
+from common.connection_manager import ConnectionManager
 from database.utils import update_communication
 
 # Communication table

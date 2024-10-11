@@ -1,7 +1,7 @@
 from lxml import etree
 import sqlite3
 import os
-from controllers.connection_manager import ConnectionManager
+from common.connection_manager import ConnectionManager
 import database.utils as utils
 import utils.import_xml_to_db.dictionaries as dictionaries
 

@@ -2,7 +2,7 @@ import sqlite3
 import os
 from lxml import etree
 from utils.export_db_to_xml import db_to_xml_map
-from controllers.connection_manager import ConnectionManager
+from common.connection_manager import ConnectionManager
 
 # DB file path
 db_path = os.path.join(os.path.dirname(__file__), 'database.db')
