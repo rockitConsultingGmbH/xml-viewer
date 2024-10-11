@@ -36,10 +36,9 @@ class FileDialog(QDialog):
         xsd_layout.addWidget(self.xsd_path)
         xsd_layout.addWidget(self.xsd_button)
 
-        # Добавляем чекбокс для активации валидации
         self.validate_checkbox = QCheckBox("Validate XML against XSD")
-        self.validate_checkbox.setChecked(False)  # Установить по умолчанию в false
-        self.validate_checkbox.toggled.connect(self.toggle_xsd_fields)  # Подключаем метод к событию
+        self.validate_checkbox.setChecked(False)
+        self.validate_checkbox.toggled.connect(self.toggle_xsd_fields)
 
         self.validate_button = QPushButton("Open and continue")
         self.validate_button.clicked.connect(self.validate_and_continue)
@@ -53,7 +52,6 @@ class FileDialog(QDialog):
 
         self.setLayout(layout)
 
-        # Устанавливаем состояние полей XSD при инициализации
         self.toggle_xsd_fields()
 
     def choose_xml_file(self):
@@ -67,7 +65,6 @@ class FileDialog(QDialog):
             self.xsd_path.setText(file_name)
 
     def toggle_xsd_fields(self):
-        # Включаем или отключаем поля выбора XSD в зависимости от состояния чекбокса
         is_checked = self.validate_checkbox.isChecked()
         self.xsd_path.setEnabled(is_checked)
         self.xsd_button.setEnabled(is_checked)

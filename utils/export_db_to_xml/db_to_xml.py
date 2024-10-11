@@ -38,10 +38,8 @@ def save_xml_to_file(pretty_xml_as_string, file_path):
 # Main function to execute the conversion
 def create_xml_from_dbconfig(config_id):
     # Connect to the database
-    conn_manager = ConnectionManager()
+    conn_manager = ConnectionManager().get_instance()
     conn = conn_manager.get_db_connection() 
-    #conn = sqlite3.connect(db_path)
-    #conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     # Create the root XML element

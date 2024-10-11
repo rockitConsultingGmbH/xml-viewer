@@ -12,7 +12,7 @@ BUTTON_SIZE = (100, 30)
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.conn_manager = ConnectionManager()
+        self.conn_manager = ConnectionManager().get_instance()
         self.popup_message = PopupMessage(self)
         self.setup_ui()
     

@@ -9,7 +9,7 @@ from gui.buttons import create_button_layout
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.conn_manager = ConnectionManager()
+        self.conn_manager = ConnectionManager().get_instance()
         self.setup_ui()
         self.popup_message = PopupMessage(self)
 

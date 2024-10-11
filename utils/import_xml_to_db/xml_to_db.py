@@ -8,12 +8,6 @@ import utils.import_xml_to_db.dictionaries as dictionaries
 # DB file path
 db_path = os.path.join(os.path.dirname(__file__), 'database.db')
 
-
-def get_db_connection():
-    conn_manager = ConnectionManager()
-    conn = conn_manager.get_db_connection()
-    return conn
-
 def validate_xml(xml_path, xsd_path):
     """
     Validate the XML file against the XSD schema.
@@ -100,8 +94,8 @@ def insert_data_into_db(xml_tree, config_file_path):
     :param xml_tree: Parsed XML tree
     :param config_file_path: Path of the configuration file
     """
-    conn = get_db_connection()
-
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
     rows_created = 0
 

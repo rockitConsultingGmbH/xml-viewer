@@ -34,7 +34,7 @@ def set_checkbox_value(widget_name, value):
 
 
 def data_populating(communication_id):
-    conn_manager = ConnectionManager()
+    conn_manager = ConnectionManager().get_instance()
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
 
@@ -73,7 +73,7 @@ def data_populating(communication_id):
 
 
 def save_data(communication_id):
-    conn_manager = ConnectionManager()
+    conn_manager = ConnectionManager().get_instance()
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
     name = get_input_value("name_input"),

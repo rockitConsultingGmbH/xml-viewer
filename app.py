@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         self.input_field = None
         self.recent_files = []
         self.basic_config_item = None
-        self.conn_manager = ConnectionManager()
+        self.conn_manager = ConnectionManager().get_instance()
 
         self.resize(1800, 900)
         self.setWindowTitle("XML Editor")
