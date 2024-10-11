@@ -1,42 +1,37 @@
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
-    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox, QMessageBox
-from PyQt5.QtCore import Qt
-
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, 
+                             QLineEdit, QWidget)
 from common import config_manager
-from database.xml_to_db import get_db_connection
-from gui.communication_ui import ClickableLabel, create_group, toggle_inputs
+from common.connection_manager import ConnectionManager
+from gui.popup_message_ui import PopupMessage
+from gui.buttons import create_button_layout
 
 class BasicConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.conn_manager = ConnectionManager.get_instance()
         self.setup_ui()
-    
+        self.popup_message = PopupMessage(self)
+
     def setup_ui(self):
-        # Create the layout and form layout
+        # Main layout
         layout = QVBoxLayout(self)
+
+        # Button layout
+        button_layout = create_button_layout(self)
+
+        # Form layout for input fields
         form_layout = QFormLayout()
+        self.init_input_fields()
+        self.populate_fields_from_db()
+        self.add_fields_to_form_layout(form_layout)
 
-        # Create Save and Reset buttons
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
+        # Add layouts to the main layout
+        layout.addLayout(button_layout)
+        layout.addLayout(form_layout)
+        self.setLayout(layout)
 
-        reset_button = QPushButton("Reset")
-        reset_button.setFixedSize(100, 30)
-        reset_button.setStyleSheet("background-color: #960e0e; color: white;")
-        reset_button.clicked.connect(self.populate_fields_from_db)  # Connect to reset function
-
-        save_button = QPushButton("Save")
-        save_button.setFixedSize(100, 30)
-        save_button.setStyleSheet("background-color: #41414a; color: white;")
-        save_button.clicked.connect(self.save_fields_to_db)
-
-        button_layout.addWidget(reset_button)
-        button_layout.addWidget(save_button)
-
-        # Add button layout to form layout
-        form_layout.addRow(button_layout)
-
-        # Define the input fields
+    def init_input_fields(self):
+        # Initialize all input fields
         self.stage_input = QLineEdit()
         self.temp_dir_input = QLineEdit()
         self.temp_dir1_input = QLineEdit()
@@ -50,22 +45,27 @@ class BasicConfigurationWidget(QWidget):
         self.watcher_escalation_timeout_input = QLineEdit()
         self.watcher_sleep_time_input = QLineEdit()
 
-        self.stage_input.setFixedSize(100, 35)
-        self.temp_dir_input.setFixedSize(500, 35)
-        self.temp_dir1_input.setFixedSize(500, 35)
-        self.temp_dir2_input.setFixedSize(500, 35)
-        self.history_file_input.setFixedSize(500, 35)
-        self.history_file1_input.setFixedSize(500, 35)
-        self.history_file2_input.setFixedSize(500, 35)
-        #self.already_transferred_file_input.setFixedSize(500, 35)
-        self.history_days_input.setFixedSize(100, 35)
-        self.archiver_time_input.setFixedSize(100, 35)
-        self.watcher_escalation_timeout_input.setFixedSize(100, 35)
-        self.watcher_sleep_time_input.setFixedSize(100, 35)
+        # Set input field sizes
+        self.set_input_field_sizes()
 
-        self.populate_fields_from_db()
+    def set_input_field_sizes(self):
+        # Configures fixed sizes for input fields
+        large_fields = [
+            self.temp_dir_input, self.temp_dir1_input, self.temp_dir2_input, 
+            self.history_file_input, self.history_file1_input, self.history_file2_input
+        ]
+        small_fields = [
+            self.stage_input, self.history_days_input, self.archiver_time_input, 
+            self.watcher_escalation_timeout_input, self.watcher_sleep_time_input
+        ]
 
-        # Add each field to the form layout
+        for field in large_fields:
+            field.setFixedSize(500, 35)
+        for field in small_fields:
+            field.setFixedSize(100, 35)
+
+    def add_fields_to_form_layout(self, form_layout):
+        # Adds input fields to the form layout with labels
         form_layout.addRow("Stage:", self.stage_input)
         form_layout.addRow("Temp Dir:", self.temp_dir_input)
         form_layout.addRow("Temp Dir 1:", self.temp_dir1_input)
@@ -79,16 +79,10 @@ class BasicConfigurationWidget(QWidget):
         form_layout.addRow("Watcher Escalation Timeout:", self.watcher_escalation_timeout_input)
         form_layout.addRow("Watcher Sleep Time:", self.watcher_sleep_time_input)
 
-        # Set form layout to the main layout
-        layout.addLayout(form_layout)
-
     def populate_fields_from_db(self):
-        # Call the function to fetch data from the database
+        # Retrieve and populate fields from database
         data = self.get_basic_configuration()
-        print(data)
-        # Ensure data is available
         if data:
-            # Populate the fields
             self.stage_input.setText(data[0])
             self.temp_dir_input.setText(data[1])
             self.temp_dir1_input.setText(data[2])
@@ -96,72 +90,58 @@ class BasicConfigurationWidget(QWidget):
             self.history_file_input.setText(data[4])
             self.history_file1_input.setText(data[5])
             self.history_file2_input.setText(data[6])
-            #self.already_transferred_file_input.setText(data[7])
-            self.already_transferred_file_input.setChecked(True) if data[7] == "true" else self.already_transferred_file_input.setChecked(False) #TODO: Type in DB should be changed to int
+            self.already_transferred_file_input.setChecked(data[7] == "true")
             self.history_days_input.setText(data[8])
             self.archiver_time_input.setText(data[9])
             self.watcher_escalation_timeout_input.setText(data[10])
             self.watcher_sleep_time_input.setText(data[11])
 
     def get_basic_configuration(self):
-        conn = get_db_connection()
+        # Fetch configuration data from the database
+        conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
         
-        # Replace with the actual query you need for your configuration
-        cursor.execute(f"SELECT stage, tempDir, tempDir1, tempDir2, historyFile, historyFile1, historyFile2, alreadyTransferedFile, historyDays,\
-        archiverTime, watcherEscalationTimeout, watcherSleepTime FROM BasicConfig WHERE id = {config_manager.config_id}")
+        cursor.execute("""
+            SELECT stage, tempDir, tempDir1, tempDir2, historyFile, historyFile1, historyFile2, 
+                   alreadyTransferedFile, historyDays, archiverTime, watcherEscalationTimeout, watcherSleepTime
+            FROM BasicConfig
+            WHERE id = ?
+        """, (config_manager.config_id,))
+        
         row = cursor.fetchone()
-        
-        # Close the database connection
         conn.close()
-        
-        # Ensure a row was retrieved and return it
-        if row:
-            return row
-        else:
-            return None
+        return row if row else None
 
     def save_fields_to_db(self):
-        # Gather data from input fields
-        stage = self.stage_input.text()
-        temp_dir = self.temp_dir_input.text()
-        temp_dir1 = self.temp_dir1_input.text()
-        temp_dir2 = self.temp_dir2_input.text()
-        history_file = self.history_file_input.text()
-        history_file1 = self.history_file1_input.text()
-        history_file2 = self.history_file2_input.text()
-        already_transferred_file = "true" if self.already_transferred_file_input.isChecked() else "false"
-        history_days = self.history_days_input.text() #int(self.history_days_input.text()) if self.history_days_input.text().isdigit() else 0
-        archiver_time = self.archiver_time_input.text()
-        watcher_escalation_timeout = self.watcher_escalation_timeout_input.text() #int(self.watcher_escalation_timeout_input.text()) if self.watcher_escalation_timeout_input.text().isdigit() else 0
-        watcher_sleep_time = self.watcher_sleep_time_input.text()
+        # Save data from input fields back to the database
+        data = (
+            self.stage_input.text(),
+            self.temp_dir_input.text(),
+            self.temp_dir1_input.text(),
+            self.temp_dir2_input.text(),
+            self.history_file_input.text(),
+            self.history_file1_input.text(),
+            self.history_file2_input.text(),
+            "true" if self.already_transferred_file_input.isChecked() else "false",
+            self.history_days_input.text(),
+            self.archiver_time_input.text(),
+            self.watcher_escalation_timeout_input.text(),
+            self.watcher_sleep_time_input.text(),
+            config_manager.config_id
+        )
 
-        # Connect to the database
-        conn = get_db_connection()
+        conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        
-        # Execute the update query
         cursor.execute("""
             UPDATE BasicConfig
             SET stage = ?, tempDir = ?, tempDir1 = ?, tempDir2 = ?, historyFile = ?, 
                 historyFile1 = ?, historyFile2 = ?, alreadyTransferedFile = ?, historyDays = ?, 
                 archiverTime = ?, watcherEscalationTimeout = ?, watcherSleepTime = ?
             WHERE id = ?
-        """, (stage, temp_dir, temp_dir1, temp_dir2, history_file, history_file1, history_file2, 
-            already_transferred_file, history_days, archiver_time, watcher_escalation_timeout, 
-            watcher_sleep_time, config_manager.config_id))
-
-        # Commit and close the connection
+        """, data)
+        
         conn.commit()
         conn.close()
 
-        # Optionally, print a confirmation message
-        print("Basic configuration updated successfully.")
-
         # Show success message
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Changes in Basic Configuration have been successfully saved.")
-        msg.setWindowTitle("Save Successful")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        self.popup_message.show_message("Changes in Basic Configuration have been successfully saved.")

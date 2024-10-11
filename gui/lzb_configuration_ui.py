@@ -1,41 +1,44 @@
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
-    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox, QMessageBox
-from PyQt5.QtCore import Qt
-
+from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QPushButton, QLineEdit, QFormLayout, QWidget
 from common import config_manager
-from database.xml_to_db import get_db_connection
-from gui.communication_ui import ClickableLabel, create_group, toggle_inputs
+from common.connection_manager import ConnectionManager
+from gui.popup_message_ui import PopupMessage
+from gui.buttons import create_button_layout
+
+# Define constants for button and field styling
+BUTTON_STYLE = "background-color: {}; color: white;"
+FIELD_SIZE = (500, 35)
+BUTTON_SIZE = (100, 30)
 
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.conn_manager = ConnectionManager().get_instance()
+        self.popup_message = PopupMessage(self)
         self.setup_ui()
     
     def setup_ui(self):
+        # Set up the main layout and form layout
         layout = QVBoxLayout(self)
         form_layout = QFormLayout()
 
-        # Create Save and Reset buttons
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-
-        reset_button = QPushButton("Reset")
-        reset_button.setFixedSize(100, 30)
-        reset_button.setStyleSheet("background-color: #960e0e; color: white;")
-        reset_button.clicked.connect(self.populate_fields_from_db)
-
-        save_button = QPushButton("Save")
-        save_button.setFixedSize(100, 30)
-        save_button.setStyleSheet("background-color: #41414a; color: white;")
-        save_button.clicked.connect(self.save_fields_to_db)
-
-        button_layout.addWidget(reset_button)
-        button_layout.addWidget(save_button)
-
-        # Add button layout to form layout
+        # Set up Save and Reset buttons
+        button_layout = create_button_layout(self)
         form_layout.addRow(button_layout)
 
-        # Define the input fields
+        # Initialize input fields
+        self.initialize_fields()
+        
+        # Add input fields to the form layout
+        self.add_fields_to_layout(form_layout)
+
+        # Set the layout for the widget
+        layout.addLayout(form_layout)
+
+        # Populate fields with data from the database
+        self.populate_fields_from_db()
+
+    def initialize_fields(self):
+        """Initialize input fields with specific properties."""
         self.encrypt_key_input = QLineEdit()
         self.encrypt_enabled_input = QCheckBox()
         self.keystore_path_input = QLineEdit()
@@ -45,39 +48,34 @@ class LZBConfigurationWidget(QWidget):
         self.ssh_implementation_input = QLineEdit()
         self.dns_timeout_input = QLineEdit()
 
-        self.encrypt_key_input.setFixedSize(500, 35)
-        #self.encrypt_enabled_input.setFixedSize(500, 35)
-        self.keystore_path_input.setFixedSize(500, 35)
-        self.keystore_password_input.setFixedSize(500, 35)
-        self.truststore_path_input.setFixedSize(500, 35)
-        self.truststore_password_input.setFixedSize(500, 35)
-        self.ssh_implementation_input.setFixedSize(500, 35)
-        self.dns_timeout_input.setFixedSize(100, 35)
-        self.populate_fields_from_db()
+        # Apply a fixed size to fields where appropriate
+        self.apply_field_size(self.encrypt_key_input, self.keystore_path_input, 
+                              self.keystore_password_input, self.truststore_path_input, 
+                              self.truststore_password_input, self.ssh_implementation_input)
+        self.dns_timeout_input.setFixedSize(100, 35)  # Custom width for dns_timeout
 
-        # Add each field to the form layout
-        form_layout.addRow("Encrypt:", self.encrypt_enabled_input)
-        form_layout.addRow("Encrypt_Key:", self.encrypt_key_input)
-        form_layout.addRow("Keystore Path:", self.keystore_path_input)
-        form_layout.addRow("Keystore_Password:", self.keystore_password_input)
-        form_layout.addRow("Truststore Path:", self.truststore_path_input)
-        form_layout.addRow("Truststore Password:", self.truststore_password_input)
-        form_layout.addRow("SSH Implementation:", self.ssh_implementation_input)
-        form_layout.addRow("DNS Timeout:", self.dns_timeout_input)
+    def apply_field_size(self, *fields):
+        """Applies a fixed size to multiple input fields."""
+        for field in fields:
+            field.setFixedSize(*FIELD_SIZE)
 
-        # Set form layout to the main layout
-        layout.addLayout(form_layout)
+    def add_fields_to_layout(self, layout):
+        """Add input fields to the form layout with appropriate labels."""
+        layout.addRow("Encrypt:", self.encrypt_enabled_input)
+        layout.addRow("Encrypt Key:", self.encrypt_key_input)
+        layout.addRow("Keystore Path:", self.keystore_path_input)
+        layout.addRow("Keystore Password:", self.keystore_password_input)
+        layout.addRow("Truststore Path:", self.truststore_path_input)
+        layout.addRow("Truststore Password:", self.truststore_password_input)
+        layout.addRow("SSH Implementation:", self.ssh_implementation_input)
+        layout.addRow("DNS Timeout:", self.dns_timeout_input)
 
     def populate_fields_from_db(self):
-        # Call the function to fetch data from the database
+        """Fetches and populates the widget fields with data from the database."""
         data = self.get_lzb_configuration()
-        print(data)
-        # Ensure data is available
         if data:
-            # Populate the fields
             self.encrypt_key_input.setText(data[0])
-            #self.encrypt_enabled_input.setText(str(data[1]))
-            self.encrypt_enabled_input.setChecked(True) if data[1] == "true" else self.encrypt_enabled_input.setChecked(False)
+            self.encrypt_enabled_input.setChecked(data[1] == "true")
             self.keystore_path_input.setText(data[2])
             self.keystore_password_input.setText(data[3])
             self.truststore_path_input.setText(data[4])
@@ -86,58 +84,48 @@ class LZBConfigurationWidget(QWidget):
             self.dns_timeout_input.setText(str(data[7]))
 
     def get_lzb_configuration(self):
-        conn = get_db_connection()  # Assuming this function is defined elsewhere
+        """Retrieve LZB configuration from the database."""
+        conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
         
-        # Replace with the actual query you need for your configuration
-        cursor.execute(f"SELECT encrypt_key, encrypt_enabled, keystore_path, keystore_password, \
-                    truststore_path, truststore_password, ssh_implementation, dns_timeout FROM LzbConfig WHERE basicConfig_id = {config_manager.config_id}")
+        query = """
+            SELECT encrypt_key, encrypt_enabled, keystore_path, keystore_password, 
+                   truststore_path, truststore_password, ssh_implementation, dns_timeout 
+            FROM LzbConfig 
+            WHERE basicConfig_id = ?
+        """
+        cursor.execute(query, (config_manager.config_id,))
         row = cursor.fetchone()
-        
-        # Close the database connection
         conn.close()
         
-        # Ensure a row was retrieved and return it
-        if row:
-            return row
-        else:
-            return None
-        
-    def save_fields_to_db(self):
-        # Get the values from the input fields
-        encrypt_key = self.encrypt_key_input.text()
-        encrypt_enabled = "true" if self.encrypt_enabled_input.isChecked() else "false"
-        keystore_path = self.keystore_path_input.text()
-        keystore_password = self.keystore_password_input.text()
-        truststore_path = self.truststore_path_input.text()
-        truststore_password = self.truststore_password_input.text()
-        ssh_implementation = self.ssh_implementation_input.text()
-        dns_timeout = self.dns_timeout_input.text() #int(self.dns_timeout_input.text()) if self.dns_timeout_input.text().isdigit() else 0
+        return row if row else None
 
-        # Connect to the database
-        conn = get_db_connection()
+    def save_fields_to_db(self):
+        """Saves the current state of the fields to the database."""
+        values = (
+            self.encrypt_key_input.text(),
+            "true" if self.encrypt_enabled_input.isChecked() else "false",
+            self.keystore_path_input.text(),
+            self.keystore_password_input.text(),
+            self.truststore_path_input.text(),
+            self.truststore_password_input.text(),
+            self.ssh_implementation_input.text(),
+            self.dns_timeout_input.text(), 
+            config_manager.config_id
+        )
+
+        conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        
-        # Execute the update query
-        cursor.execute("""
+
+        query = """
             UPDATE LzbConfig
             SET encrypt_key = ?, encrypt_enabled = ?, keystore_path = ?, keystore_password = ?, 
                 truststore_path = ?, truststore_password = ?, ssh_implementation = ?, dns_timeout = ?
             WHERE basicConfig_id = ?
-        """, (encrypt_key, encrypt_enabled, keystore_path, keystore_password, truststore_path, 
-            truststore_password, ssh_implementation, dns_timeout, config_manager.config_id))
-
-        # Commit the changes and close the connection
+        """
+        cursor.execute(query, values)
         conn.commit()
         conn.close()
 
-        # Optionally, show a message box or print a message to confirm saving
-        print("LZB configuration updated successfully.")
-
         # Show success message
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Changes in LZB Configuration have been successfully saved.")
-        msg.setWindowTitle("Save Successful")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        self.popup_message.show_message("Changes in LZB Configuration have been successfully saved.")
