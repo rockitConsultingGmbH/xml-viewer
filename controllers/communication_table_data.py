@@ -5,34 +5,12 @@ from database.utils import update_communication
 from database.utils import select_from_communication
 
 # Communication table
-def fetch_record_data(cursor, record_id, basic_config_id):
-    return select_from_communication(cursor, record_id, basic_config_id)
-
-
-def set_input_value(widget_name, value):
-    widget = next((widget for widget in QApplication.allWidgets() if
-                   isinstance(widget, QLineEdit) and widget.objectName() == widget_name), None)
-    if widget:
-        widget.blockSignals(True)
-        widget.setText(value or "")
-        widget.blockSignals(False)
-
-
-def set_checkbox_value(widget_name, value):
-    checkbox = next((widget for widget in QApplication.allWidgets() if
-                     isinstance(widget, QCheckBox) and widget.objectName() == widget_name), None)
-    if checkbox:
-        checkbox.blockSignals(True)
-        checkbox.setChecked(value in [1, '1', True, 'true'])
-        checkbox.blockSignals(False)
-
-
 def populate_communication_table_fields(communication_id):
     conn_manager = ConnectionManager().get_instance()
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
 
-    result = fetch_record_data(cursor, communication_id, config_manager.config_id)
+    result = select_from_communication(cursor, communication_id, config_manager.config_id)
 
     if result:
         (name, is_to_poll, poll_until_found, no_transfer, befoerderung_ab, befoerderung_bis,
@@ -42,9 +20,6 @@ def populate_communication_table_fields(communication_id):
 
         set_input_value("name_input", name)
         set_checkbox_value("polling_activate_checkbox", is_to_poll)
-
-        # TODO: Implementation of filling description fields
-
         set_checkbox_value("poll_until_found_checkbox", poll_until_found)
         set_checkbox_value("no_transfer_checkbox", no_transfer)
         set_input_value("befoerderung_ab_input", befoerderung_ab)
@@ -124,6 +99,23 @@ def get_input_value(widget_name):
     widget = next((widget for widget in QApplication.allWidgets() if
                    isinstance(widget, QLineEdit) and widget.objectName() == widget_name), None)
     return widget.text() if widget else ""
+
+def set_input_value(widget_name, value):
+    widget = next((widget for widget in QApplication.allWidgets() if
+                   isinstance(widget, QLineEdit) and widget.objectName() == widget_name), None)
+    if widget:
+        widget.blockSignals(True)
+        widget.setText(value or "")
+        widget.blockSignals(False)
+
+
+def set_checkbox_value(widget_name, value):
+    checkbox = next((widget for widget in QApplication.allWidgets() if
+                     isinstance(widget, QCheckBox) and widget.objectName() == widget_name), None)
+    if checkbox:
+        checkbox.blockSignals(True)
+        checkbox.setChecked(value in [1, '1', True, 'true'])
+        checkbox.blockSignals(False)
 
 
 def get_checkbox_value(widget_name):

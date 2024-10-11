@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QLineEdit
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_description
+from .communication_table_data import set_input_value, get_input_value
 
 def populate_description_fields(communication_id):
     conn_manager = ConnectionManager().get_instance()
@@ -18,9 +18,5 @@ def populate_description_fields(communication_id):
 
     conn.close()
 
-def set_input_value(widget_name, value):
-    widget = next((w for w in QApplication.allWidgets() if isinstance(w, QLineEdit) and w.objectName() == widget_name), None)
-    if widget:
-        widget.blockSignals(True)
-        widget.setText(value or "")
-        widget.blockSignals(False)
+set_input_value("widget_name", "value")
+get_input_value("widget_name")
