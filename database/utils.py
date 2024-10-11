@@ -1,7 +1,7 @@
 # SQL Statements
 
 # BasicConfig
-def InsertIntoBasicConfig(cursor, row):
+def insert_into_basic_config(cursor, row):
     cursor.execute("""
     INSERT INTO BasicConfig (
         stage,
@@ -38,7 +38,7 @@ def InsertIntoBasicConfig(cursor, row):
     ))
     return cursor
 
-def UpdateBasicConfig(cursor, row):
+def update_basic_config(cursor, row):
     cursor.execute("""
     UPDATE BasicConfig
     SET stage = ?,
@@ -75,12 +75,12 @@ def UpdateBasicConfig(cursor, row):
     ))
     return cursor
 
-def DeleteFromBasicConfig(cursor, id):
+def delete_from_basic_config(cursor, id):
     cursor.execute("DELETE FROM BasicConfig WHERE id = ?", (id,))
     return cursor
 
 # LzbConfig
-def InsertIntoLzbConfig(cursor, row):
+def insert_into_lzb_config(cursor, row):
     cursor.execute("""
     INSERT INTO LzbConfig (
         basicConfig_id,
@@ -107,7 +107,7 @@ def InsertIntoLzbConfig(cursor, row):
     ))
     return cursor
 
-def UpdateLzbConfig(cursor, row):
+def update_lzb_config(cursor, row):
     cursor.execute("""
     UPDATE LzbConfig
     SET encrypt_key = ?,
@@ -132,8 +132,8 @@ def UpdateLzbConfig(cursor, row):
     ))
     return cursor
 
-def DeleteFromLzbConfig(cursor, basicConfig_id):
-    cursor.execute("DELETE FROM LzbConfig WHERE basicConfig_id = ?", (basicConfig_id,))
+def delete_from_lzb_config(cursor, basic_config_id):
+    cursor.execute("DELETE FROM LzbConfig WHERE basic_config_id = ?", (basic_config_id,))
     return cursor
 
 # MqConfig
@@ -771,6 +771,19 @@ def InsertIntoDescription(cursor, row):
         row['descriptionType']
     ))
     return cursor
+
+def select_from_description(cursor, communication_id, descriptionType):
+    cursor.execute("""
+    SELECT
+        id,
+        communication_id,
+        description,
+        descriptionType
+    FROM Description
+    WHERE communication_id = ? AND descriptionType = ?
+    """,
+    (communication_id, descriptionType))
+    return cursor.fetchone()
 
 def UpdateDescription(cursor, row):
     cursor.execute("""

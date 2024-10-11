@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit
-from database.xml_to_db import get_db_connection
-from database.sql_statements import select_from_location
-
+from common.connection_manager import ConnectionManager
+from database.utils import select_from_location
 
 def populate_location_table_fields(communication_id):
-    conn = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
 
     location_type = 'sourceLocation'

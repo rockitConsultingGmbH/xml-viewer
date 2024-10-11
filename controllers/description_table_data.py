@@ -1,9 +1,10 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit
-from database.xml_to_db import get_db_connection
-from database.sql_statements import select_from_description
+from common.connection_manager import ConnectionManager
+from database.utils import select_from_description
 
 def populate_description_fields(communication_id):
-    conn = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
 
     description_types = ['description', 'description1', 'description2', 'description3']
