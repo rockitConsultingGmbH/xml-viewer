@@ -1,8 +1,8 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
-    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox
+    QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox, QMessageBox
 
-from database.populating.communication_table_data import save_communication_data
+from database.populating_data import save_data
 
 # Clickable Label class for transforming labels into clickable buttons
 class ClickableLabel(QLabel):
@@ -62,7 +62,7 @@ def setup_right_interface(right_widget, communication_id):
     """)
 
     def save_and_show_message():
-        save_communication_data(communication_id)
+        save_data(communication_id)
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
         msg.setText("Changes in Communication have been successfully saved.")
@@ -144,7 +144,6 @@ def create_group(group_name, layout):
         alt_name_input = QLineEdit()
         alt_name_input.setObjectName("alt_name_input")
         alt_name_input.setFixedSize(400, 30)
-
         go_button = QPushButton("GO")
         go_button.setObjectName("goButton")
         go_button.setFixedSize(43, 30)
@@ -174,6 +173,7 @@ def create_group(group_name, layout):
 
         description_label = ClickableLabel("Description(s)")
         description_label.setStyleSheet(label_style)
+        description_label.mousePressEvent = lambda event: toggle_inputs(input_labels, input_fields)
 
         description_input = QLineEdit()
         description_input.setObjectName("description_input")
@@ -181,32 +181,18 @@ def create_group(group_name, layout):
 
         form_layout_right.addRow(description_label, description_input)
 
-        description_1_label = QLabel("Description")
-        description_1_label.setStyleSheet(label_style)
-        description_1_input = QLineEdit()
-        description_1_input.setFixedSize(550, 30)
-        description_1_input.setObjectName("description_1_input")
+        for i in range(3):
+            input_label = QLabel(f"Description {i + 1}")
+            input_label.setStyleSheet(label_style)
+            input_field = QLineEdit()
+            input_field.setFixedSize(550, 30)
+            input_field.setObjectName(f"description_{i + 1}_input")
+            input_labels.append(input_label)
+            input_fields.append(input_field)
 
-        description_2_label = QLabel("Description")
-        description_2_label.setStyleSheet(label_style)
-        description_2_input = QLineEdit()
-        description_2_input.setFixedSize(550, 30)
-        description_2_input.setObjectName("description_2_input")
-
-        description_3_label = QLabel("Description")
-        description_3_label.setStyleSheet(label_style)
-        description_3_input = QLineEdit()
-        description_3_input.setFixedSize(550, 30)
-        description_3_input.setObjectName("description_3_input")
-
-        form_layout_right.addRow(description_1_label, description_1_input)
-        form_layout_right.addRow(description_2_label, description_2_input)
-        form_layout_right.addRow(description_3_label, description_3_input)
-
-        input_labels = [description_1_label, description_2_label, description_3_label]
-        input_fields = [description_1_input, description_2_input, description_3_input]
-
-        description_label.mousePressEvent = lambda event: toggle_inputs(input_labels, input_fields)
+            form_layout_right.addRow(input_label, input_field)
+            input_label.hide()
+            input_field.hide()
 
         hbox_columns.addLayout(form_layout_right)
         group_layout.addLayout(hbox_columns)
@@ -260,6 +246,11 @@ def create_group(group_name, layout):
         source_labels.append(password_label)
         source_inputs.append(userid_input)
         source_inputs.append(password_input)
+
+        userid_label.hide()
+        userid_input.hide()
+        password_label.hide()
+        password_input.hide()
 
         source_label.mousePressEvent = lambda event: toggle_inputs(source_labels, source_inputs)
 
@@ -324,6 +315,11 @@ def create_group(group_name, layout):
             target_labels.append(password_target_label)
             target_inputs.append(userid_target_input)
             target_inputs.append(password_target_input)
+
+            userid_target_label.hide()
+            userid_target_input.hide()
+            password_target_label.hide()
+            password_target_input.hide()
 
             hbox_target_row = QHBoxLayout()
             hbox_target_row.addWidget(target_label)
@@ -403,6 +399,9 @@ def create_group(group_name, layout):
         hbox_input1.addWidget(input1)
         form_layout_left.addLayout(hbox_input1)
 
+        input1_label.hide()
+        input1.hide()
+
         settings_labels.append(input1_label)
         settings_inputs.append(input1)
 
@@ -417,6 +416,9 @@ def create_group(group_name, layout):
         hbox_input2.addWidget(input2_label)
         hbox_input2.addWidget(input2)
         form_layout_left.addLayout(hbox_input2)
+
+        input2_label.hide()
+        input2.hide()
 
         settings_labels.append(input2_label)
         settings_inputs.append(input2)
@@ -434,6 +436,9 @@ def create_group(group_name, layout):
         hbox_input3.addWidget(input3)
         form_layout_right.addLayout(hbox_input3)
 
+        input3_label.hide()
+        input3.hide()
+
         settings_labels.append(input3_label)
         settings_inputs.append(input3)
 
@@ -447,6 +452,9 @@ def create_group(group_name, layout):
         hbox_input4.addWidget(input4_label)
         hbox_input4.addWidget(input4)
         form_layout_right.addLayout(hbox_input4)
+
+        input4_label.hide()
+        input4.hide()
 
         settings_labels.append(input4_label)
         settings_inputs.append(input4)
@@ -513,6 +521,9 @@ def create_group(group_name, layout):
         hbox_new_input1.addWidget(new_input1)
         vbox_left.addLayout(hbox_new_input1)
 
+        new_input_label1.hide()
+        new_input1.hide()
+
         other_settings_labels.append(new_input_label1)
         other_settings_inputs.append(new_input1)
 
@@ -527,6 +538,9 @@ def create_group(group_name, layout):
         hbox_new_input2.addWidget(new_input_label2)
         hbox_new_input2.addWidget(new_input2)
         vbox_right.addLayout(hbox_new_input2)
+
+        new_input_label2.hide()
+        new_input2.hide()
 
         other_settings_labels.append(new_input_label2)
         other_settings_inputs.append(new_input2)

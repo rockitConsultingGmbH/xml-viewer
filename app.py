@@ -8,9 +8,7 @@ from gui.dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
-from database.populating.communication_table_data import populate_communication_table_fields
-from database.populating.location_table_data import populate_location_table_fields
-from database.populating.description_table_data import populate_description_fields
+from database.populating_data import data_populating
 from database.xml_to_db import get_db_connection
 from gui.mq_configuration_ui import MQConfigurationWidget
 
@@ -140,7 +138,7 @@ class MainWindow(QMainWindow):
                 conn = get_db_connection()
                 cursor = conn.cursor()
                 conn.row_factory = sqlite3.Row
-                cursor.execute(f"SELECT id, name FROM Communication WHERE basicConfig_id = {config_manager.config_id};")
+                cursor.execute(f"SELECT id, name FROM Communication;")
                 rows = cursor.fetchall()
                 self.communication_config_item = table_item
 
@@ -172,9 +170,7 @@ class MainWindow(QMainWindow):
 
                 setup_right_interface(self.right_widget, communication_id)
 
-                populate_communication_table_fields(communication_id)
-                populate_location_table_fields(communication_id)
-                populate_description_fields(communication_id)
+                data_populating(communication_id)
 
         elif item == self.basic_config_item:
             self.load_basic_config_view()

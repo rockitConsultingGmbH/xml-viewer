@@ -324,36 +324,6 @@ def DeleteFromIPQueue(cursor, mqConfig_id):
     return cursor
 
 # Communication
-def select_from_communication(cursor, communication_id, basicConfig_id):
-    cursor.execute("""
-    SELECT 
-        name, 
-        isToPoll, 
-        pollUntilFound, 
-        noTransfer, 
-        befoerderungAb, 
-        befoerderungBis,
-        pollInterval, 
-        watcherEscalationTimeout, 
-        preunzip, 
-        postzip,
-        renameWithTimestamp, 
-        gueltigAb, 
-        gueltigBis, 
-        findPattern, 
-        quitPattern,
-        ackPattern,
-        zipPattern,
-        movPattern,
-        putPattern, 
-        rcvPattern, 
-        alternateNameList
-    FROM Communication
-    WHERE id = ? AND basicConfig_id = ?
-    """,
-    (communication_id, basicConfig_id))
-    return cursor.fetchone()
-
 def InsertIntoCommunication(cursor, row):
     cursor.execute("""
     INSERT INTO Communication (
@@ -421,7 +391,7 @@ def InsertIntoCommunication(cursor, row):
     ))
     return cursor
 
-def update_communication(cursor, row):
+def UpdateCommunication(cursor, row):
     cursor.execute("""
     UPDATE Communication
     SET name = ?,
@@ -452,7 +422,7 @@ def update_communication(cursor, row):
         preunzip = ?,
         postzip = ?,
         renameWithTimestamp = ?
-    WHERE id = ? AND basicConfig_id = ?
+    WHERE basicConfig_id = ?
     """, (
         row['name'],
         row['alternateNameList'],
@@ -482,7 +452,6 @@ def update_communication(cursor, row):
         row['preunzip'],
         row['postzip'],
         row['renameWithTimestamp'],
-        row['communication_id'],
         row['basicConfig_id']
     ))
     return cursor
@@ -492,29 +461,6 @@ def DeleteFromCommunication(cursor, basicConfig_id):
     return cursor
 
 # Location
-def select_from_location(cursor, communication_id, locationType):
-    cursor.execute("""
-    SELECT
-		id,
-        communication_id,
-        location,
-        location_id,
-        useLocalFilename,
-        usePathFromConfig,
-        targetMustBeArchived,
-        targetHistoryDays,
-        renameExistingFile,
-        userid,
-        password,
-        description,
-        locationType
-    FROM Location
-    WHERE communication_id = ? AND locationType = ?
-    """,
-    (communication_id,locationType))
-    return cursor.fetchone()
-
-
 def InsertIntoLocation(cursor, row):
     cursor.execute("""
     INSERT INTO Location (
@@ -548,7 +494,7 @@ def InsertIntoLocation(cursor, row):
     ))
     return cursor
 
-def update_data_location(cursor, row):
+def UpdateLocation(cursor, row):
     cursor.execute("""
     UPDATE Location
     SET location = ?,
@@ -719,19 +665,6 @@ def DeleteFromAlternateName(cursor, nameList_id):
     return cursor
 
 # Description
-def select_from_description(cursor, communication_id, descriptionType):
-    cursor.execute("""
-    SELECT
-        id,
-        communication_id,
-        description,
-        descriptionType
-    FROM Description
-    WHERE communication_id = ? AND descriptionType = ?
-    """,
-    (communication_id, descriptionType))
-    return cursor.fetchone()
-
 def InsertIntoDescription(cursor, row):
     cursor.execute("""
     INSERT INTO Description (
