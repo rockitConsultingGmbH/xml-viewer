@@ -8,13 +8,12 @@ from gui.import_xml_dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
+from gui.mq_configuration_ui import MQConfigurationWidget
 
-from common.connection_manager import ConnectionManager
 from controllers.communication_table_data import populate_communication_table_fields
-from controllers.location_table_data import populate_location_table_fields
+from controllers.location_table_data import populate_location_source_fields
 from controllers.description_table_data import populate_description_fields
 from common.connection_manager import ConnectionManager
-from gui.mq_configuration_ui import MQConfigurationWidget
 
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
 from common import config_manager
@@ -176,7 +175,7 @@ class MainWindow(QMainWindow):
                 setup_right_interface(self.right_widget, communication_id)
 
                 populate_communication_table_fields(communication_id)
-                populate_location_table_fields(communication_id)
+                populate_location_source_fields(communication_id)
                 populate_description_fields(communication_id)
 
         elif item == self.basic_config_item:

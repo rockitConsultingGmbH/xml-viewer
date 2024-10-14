@@ -225,8 +225,13 @@ def create_group(group_name, layout):
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         group_layout.addItem(spacer)
 
+        source_location_label = QLabel("Source Location")
+        source_location_label.setStyleSheet(label_style)
+        group_layout.addWidget(source_location_label)
+
         source_label = ClickableLabel("Source")
         source_label.setStyleSheet(label_children_style)
+        source_label.setFixedWidth(70)
         source_input = QLineEdit()
         source_input.setObjectName("source_input")
         source_input.setFixedHeight(30)
@@ -265,7 +270,7 @@ def create_group(group_name, layout):
         left_column_layout.addRow(use_path_from_config_checkbox)
 
         left_column_with_margin = QHBoxLayout()
-        left_margin = QSpacerItem(65, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        left_margin = QSpacerItem(90, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
         left_column_with_margin.addItem(left_margin)
         left_column_with_margin.addLayout(left_column_layout)
 
@@ -343,54 +348,179 @@ def create_group(group_name, layout):
 
         form_layout.addRow(hbox_target)
 
-        target_count = 2
-        for i in range(1, target_count + 1):
-            target_label = ClickableLabel(f"Target ({i})")
-            target_label.setFixedWidth(130)
-            target_label.setStyleSheet(label_children_style)
+        target_label_1 = ClickableLabel("Target")
+        target_label_1.setFixedWidth(70)
+        target_label_1.setStyleSheet(label_children_style)
 
-            target_input = QLineEdit()
-            target_input.setFixedHeight(30)
-            target_input.setObjectName(f"target_{i}_input")
+        target_input_1 = QLineEdit()
+        target_input_1.setFixedHeight(30)
+        target_input_1.setObjectName("target_first_input")
 
-            userid_target_label = QLabel("UserID")
-            userid_target_label.setStyleSheet(label_children_style)
-            userid_target_label.setFixedWidth(60)
-            userid_target_input = QLineEdit()
-            userid_target_input.setFixedSize(450, 30)
-            userid_target_input.setObjectName(f"userid_target_{i}_input")
+        left_column_layout_1 = QFormLayout()
+        left_column_layout_1.setVerticalSpacing(15)
 
-            password_target_label = QLabel("Password")
-            password_target_label.setStyleSheet(label_children_style)
-            password_target_label.setFixedWidth(80)
-            password_target_input = QLineEdit()
-            password_target_input.setFixedSize(450, 30)
-            password_target_input.setObjectName(f"password_target_{i}_input")
+        userid_target_label_1 = QLabel("User ID")
+        userid_target_label_1.setStyleSheet(label_children_style)
+        userid_target_label_1.setFixedWidth(100)
+        userid_target_input_1 = QLineEdit()
+        userid_target_input_1.setObjectName("userid_target_first_input")
+        userid_target_input_1.setFixedHeight(30)
 
-            userid_target_label.hide()
-            userid_target_input.hide()
-            password_target_label.hide()
-            password_target_input.hide()
+        location_id_target_label_1 = QLabel("Location ID")
+        location_id_target_label_1.setStyleSheet(label_children_style)
+        location_id_target_input_1 = QLineEdit()
+        location_id_target_input_1.setObjectName("location_id_target_first_input")
+        location_id_target_input_1.setFixedHeight(30)
 
-            hbox_target_row = QHBoxLayout()
-            hbox_target_row.addWidget(target_label)
-            hbox_target_row.addWidget(target_input)
+        use_local_filename_checkbox_target_1 = QCheckBox("Use Local Filename")
+        use_local_filename_checkbox_target_1.setStyleSheet(label_children_style)
+        use_local_filename_checkbox_target_1.setObjectName("use_local_filename_checkbox_target_first")
 
-            hbox_userid_target_password_row = QHBoxLayout()
-            hbox_userid_target_password_row.addItem(
-                QSpacerItem(130, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Add spacer
-            hbox_userid_target_password_row.addWidget(userid_target_label)
-            hbox_userid_target_password_row.addWidget(userid_target_input)
-            hbox_userid_target_password_row.addStretch()
-            hbox_userid_target_password_row.addWidget(password_target_label)
-            hbox_userid_target_password_row.addWidget(password_target_input)
+        use_path_from_config_checkbox_target_1 = QCheckBox("Use Path From Config")
+        use_path_from_config_checkbox_target_1.setStyleSheet(label_children_style)
+        use_path_from_config_checkbox_target_1.setObjectName("use_path_from_config_checkbox_target_first")
 
-            form_layout.addRow(hbox_target_row)
-            form_layout.addRow(hbox_userid_target_password_row)
+        left_column_layout_1.addRow(userid_target_label_1, userid_target_input_1)
+        left_column_layout_1.addRow(location_id_target_label_1, location_id_target_input_1)
+        left_column_layout_1.addRow(use_local_filename_checkbox_target_1)
+        left_column_layout_1.addRow(use_path_from_config_checkbox_target_1)
 
-            target_label.mousePressEvent = lambda event, labels=[userid_target_label, password_target_label], \
-                                                  inputs=[userid_target_input, password_target_input]: (
-                toggle_inputs(labels, inputs))
+        right_column_layout_1 = QFormLayout()
+        right_column_layout_1.setVerticalSpacing(15)
+
+        password_target_label_1 = QLabel("Password")
+        password_target_label_1.setStyleSheet(label_children_style)
+        password_target_label_1.setFixedWidth(80)
+        password_target_input_1 = QLineEdit()
+        password_target_input_1.setObjectName("password_target_first_input")
+        password_target_input_1.setFixedHeight(30)
+
+        description_target_label_1 = QLabel("Description")
+        description_target_label_1.setStyleSheet(label_children_style)
+        description_target_input_1 = QLineEdit()
+        description_target_input_1.setObjectName("description_target_first_input")
+        description_target_input_1.setFixedHeight(30)
+
+        target_history_days_checkbox_1 = QCheckBox("Target History Days")
+        target_history_days_checkbox_1.setStyleSheet(label_children_style)
+        target_history_days_checkbox_1.setObjectName("target_history_days_checkbox_first")
+
+        rename_existing_file_checkbox_1 = QCheckBox("Rename Existing File")
+        rename_existing_file_checkbox_1.setStyleSheet(label_children_style)
+        rename_existing_file_checkbox_1.setObjectName("rename_existing_file_checkbox_first")
+
+        target_must_be_archived_checkbox_1 = QCheckBox("Target Must Be Archived")
+        target_must_be_archived_checkbox_1.setStyleSheet(label_children_style)
+        target_must_be_archived_checkbox_1.setObjectName("target_must_be_archived_checkbox_first")
+
+        right_column_layout_1.addRow(password_target_label_1, password_target_input_1)
+        right_column_layout_1.addRow(description_target_label_1, description_target_input_1)
+        right_column_layout_1.addRow(target_history_days_checkbox_1)
+        right_column_layout_1.addRow(rename_existing_file_checkbox_1)
+        right_column_layout_1.addRow(target_must_be_archived_checkbox_1)
+
+        hbox_columns_1 = QHBoxLayout()
+        left_margin_1 = QSpacerItem(90, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        hbox_columns_1.addItem(left_margin_1)
+        hbox_columns_1.addLayout(left_column_layout_1)
+        hbox_columns_1.addSpacing(50)
+        hbox_columns_1.addLayout(right_column_layout_1)
+
+        form_layout.addRow(target_label_1, target_input_1)
+        form_layout.addRow(hbox_columns_1)
+
+        target_label_2 = ClickableLabel("Target")
+        target_label_2.setFixedWidth(70)
+        target_label_2.setStyleSheet(label_children_style)
+
+        target_input_2 = QLineEdit()
+        target_input_2.setFixedHeight(30)
+        target_input_2.setObjectName("target_second_input")
+
+        left_column_layout_2 = QFormLayout()
+        left_column_layout_2.setVerticalSpacing(15)
+
+        userid_target_label_2 = QLabel("User ID")
+        userid_target_label_2.setStyleSheet(label_children_style)
+        userid_target_label_2.setFixedWidth(100)
+        userid_target_input_2 = QLineEdit()
+        userid_target_input_2.setObjectName("userid_target_second_input")
+        userid_target_input_2.setFixedHeight(30)
+
+        location_id_target_label_2 = QLabel("Location ID")
+        location_id_target_label_2.setStyleSheet(label_children_style)
+        location_id_target_input_2 = QLineEdit()
+        location_id_target_input_2.setObjectName("location_id_target_second_input")
+        location_id_target_input_2.setFixedHeight(30)
+
+        use_local_filename_checkbox_target_2 = QCheckBox("Use Local Filename")
+        use_local_filename_checkbox_target_2.setStyleSheet(label_children_style)
+        use_local_filename_checkbox_target_2.setObjectName("use_local_filename_checkbox_target_second")
+
+        use_path_from_config_checkbox_target_2 = QCheckBox("Use Path From Config")
+        use_path_from_config_checkbox_target_2.setStyleSheet(label_children_style)
+        use_path_from_config_checkbox_target_2.setObjectName("use_path_from_config_checkbox_target_second")
+
+        left_column_layout_2.addRow(userid_target_label_2, userid_target_input_2)
+        left_column_layout_2.addRow(location_id_target_label_2, location_id_target_input_2)
+        left_column_layout_2.addRow(use_local_filename_checkbox_target_2)
+        left_column_layout_2.addRow(use_path_from_config_checkbox_target_2)
+
+        right_column_layout_2 = QFormLayout()
+        right_column_layout_2.setVerticalSpacing(15)
+
+        password_target_label_2 = QLabel("Password")
+        password_target_label_2.setStyleSheet(label_children_style)
+        password_target_label_2.setFixedWidth(80)
+        password_target_input_2 = QLineEdit()
+        password_target_input_2.setObjectName("password_target_second_input")
+        password_target_input_2.setFixedHeight(30)
+
+        description_target_label_2 = QLabel("Description")
+        description_target_label_2.setStyleSheet(label_children_style)
+        description_target_input_2 = QLineEdit()
+        description_target_input_2.setObjectName("description_target_second_input")
+        description_target_input_2.setFixedHeight(30)
+
+        target_history_days_checkbox_2 = QCheckBox("Target History Days")
+        target_history_days_checkbox_2.setStyleSheet(label_children_style)
+        target_history_days_checkbox_2.setObjectName("target_history_days_checkbox_second")
+
+        rename_existing_file_checkbox_2 = QCheckBox("Rename Existing File")
+        rename_existing_file_checkbox_2.setStyleSheet(label_children_style)
+        rename_existing_file_checkbox_2.setObjectName("rename_existing_file_checkbox_second")
+
+        target_must_be_archived_checkbox_2 = QCheckBox("Target Must Be Archived")
+        target_must_be_archived_checkbox_2.setStyleSheet(label_children_style)
+        target_must_be_archived_checkbox_2.setObjectName("target_must_be_archived_checkbox_second")
+
+        right_column_layout_2.addRow(password_target_label_2, password_target_input_2)
+        right_column_layout_2.addRow(description_target_label_2, description_target_input_2)
+        right_column_layout_2.addRow(target_history_days_checkbox_2)
+        right_column_layout_2.addRow(rename_existing_file_checkbox_2)
+        right_column_layout_2.addRow(target_must_be_archived_checkbox_2)
+
+        hbox_columns_2 = QHBoxLayout()
+        left_margin_2 = QSpacerItem(90, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        hbox_columns_2.addItem(left_margin_2)
+        hbox_columns_2.addLayout(left_column_layout_2)
+        hbox_columns_2.addSpacing(50)
+        hbox_columns_2.addLayout(right_column_layout_2)
+
+        form_layout.addRow(target_label_2, target_input_2)
+        form_layout.addRow(hbox_columns_2)
+
+        target_label_1.mousePressEvent = lambda event, labels=[userid_target_label_1, location_id_target_label_1,
+                                                               password_target_label_1, description_target_label_1], \
+                                                inputs=[userid_target_input_1, location_id_target_input_1,
+                                                        password_target_input_1, description_target_input_1]: (
+            toggle_inputs(labels, inputs))
+
+        target_label_2.mousePressEvent = lambda event, labels=[userid_target_label_2, location_id_target_label_2,
+                                                               password_target_label_2, description_target_label_2], \
+                                                inputs=[userid_target_input_2, location_id_target_input_2,
+                                                        password_target_input_2, description_target_input_2]: (
+            toggle_inputs(labels, inputs))
 
         group_layout.addLayout(form_layout)
 
