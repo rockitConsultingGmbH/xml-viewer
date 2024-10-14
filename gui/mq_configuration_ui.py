@@ -21,18 +21,52 @@ class MQConfigurationWidget(QWidget):
         layout.addLayout(button_layout)
 
         # Create and add the form layout
-        form_layout = QFormLayout()
-        self.init_input_fields()
-        self.add_fields_to_form_layout(form_layout)
-        self.populate_fields_from_db()
-        layout.addLayout(form_layout)
+        #form_layout = QFormLayout()
+        #self.init_input_fields()
+        #self.add_fields_to_form_layout(form_layout)
+        #self.populate_fields_from_db()
+        #layout.addLayout(form_layout)
+
+       # Create and add the separate form layouts for MQConfig, MQTrigger, and IPQueue
+        self.create_mqconfig_layout(layout)
+        self.create_mqtrigger_layout(layout)
+        self.create_ipqueue_layout(layout) 
+        self.set_input_field_sizes()
+
         self.setLayout(layout)
+
+    def create_mqconfig_layout(self, parent_layout):
+        # MQConfig Layout
+        mqconfig_layout = QFormLayout()
+        self.init_mqconfig_input_fields()
+        self.add_mqconfig_fields_to_form_layout(mqconfig_layout)
+        self.populate_mqconfig_fields_from_db()
+        parent_layout.addLayout(mqconfig_layout)
+
+    def create_mqtrigger_layout(self, parent_layout):
+        # MQTrigger Layout
+        mqtrigger_layout = QFormLayout()
+        self.init_mqtrigger_input_fields()
+        self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)
+        self.populate_mqtrigger_fields_from_db()
+        parent_layout.addLayout(mqtrigger_layout)
+
+    def create_ipqueue_layout(self, parent_layout):
+        # IPQueue Layout
+        ipqueue_layout = QFormLayout()
+        self.init_ipqueue_input_fields()
+        self.add_ipqueue_fields_to_form_layout(ipqueue_layout)
+        self.populate_ipqueue_fields_from_db()
+        parent_layout.addLayout(ipqueue_layout)
 
     def init_input_fields(self):
         try:
             self.init_mqconfig_input_fields()
             self.init_mqtrigger_input_fields()
             self.init_ipqueue_input_fields()
+            #self.create_mqconfig_layout(layout)
+            #self.create_mqtrigger_layout(layout)
+            #self.create_ipqueue_layout(layout)
             self.set_input_field_sizes()
         except Exception as e:
             print(f"Error initializing input fields: {e}")
