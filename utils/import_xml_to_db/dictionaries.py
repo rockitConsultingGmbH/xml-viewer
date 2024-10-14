@@ -4,6 +4,12 @@ def add_xml_element(root, tag_name):
     )
     return value
 
+def add_boolean_xml_element(root, tag_name):
+    value = (
+        root.find(tag_name).text if root.find(tag_name) is not None and root.find(tag_name).text else 'false'
+    )
+    return value
+
 # Dictionaries
 def createBasicConfigDict(acsfiletransfer, configFilePath):
     BasicConfigDict = {
@@ -98,11 +104,11 @@ def createCommunicationDict(basicConfig_id, communication):
         'name':                         communication.get('name', ''),
         'alternateNameList':            add_xml_element(communication, 'alternateNameList'),
         'watcherEscalationTimeout':     add_xml_element(communication, 'watcherEscalationTimeout'),
-        'isToPoll':                     add_xml_element(communication, 'isToPoll'),
-        'pollUntilFound':               add_xml_element(communication, 'pollUntilFound'),
-        'noTransfer':                   add_xml_element(communication, 'noTransfer'),
-        'targetMustBeArchived':         add_xml_element(communication, 'targetMustBeArchived'),
-        'mustBeArchived':               add_xml_element(communication, 'mustBeArchived'),
+        'isToPoll':                     add_boolean_xml_element(communication, 'isToPoll'),
+        'pollUntilFound':               add_boolean_xml_element(communication, 'pollUntilFound'),
+        'noTransfer':                   add_boolean_xml_element(communication, 'noTransfer'),
+        'targetMustBeArchived':         add_boolean_xml_element(communication, 'targetMustBeArchived'),
+        'mustBeArchived':               add_boolean_xml_element(communication, 'mustBeArchived'),
         'historyDays':                  add_xml_element(communication, 'historyDays'),
         'targetHistoryDays':            add_xml_element(communication, 'targetHistoryDays'),
         'findPattern':                  add_xml_element(communication, 'findPattern'),
@@ -120,9 +126,9 @@ def createCommunicationDict(basicConfig_id, communication):
         'befoerderungAb':               add_xml_element(communication, 'befoerderungAb'),
         'befoerderungBis':              add_xml_element(communication, 'befoerderungBis'),
         'befoerderungCron':             add_xml_element(communication, 'befoerderungCron'),
-        'preunzip':                     add_xml_element(communication, 'preunzip'),
-        'postzip':                      add_xml_element(communication, 'postzip'),
-        'renameWithTimestamp':          add_xml_element(communication, 'renameWithTimestamp'),
+        'preunzip':                     add_boolean_xml_element(communication, 'preunzip'),
+        'postzip':                      add_boolean_xml_element(communication, 'postzip'),
+        'renameWithTimestamp':          add_boolean_xml_element(communication, 'renameWithTimestamp'),
     }
     return CommunicationDict
 
@@ -131,11 +137,11 @@ def createLocationDict(communication_id, location, locationType):
         'communication_id':             communication_id,
         'location':                     add_xml_element(location, 'location'),
         'location_id':                  location.get('id', ''),
-        'useLocalFilename':             add_xml_element(location, 'useLocalFilename'),
-        'usePathFromConfig':            add_xml_element(location, 'usePathFromConfig'),
-        'targetMustBeArchived':         add_xml_element(location, 'targetMustBeArchived'),
+        'useLocalFilename':             add_boolean_xml_element(location, 'useLocalFilename'),
+        'usePathFromConfig':            add_boolean_xml_element(location, 'usePathFromConfig'),
+        'targetMustBeArchived':         add_boolean_xml_element(location, 'targetMustBeArchived'),
         'targetHistoryDays':            add_xml_element(location, 'targetHistoryDays'),
-        'renameExistingFile':           add_xml_element(location, 'renameExistingFile'),
+        'renameExistingFile':           add_boolean_xml_element(location, 'renameExistingFile'),
         'userid':                       add_xml_element(location, 'userid'),
         'password':                     add_xml_element(location, 'password'),
         'description':                  add_xml_element(location, 'description'),
