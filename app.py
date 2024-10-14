@@ -89,58 +89,103 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.splitter)
 
-        #setup_right_interface(self.right_widget)
-
     def open_xml(self):
         dialog = FileDialog(self)
         if dialog.exec_():
+            if self.recent_files:
+                self.reinitialize()
             self.display_db_tables()
 
-    def display_db_tables(self):
+            # Automatically display the Basic Configuration view after loading the XML
+            self.load_basic_config_view()
 
+            # Select the Basic Configuration item in the left tree widget
+            if self.basic_config_item:
+                tree_widget = self.left_widget.layout().itemAt(0).widget()
+                tree_widget.setCurrentItem(self.basic_config_item)
+
+    def reinitialize(self):
+        """Reinitialize the application state for a new XML import."""
+        
+        # Remove layout and widgets for right_widget
+        if self.right_widget.layout() is not None:
+            old_layout = self.right_widget.layout()
+            QWidget().setLayout(old_layout)  # Detach and delete the old layout
+        self.right_widget.setParent(None)
+        self.right_widget = QWidget()
+        self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+        self.splitter.addWidget(self.right_widget)
+
+        # Remove layout and widgets for left_widget
+        if self.left_widget.layout() is not None:
+            old_layout = self.left_widget.layout()
+            QWidget().setLayout(old_layout)  # Detach and delete the old layout
+        self.left_widget.setParent(None)
+        self.left_widget = QWidget()
+        self.left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+        self.splitter.insertWidget(0, self.left_widget)
+
+        # Call method to re-display the tables
+        self.display_db_tables()
+
+    def display_db_tables(self):
+        # Check if the left widget already has a layout and clear it
+        if self.left_widget.layout() is not None:
+            old_layout = self.left_widget.layout()
+            QWidget().setLayout(old_layout)  # Detach and delete the old layout
+        
+        # Initialize a new QTreeWidget
         tree_widget = QTreeWidget()
         tree_widget.setStyleSheet("""
-                QTreeWidget {
-                    border: none;
-                    outline: 0;
-                    background-color: white;
-                }
-                QTreeWidget::item {
-                    font-size: 16px;  
-                    padding: 10px;    
-                }
-                QTreeWidget::item:has-children {
-                    border: 1px solid black; 
-                }
-                QTreeWidget::item:!has-children {
-                    border: none;  
-                    padding-left: 20px; 
-                }
-                QTreeWidget::item:hover {
-                    background-color: lightgray;
-                }
-                QTreeWidget::item:selected {
-                    background-color: #83acf7;  
-                }
-            """)
+            QTreeWidget {
+                border: none;
+                outline: 0;
+                background-color: white;
+            }
+            QTreeWidget::item {
+                font-size: 16px;  
+                padding: 10px;    
+            }
+            QTreeWidget::item:has-children {
+                border: 1px solid black; 
+            }
+            QTreeWidget::item:!has-children {
+                border: none;  
+                padding-left: 20px; 
+            }
+            QTreeWidget::item:hover {
+                background-color: lightgray;
+            }
+            QTreeWidget::item:selected {
+                background-color: #83acf7;  
+            }
+        """)
 
         tree_widget.setIndentation(0)
         tree_widget.setHeaderHidden(True)
 
+        # Define tables with titles
         tables = [('Basic Configuration',), ('LZB Configuration',), ('MQ Configuration',), ('Communications',),
-                  ('NameLists',)]
+                ('NameLists',)]
+
         for table in tables:
             table_name = table[0]
             table_item = QTreeWidgetItem([table_name])
+            
+            # Ensure each item is collapsed by default
             table_item.setExpanded(False)
+            
             tree_widget.addTopLevelItem(table_item)
-            if table_name == ('Basic Configuration'):
+            
+            # Associate items for later use
+            if table_name == 'Basic Configuration':
                 self.basic_config_item = table_item
-            if table_name == ('LZB Configuration'):
+            elif table_name == 'LZB Configuration':
                 self.lzb_config_item = table_item
-            if table_name == ('MQ Configuration'):
+            elif table_name == 'MQ Configuration':
                 self.mq_config_item = table_item
-            if table_name == "Communications":
+            elif table_name == 'Communications':
+                # Load data for the Communications section
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
                 conn.row_factory = sqlite3.Row
@@ -148,16 +193,18 @@ class MainWindow(QMainWindow):
                 rows = cursor.fetchall()
                 self.communication_config_item = table_item
 
+                # Add child items to 'Communications'
                 for row in rows:
                     communication_id = row['id']
                     communication_name = row['name']
-
+                    
                     column_item = QTreeWidgetItem([communication_name])
                     column_item.setData(0, Qt.UserRole, communication_id)
                     table_item.addChild(column_item)
 
         tree_widget.itemClicked.connect(self.on_item_clicked)
 
+        # Set layout with the updated tree widget
         layout = QVBoxLayout()
         layout.addWidget(tree_widget)
         self.left_widget.setLayout(layout)
