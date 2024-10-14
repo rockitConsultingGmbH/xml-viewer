@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
-                             QLineEdit, QWidget, QLabel)
+                             QLineEdit, QWidget, QLabel, QScrollArea)
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
@@ -31,7 +31,7 @@ class MQConfigurationWidget(QWidget):
         self.create_mqconfig_layout(layout)
         self.create_mqtrigger_layout(layout)
         self.create_ipqueue_layout(layout) 
-        self.set_input_field_sizes()
+        #self.set_input_field_sizes()
 
         self.setLayout(layout)
 
@@ -53,11 +53,25 @@ class MQConfigurationWidget(QWidget):
 
     def create_ipqueue_layout(self, parent_layout):
         # IPQueue Layout
-        ipqueue_layout = QFormLayout()
-        self.init_ipqueue_input_fields()
-        self.add_ipqueue_fields_to_form_layout(ipqueue_layout)
-        self.populate_ipqueue_fields_from_db()
-        parent_layout.addLayout(ipqueue_layout)
+
+        # IPQueue Layouts
+        ipqueue_layout = QVBoxLayout()  # Create a vertical layout to hold all IPQueue entries
+        ipqueue_entries = self.get_ipqueue_data()
+
+        # Loop through each entry and create a form layout for it
+        for entry in ipqueue_entries:
+            entry_layout = QFormLayout()
+            #self.init_ipqueue_input_fields()
+            self.add_ipqueue_fields_to_form_layout(entry_layout, entry)
+            #self.populate_ipqueue_fields_from_db()
+            ipqueue_layout.addLayout(entry_layout)
+
+        # Wrap the layout in a scroll area if needed
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(QWidget())
+        scroll_area.widget().setLayout(ipqueue_layout)
+        parent_layout.addWidget(scroll_area)
 
     def init_input_fields(self):
         try:
@@ -164,11 +178,23 @@ class MQConfigurationWidget(QWidget):
         form_layout.addRow("Dynamic Success Interval:", self.dynamic_success_interval_input)
         form_layout.addRow("Dynamic Max Instances:", self.dynamic_max_instances_input)
 
-    def add_ipqueue_fields_to_form_layout(self, form_layout):
-        form_layout.addRow("Queue:", self.ipqueue_input)
-        form_layout.addRow("Error Queue:", self.ipqueue_errorqueue_input)
-        form_layout.addRow("Number of Threads:", self.ipqueue_number_of_threads_input)
-        form_layout.addRow("Description:", self.ipqueue_description_input)
+    def add_ipqueue_fields_to_form_layout(self, form_layout, entry):
+        # Add input fields for a single IPQueue entry
+        ipqueue_input = QLineEdit(entry["queue"])
+        ipqueue_errorqueue_input = QLineEdit(entry["errorQueue"])
+        ipqueue_number_of_threads_input = QLineEdit(entry["numberOfThreads"])
+        ipqueue_description_input = QLineEdit(entry["description"])
+
+        form_layout.addRow("Queue:", ipqueue_input)
+        form_layout.addRow("Error Queue:", ipqueue_errorqueue_input)
+        form_layout.addRow("Number of Threads:", ipqueue_number_of_threads_input)
+        form_layout.addRow("Description:", ipqueue_description_input)
+
+    #def add_ipqueue_fields_to_form_layout(self, form_layout):
+        #form_layout.addRow("Queue:", self.ipqueue_input)
+        #form_layout.addRow("Error Queue:", self.ipqueue_errorqueue_input)
+        #form_layout.addRow("Number of Threads:", self.ipqueue_number_of_threads_input)
+        #form_layout.addRow("Description:", self.ipqueue_description_input)
 
     def get_mqconfig_data(self):
         conn = self.conn_manager.get_db_connection()
@@ -289,9 +315,9 @@ class MQConfigurationWidget(QWidget):
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
         cursor = select_from_ipqueue(cursor, config_manager.config_id)
-        row = cursor.fetchone()
+        rows = cursor.fetchall()
         conn.close()
-        return dict(row) if row else None
+        return rows #dict(row) if row else None
 
     def save_ipqueue_fields_to_db(self, cursor):
         ipqueue_data = {
