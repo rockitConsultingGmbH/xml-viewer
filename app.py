@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog
 
+from controllers.empty_database import empty_database
 from gui.import_xml_dialog_window import FileDialog
 from gui.communication_ui import setup_right_interface
 from gui.basic_configuration_ui import BasicConfigurationWidget
@@ -239,7 +240,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
 
     def exit_application(self):
-        # Perform any cleanup or show a confirmation dialog here if needed
+        empty_database()
         QApplication.quit()
 
 if __name__ == '__main__':

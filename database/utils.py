@@ -1,5 +1,10 @@
 # SQL Statements
 
+# Common
+def select_all_tablenames_from_db(cursor):
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    return cursor
+                   
 # BasicConfig
 def insert_into_basicconfig(cursor, row):
     cursor.execute("""
