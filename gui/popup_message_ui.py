@@ -41,5 +41,15 @@ class PopupMessage:
         # Start the timer to hide the message after the specified duration
         self.message_timer.start(self.duration)
 
+    def show_error_message(self, text: str):
+        self.show_message(text)
+        self.popup_message.setStyleSheet("""
+            background-color: red; 
+            color: black; 
+            padding: 5px 10px; 
+            border-radius: 10px; 
+            border: 1px solid green;
+        """)
+
     def hide_success_message(self):
         self.popup_message.setVisible(False)

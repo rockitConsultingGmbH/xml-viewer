@@ -260,9 +260,10 @@ def delete_from_mqconfig(cursor, basicConfig_id):
     return cursor
 
 # MqTrigger
-def InsertIntoMqTrigger(cursor, row):
+def insert_into_mqtrigger(cursor, row):
     cursor.execute("""
     INSERT INTO MqTrigger (
+        basicConfig_id,
         mqConfig_id,
         success_interval,
         trigger_interval,
@@ -272,8 +273,9 @@ def InsertIntoMqTrigger(cursor, row):
         dynamic_success_interval,
         dynamic_max_instances
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
+        row['basicConfig_id'],
         row['mqConfig_id'],
         row['success_interval'],
         row['trigger_interval'],
@@ -285,7 +287,24 @@ def InsertIntoMqTrigger(cursor, row):
     ))
     return cursor
 
-def UpdateMqTrigger(cursor, row):
+def select_from_mqtrigger(cursor, basicConfig_id):
+    cursor.execute("""
+    SELECT
+        basicConfig_id,
+        mqConfig_id,
+        success_interval,
+        trigger_interval,
+        polling,
+        dynamic_instance_management,
+        dynamic_success_count,
+        dynamic_success_interval,
+        dynamic_max_instances
+    FROM MqTrigger
+    WHERE basicConfig_id = ?
+    """, (basicConfig_id,))
+    return cursor
+
+def update_mqtrigger(cursor, row):
     cursor.execute("""
     UPDATE MqTrigger
     SET success_interval = ?,
@@ -295,7 +314,7 @@ def UpdateMqTrigger(cursor, row):
         dynamic_success_count = ?,
         dynamic_success_interval = ?,
         dynamic_max_instances = ?
-    WHERE mqConfig_id = ?
+    WHERE basicConfig_id = ?
     """, (
         row['success_interval'],
         row['trigger_interval'],
@@ -304,26 +323,28 @@ def UpdateMqTrigger(cursor, row):
         row['dynamic_success_count'],
         row['dynamic_success_interval'],
         row['dynamic_max_instances'],
-        row['mqConfig_id']
+        row['basicConfig_id']
     ))
     return cursor
 
-def DeleteFromMqTrigger(cursor, mqConfig_id):
-    cursor.execute("DELETE FROM MqTrigger WHERE mqConfig_id = ?", (mqConfig_id,))
+def delete_from_mqtrigger(cursor, mqTrigger_id):
+    cursor.execute("DELETE FROM MqTrigger WHERE id = ?", (mqTrigger_id,))
     return cursor
 
 # IPQueue
-def InsertIntoIPQueue(cursor, row):
+def insert_into_ipqueue(cursor, row):
     cursor.execute("""
     INSERT INTO IPQueue (
+        basicConfig_id,
         mqConfig_id,
         queue,
         errorQueue,
         numberOfThreads,
         description
     )
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?)
     """, (
+        row['basicConfig_id'],
         row['mqConfig_id'],
         row['queue'],
         row['errorQueue'],
@@ -332,25 +353,41 @@ def InsertIntoIPQueue(cursor, row):
     ))
     return cursor
 
-def UpdateIPQueue(cursor, row):
+def select_from_ipqueue(cursor, basicConfig_id):
+    cursor.execute("""
+    SELECT
+        id,
+        basicConfig_id,
+        mqConfig_id,
+        queue,
+        errorQueue,
+        numberOfThreads,
+        description
+    FROM IPQueue
+    WHERE basicConfig_id = ?
+    """, (basicConfig_id,))
+    return cursor
+
+def update_ipqueue(cursor, row):
     cursor.execute("""
     UPDATE IPQueue
     SET queue = ?,
         errorQueue = ?,
         numberOfThreads = ?,
         description = ?
-    WHERE mqConfig_id = ?
+    WHERE basicConfig_id = ? AND id = ?
     """, (
         row['queue'],
         row['errorQueue'],
         row['numberOfThreads'],
         row['description'],
-        row['mqConfig_id']
+        row['basicConfig_id'],
+        row['ipqueue_id']
     ))
     return cursor
 
-def DeleteFromIPQueue(cursor, mqConfig_id):
-    cursor.execute("DELETE FROM IPQueue WHERE mqConfig_id = ?", (mqConfig_id,))
+def delete_from_ipqueue(cursor, ipqueue_id):
+    cursor.execute("DELETE FROM IPQueue WHERE ipqueue_id = ? AND ", (ipqueue_id,))
     return cursor
 
 # Communication

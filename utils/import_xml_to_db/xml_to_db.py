@@ -51,12 +51,12 @@ def insert_mq_config(cursor, basicConfig_id, mq):
     return utils.insert_into_mqconfig(cursor, dictionaries.createMqConfigDict(basicConfig_id, mq))
 
 # MqTrigger
-def insert_mq_trigger(cursor, mqConfig_id, mqtrigger):
-    return utils.InsertIntoMqTrigger(cursor, dictionaries.createMqTriggerDict(mqConfig_id, mqtrigger))
+def insert_mq_trigger(cursor, basicConfig_id, mqConfig_id, mqtrigger):
+    return utils.insert_into_mqtrigger(cursor, dictionaries.createMqTriggerDict(basicConfig_id, mqConfig_id, mqtrigger))
 
 # IPQueue
-def insert_ip_queue(cursor, mqConfig_id, ipqueue):
-    return utils.InsertIntoIPQueue(cursor, dictionaries.createIPQueueDict(mqConfig_id, ipqueue))
+def insert_ip_queue(cursor,basicConfig_id,  mqConfig_id, ipqueue):
+    return utils.insert_into_ipqueue(cursor, dictionaries.createIPQueueDict(basicConfig_id, mqConfig_id, ipqueue))
 
 # Communication
 def insert_communication(cursor, basicConfig_id, communication):
@@ -115,11 +115,11 @@ def insert_data_into_db(xml_tree, config_file_path):
         rows_created += cursor.rowcount
 
         mqtrigger = mq.find('trigger')
-        insert_mq_trigger(cursor, mqConfig_id, mqtrigger)
+        insert_mq_trigger(cursor, basicConfig_id, mqConfig_id, mqtrigger)
         rows_created += cursor.rowcount
 
         for ipqueue in mq.findall('IPQueue'):
-            insert_ip_queue(cursor, mqConfig_id, ipqueue)
+            insert_ip_queue(cursor, basicConfig_id, mqConfig_id, ipqueue)
             rows_created += cursor.rowcount
 
         for communication in acsfiletransfer.findall('communication'):

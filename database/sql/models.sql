@@ -74,6 +74,7 @@ CREATE TABLE MqConfig (
 -- Create MqTrigger table with reference to MqConfig
 CREATE TABLE MqTrigger (
     id INTEGER PRIMARY KEY,
+    basicConfig_id INT NOT NULL,
     mqConfig_id INT NOT NULL,
     success_interval VARCHAR(255),
     trigger_interval VARCHAR(255),
@@ -82,17 +83,20 @@ CREATE TABLE MqTrigger (
     dynamic_success_count VARCHAR(255),
     dynamic_success_interval VARCHAR(255),
     dynamic_max_instances VARCHAR(255),
+    FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
     FOREIGN KEY (mqConfig_id) REFERENCES MqConfig(id) ON DELETE CASCADE
 );
 
 -- Create IPQueue table with reference to MqConfig
 CREATE TABLE IPQueue (
     id INTEGER PRIMARY KEY,
+    basicConfig_id INT NOT NULL,
     mqConfig_id INT NOT NULL,
     queue VARCHAR(255) NOT NULL,
     errorQueue VARCHAR(255),
     numberOfThreads VARCHAR(255),
     description VARCHAR(255),
+    FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
     FOREIGN KEY (mqConfig_id) REFERENCES MqConfig(id) ON DELETE CASCADE
 );
 
