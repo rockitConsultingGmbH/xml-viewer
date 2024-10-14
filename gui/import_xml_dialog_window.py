@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QHBoxLayout, QFileDialog, QMessageBox, QCheckBox
 from PyQt5.QtGui import QIcon
 from lxml import etree
+from controllers.empty_database import empty_database
 from utils.import_xml_to_db.xml_to_db import validate_xml, insert_data_into_db
 from common import config_manager
 
@@ -86,6 +87,7 @@ class FileDialog(QDialog):
                     with open(xml_file, 'rb') as file:
                         xml_tree = etree.parse(file)
 
+                empty_database()
                 config_manager.config_id = insert_data_into_db(xml_tree, self.xml_path.text())
                 config_manager.config_filepath = self.xml_path.text()
 
