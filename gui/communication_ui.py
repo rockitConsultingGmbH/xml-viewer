@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPus
     QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox
 
 from controllers.communication_table_data import save_communication_data
-
+from controllers.location_table_data import save_location_data
 
 # Clickable Label class for transforming labels into clickable buttons
 class ClickableLabel(QLabel):
@@ -64,6 +64,8 @@ def setup_right_interface(right_widget, communication_id):
 
     def save_and_show_message():
         save_communication_data(communication_id)
+        save_location_data(communication_id)
+
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
         msg.setText("Changes in Communication have been successfully saved.")
@@ -217,7 +219,7 @@ def create_group(group_name, layout):
         label_style = "border: none; font-size: 14px; font-weight: bold;"
         label_children_style = "border: none; font-size: 14px;"
         form_layout = QFormLayout()
-        form_layout.setHorizontalSpacing(10)
+        form_layout.setHorizontalSpacing(20)
         form_layout.setVerticalSpacing(15)
 
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
@@ -231,38 +233,82 @@ def create_group(group_name, layout):
 
         form_layout.addRow(source_label, source_input)
 
-        hbox_userid_password = QHBoxLayout()
+        hbox_columns = QHBoxLayout()
 
-        hbox_userid_password.addSpacing(55)
+        left_column_layout = QFormLayout()
+        left_column_layout.setVerticalSpacing(15)
 
-        userid_label = QLabel("UserID")
+        userid_label = QLabel("User ID")
         userid_label.setStyleSheet(label_children_style)
-        userid_label.setFixedWidth(60)
         userid_input = QLineEdit()
         userid_input.setObjectName("userid_source_input")
-        userid_input.setFixedSize(450, 30)
+        userid_input.setFixedHeight(30)
+
+        location_id_label = QLabel("Location ID")
+        location_id_label.setStyleSheet(label_children_style)
+        location_id_label.setFixedWidth(100)
+        location_id_input = QLineEdit()
+        location_id_input.setObjectName("location_id_input")
+        location_id_input.setFixedHeight(30)
+
+        use_local_filename_checkbox = QCheckBox("Use Local Filename")
+        use_local_filename_checkbox.setStyleSheet(label_children_style)
+        use_local_filename_checkbox.setObjectName("use_local_filename_checkbox")
+
+        use_path_from_config_checkbox = QCheckBox("Use Path From Config")
+        use_path_from_config_checkbox.setStyleSheet(label_children_style)
+        use_path_from_config_checkbox.setObjectName("use_path_from_config_checkbox")
+
+        left_column_layout.addRow(userid_label, userid_input)
+        left_column_layout.addRow(location_id_label, location_id_input)
+        left_column_layout.addRow(use_local_filename_checkbox)
+        left_column_layout.addRow(use_path_from_config_checkbox)
+
+        left_column_with_margin = QHBoxLayout()
+        left_margin = QSpacerItem(65, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        left_column_with_margin.addItem(left_margin)
+        left_column_with_margin.addLayout(left_column_layout)
+
+        right_column_layout = QFormLayout()
+        right_column_layout.setVerticalSpacing(15)
 
         password_label = QLabel("Password")
         password_label.setStyleSheet(label_children_style)
         password_label.setFixedWidth(80)
         password_input = QLineEdit()
         password_input.setObjectName("password_source_input")
-        password_input.setFixedSize(450, 30)
+        password_input.setFixedHeight(30)
 
-        hbox_userid_password.addWidget(userid_label)
-        hbox_userid_password.addWidget(userid_input)
-        hbox_userid_password.addStretch()
-        hbox_userid_password.addWidget(password_label)
-        hbox_userid_password.addWidget(password_input)
+        description_source_label = QLabel("Description")
+        description_source_label.setStyleSheet(label_children_style)
+        description_source_label.setFixedWidth(100)
+        description_source_input = QLineEdit()
+        description_source_input.setObjectName("description_source_input")
+        description_source_input.setFixedHeight(30)
 
-        form_layout.addRow(hbox_userid_password)
+        target_history_days_checkbox = QCheckBox("Target History Days")
+        target_history_days_checkbox.setStyleSheet(label_children_style)
+        target_history_days_checkbox.setObjectName("target_history_days_checkbox")
 
-        source_labels.append(userid_label)
-        source_labels.append(password_label)
-        source_inputs.append(userid_input)
-        source_inputs.append(password_input)
+        rename_existing_file_checkbox = QCheckBox("Rename Existing File")
+        rename_existing_file_checkbox.setStyleSheet(label_children_style)
+        rename_existing_file_checkbox.setObjectName("rename_existing_file_checkbox")
 
-        source_label.mousePressEvent = lambda event: toggle_inputs(source_labels, source_inputs)
+        target_must_be_archived_checkbox = QCheckBox("Target Must Be Archived")
+        target_must_be_archived_checkbox.setStyleSheet(label_children_style)
+        target_must_be_archived_checkbox.setObjectName("target_must_be_archived_checkbox")
+
+        right_column_layout.addRow(password_label, password_input)
+        right_column_layout.addRow(description_source_label, description_source_input)
+        right_column_layout.addRow(target_history_days_checkbox)
+        right_column_layout.addRow(rename_existing_file_checkbox)
+        right_column_layout.addRow(target_must_be_archived_checkbox)
+
+        hbox_columns.addLayout(left_column_with_margin)
+        hbox_columns.addSpacing(50)
+        hbox_columns.addLayout(right_column_layout)
+
+        form_layout.addRow(hbox_columns)
 
         form_layout.addItem(QSpacerItem(0, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
@@ -297,7 +343,7 @@ def create_group(group_name, layout):
 
         form_layout.addRow(hbox_target)
 
-        target_count = 5
+        target_count = 2
         for i in range(1, target_count + 1):
             target_label = ClickableLabel(f"Target ({i})")
             target_label.setFixedWidth(130)
@@ -321,10 +367,10 @@ def create_group(group_name, layout):
             password_target_input.setFixedSize(450, 30)
             password_target_input.setObjectName(f"password_target_{i}_input")
 
-            target_labels.append(userid_target_label)
-            target_labels.append(password_target_label)
-            target_inputs.append(userid_target_input)
-            target_inputs.append(password_target_input)
+            userid_target_label.hide()
+            userid_target_input.hide()
+            password_target_label.hide()
+            password_target_input.hide()
 
             hbox_target_row = QHBoxLayout()
             hbox_target_row.addWidget(target_label)
@@ -353,6 +399,7 @@ def create_group(group_name, layout):
         line.setFrameShadow(QFrame.Sunken)
         line.setStyleSheet("QFrame { background-color: black; color: black; }")
         layout.addWidget(line)
+
 
     # Settings group
     elif group_name == "Settings":

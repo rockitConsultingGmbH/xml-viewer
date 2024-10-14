@@ -572,7 +572,7 @@ def select_from_location(cursor, communication_id, locationType):
     (communication_id,locationType))
     return cursor.fetchone()
 
-def update_data_location(cursor, row):
+def update_location(cursor, row):
     cursor.execute("""
     UPDATE Location
     SET location = ?,
