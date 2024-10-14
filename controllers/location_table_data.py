@@ -4,7 +4,7 @@ from .communication_table_data import set_input_value, get_input_value, set_chec
 from database.utils import select_from_location, update_location
 
 
-def populate_location_table_fields(communication_id, location_type = 'sourceLocation'):
+def populate_location_source_fields(communication_id, location_type='sourceLocation'):
     conn_manager = ConnectionManager().get_instance()
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
