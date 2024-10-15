@@ -287,9 +287,24 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
 
     def exit_application(self):
-        empty_database()
+        self.close()
         QApplication.quit()
 
+    # override the closeEvent method to prompt the user before closing the application
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, "Confirm Exit",
+                                     "Are you sure you want to close the application?",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.perform_cleanup()
+            event.accept()
+        else:
+            event.ignore()
+
+    def perform_cleanup(self):
+         empty_database()
+    
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
