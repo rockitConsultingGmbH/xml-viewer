@@ -177,10 +177,10 @@ def createNameListDict(basicConfig_id, communication_id, listName):
     }
     return NameListDict
     
-def createAlternateNameDict(nameList_id, alternateName):
+def createAlternateNameDict(nameList_id, entry):
     AlternateNameDict = {
         'nameList_id':                  nameList_id,
-        'alternateName':                alternateName
+        'entry':                        entry
     }
     return AlternateNameDict
 

@@ -724,7 +724,7 @@ def DeleteFromCommandParam(cursor, command_id):
     return cursor
 
 # NameList
-def InsertIntoNameList(cursor, row):
+def insert_into_namelist(cursor, row):
     cursor.execute("""
     INSERT INTO NameList (
         basicConfig_id,
@@ -739,7 +739,19 @@ def InsertIntoNameList(cursor, row):
     ))
     return cursor
 
-def UpdateNameList(cursor, row):
+def select_from_namelist(cursor, communication_id):
+    cursor.execute("""
+    SELECT
+        basicConfig_id,
+        communication_id,
+        listName
+    FROM NameList
+    WHERE communication_id = ?
+    """,
+    (communication_id))
+    return cursor.fetchone()
+
+def update_namelist(cursor, row):
     cursor.execute("""
     UPDATE NameList
     SET listName = ?
@@ -751,36 +763,48 @@ def UpdateNameList(cursor, row):
     ))
     return cursor
 
-def DeleteFromNameList(cursor, basicConfig_id, communication_id):
+def delete_from_namelist(cursor, basicConfig_id, communication_id):
     cursor.execute("DELETE FROM NameList WHERE basicConfig_id = ? AND communication_id = ?", (basicConfig_id, communication_id,))
     return cursor
 
 # AlternateName
-def InsertIntoAlternateName(cursor, row):
+def insert_into_alternatename(cursor, row):
     cursor.execute("""
     INSERT INTO AlternateName (
         nameList_id,
-        alternateName
+        entry
     )
     VALUES (?, ?)
     """, (
         row['nameList_id'],
-        row['alternateName']
+        row['entry']
     ))
     return cursor
 
-def UpdateAlternateName(cursor, row):
+def select_from_alternatename(cursor, nameList_id):
+    cursor.execute("""
+    SELECT
+        id,
+        nameList_id,
+        entry
+    FROM AlternateName
+    WHERE nameList_id = ?
+    """,
+    (nameList_id))
+    return cursor
+
+def update_alternatename(cursor, row):
     cursor.execute("""
     UPDATE AlternateName
-    SET alternateName = ?
+    SET entry = ?
     WHERE nameList_id = ?
     """, (
-        row['alternateName'],
+        row['entry'],
         row['nameList_id']
     ))
     return cursor
 
-def DeleteFromAlternateName(cursor, nameList_id):
+def delete_from_alternatename(cursor, nameList_id):
     cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (nameList_id,))
     return cursor
 

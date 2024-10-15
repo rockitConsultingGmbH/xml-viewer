@@ -76,11 +76,11 @@ def insert_command_param(cursor, command_id, param):
 # CommandParam
 
 def insert_name_list(cursor, basicConfig_id, communication_id, listName):
-    return utils.InsertIntoNameList(cursor, dictionaries.createNameListDict(basicConfig_id, communication_id, listName))
+    return utils.insert_into_namelist(cursor, dictionaries.createNameListDict(basicConfig_id, communication_id, listName))
 
 # NameList
-def insert_alternate_name(cursor, nameList_id, alternateName):
-    return utils.InsertIntoAlternateName(cursor, dictionaries.createAlternateNameDict(nameList_id, alternateName))
+def insert_alternate_name(cursor, nameList_id, entry):
+    return utils.insert_into_alternatename(cursor, dictionaries.createAlternateNameDict(nameList_id, entry))
 
 # Description
 def insert_description(cursor, communication_id, description, descriptionType):

@@ -16,6 +16,7 @@ from controllers.location_table_data import populate_location_source_fields
 from controllers.description_table_data import populate_description_fields
 from common.connection_manager import ConnectionManager
 
+from gui.namelists_ui import NameListsWidget
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
 from common import config_manager
 
@@ -176,15 +177,34 @@ class MainWindow(QMainWindow):
             
             tree_widget.addTopLevelItem(table_item)
             
-            # Associate items for later use
             if table_name == 'Basic Configuration':
                 self.basic_config_item = table_item
             elif table_name == 'LZB Configuration':
                 self.lzb_config_item = table_item
             elif table_name == 'MQ Configuration':
                 self.mq_config_item = table_item
-            elif table_name == 'Communications':
-                # Load data for the Communications section
+            elif table_name == ('MQ Configuration'):
+                self.mq_config_item = table_item
+            elif table_name == 'NameLists':
+                #self.namelists_item = table_item
+
+                conn = self.conn_manager.get_db_connection()
+                cursor = conn.cursor()
+                conn.row_factory = sqlite3.Row
+                cursor.execute(f"SELECT id, listName FROM NameList WHERE basicConfig_id = {config_manager.config_id};")
+                rows = cursor.fetchall()
+                self.namelist_item = table_item
+
+                # Add child items to 'Communications'
+                for row in rows:
+                    namelist_id = row['id']
+                    namelist_name = row['listName']
+                    
+                    column_item = QTreeWidgetItem([namelist_name])
+                    column_item.setData(0, Qt.UserRole, namelist_id)
+                    table_item.addChild(column_item)
+
+            elif table_name == "Communications":
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
                 conn.row_factory = sqlite3.Row
@@ -221,7 +241,6 @@ class MainWindow(QMainWindow):
                 self.setCentralWidget(self.splitter)
 
                 setup_right_interface(self.right_widget, communication_id)
-
                 populate_communication_table_fields(communication_id)
                 populate_location_source_fields(communication_id)
                 populate_description_fields(communication_id)
@@ -232,6 +251,11 @@ class MainWindow(QMainWindow):
             self.load_lzb_config_view()
         elif item == self.mq_config_item:
             self.load_mq_config_view()
+        elif item.parent() == self.namelist_item:
+            namelist_id = item.data(0, Qt.UserRole)
+    
+            print(f"NameList ID: {namelist_id}")
+            self.load_namelists_view(namelist_id)
 
     def load_basic_config_view(self):
         self.right_widget.setParent(None)
@@ -252,6 +276,17 @@ class MainWindow(QMainWindow):
     def load_mq_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = MQConfigurationWidget(self)
+        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
+        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
+        self.splitter.addWidget(self.right_widget)
+        self.splitter.setSizes([250, 1000])
+
+    def load_namelists_view(self, namelist_id=None):
+        self.right_widget.setParent(None)
+        if namelist_id is not None:
+            self.right_widget = NameListsWidget(nameList_id=namelist_id)
+        else:
+            self.right_widget = NameListsWidget(self)
         self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
         self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
         self.splitter.addWidget(self.right_widget)
@@ -289,7 +324,6 @@ class MainWindow(QMainWindow):
         self.close()
         QApplication.quit()
 
-    # override the closeEvent method to prompt the user before closing the application
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "Confirm Exit",
                                      "Are you sure you want to close the application?",

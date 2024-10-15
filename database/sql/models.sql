@@ -188,7 +188,7 @@ CREATE TABLE NameList (
 CREATE TABLE AlternateName (
     id INTEGER PRIMARY KEY,
     nameList_id INT,
-    alternateName VARCHAR(255) NOT NULL,
+    entry VARCHAR(255) NOT NULL,
     FOREIGN KEY (nameList_id) REFERENCES NameList(id) ON DELETE CASCADE
 );
 
