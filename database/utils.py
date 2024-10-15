@@ -586,7 +586,7 @@ def update_location(cursor, row):
         password = ?,
         description = ?,
         locationType = ?
-    WHERE communication_id = ?
+    WHERE communication_id = ? AND locationType = ?
     """, (
         row['location'],
         row['location_id'],
@@ -599,7 +599,8 @@ def update_location(cursor, row):
         row['password'],
         row['description'],
         row['locationType'],
-        row['communication_id']
+        row['communication_id'],
+        row['locationType']
     ))
     return cursor
 
@@ -774,16 +775,12 @@ def select_from_description(cursor, communication_id, descriptionType):
 def update_description(cursor, row):
     cursor.execute("""
     UPDATE Description
-    SET communication_id = ?,
-        description = ?,
-        descriptionType = ?
-    WHERE communication_id = ? and id = ?
+    SET description = ?
+    WHERE communication_id = ? AND descriptionType = ?
     """, (
-        row['communication_id'],
         row['description'],
-        row['descriptionType'],
         row['communication_id'],
-        row['description_id']
+        row['descriptionType']
     ))
     return cursor
 
