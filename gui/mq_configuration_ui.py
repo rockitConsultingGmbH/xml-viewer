@@ -4,7 +4,7 @@ from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_mqconfig, update_mqconfig
 from gui.popup_message_ui import PopupMessage
-from gui.buttons import create_button_layout
+from gui.components.buttons import create_button_layout
 
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):

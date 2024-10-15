@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from gui.popup_message_ui import PopupMessage
-from gui.buttons import create_button_layout
+from gui.components.buttons import create_button_layout
 
 class BasicConfigurationWidget(QWidget):
     def __init__(self, parent=None):
