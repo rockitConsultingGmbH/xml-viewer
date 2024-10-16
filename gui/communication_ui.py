@@ -78,7 +78,7 @@ def setup_right_interface(right_widget, communication_id):
 
     scroll_layout.addLayout(button_layout)
 
-    create_group("Overview", scroll_layout)
+    create_group("Overview", scroll_layout, communication_id)
     create_group("Locations", scroll_layout)
     create_group("Settings", scroll_layout)
     create_group("Pattern", scroll_layout)
@@ -92,7 +92,7 @@ def setup_right_interface(right_widget, communication_id):
 
 
 # Group interface builder
-def create_group(group_name, layout):
+def create_group(group_name, layout, communication_id=None):
     global input_labels, input_fields, source_labels, source_inputs, target_labels, target_inputs, settings_labels, \
         settings_inputs, other_settings_labels, other_settings_inputs, post_command_labels, post_command_inputs
     group_box = QGroupBox(group_name)
@@ -171,7 +171,7 @@ def create_group(group_name, layout):
         hbox_columns.addLayout(form_layout_left)
         hbox_columns.addStretch(1)
 
-        form_layout_right = create_description_form(label_style)
+        form_layout_right = create_description_form(label_style, communication_id)
 
         hbox_columns.addLayout(form_layout_right)
         group_layout.addLayout(hbox_columns)

@@ -10,7 +10,7 @@ def populate_description_fields(communication_id):
     conn, cursor = get_db_connection()
 
     for desc_type, input_name in zip(description_types, input_names):
-        result = select_from_description(cursor, communication_id, desc_type)
+        result = select_from_description(cursor, communication_id, desc_type).fetchone()
         if result:
             _, _, description_text, _ = result
             set_input_value(input_name, description_text)
