@@ -739,17 +739,17 @@ def insert_into_namelist(cursor, row):
     ))
     return cursor
 
-def select_from_namelist(cursor, communication_id):
+def select_from_namelist(cursor, nameList_id):
     cursor.execute("""
     SELECT
         basicConfig_id,
         communication_id,
         listName
     FROM NameList
-    WHERE communication_id = ?
+    WHERE id = ?
     """,
-    (communication_id))
-    return cursor.fetchone()
+    (nameList_id,))
+    return cursor
 
 def update_namelist(cursor, row):
     cursor.execute("""
@@ -790,7 +790,7 @@ def select_from_alternatename(cursor, nameList_id):
     FROM AlternateName
     WHERE nameList_id = ?
     """,
-    (nameList_id))
+    (nameList_id,))
     return cursor
 
 def update_alternatename(cursor, row):

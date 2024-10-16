@@ -1,23 +1,23 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
-                             QLineEdit, QWidget, QLabel, QScrollArea)
+                             QLineEdit, QWidget, QScrollArea)
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
 from gui.popup_message_ui import PopupMessage
-from gui.buttons import create_button_layout
+from gui.buttons import ButtonFactory
 
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.conn_manager = ConnectionManager().get_instance()
-        self.setup_ui()
         self.popup_message = PopupMessage(self)
+        self.setup_ui()
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
 
         # Initialize buttons and add them at the top
-        button_layout = create_button_layout(self)
+        button_layout = ButtonFactory().create_button_layout(self)
         layout.addLayout(button_layout)
 
         # Create and add the form layout
@@ -86,7 +86,7 @@ class MQConfigurationWidget(QWidget):
             print(f"Error initializing input fields: {e}")
             self.popup_message.show_message("Error initializing input fields.")
 
-    def populate_fields_from_db(self):
+    def set_fields_from_db(self):
         try:
             self.populate_mqconfig_fields_from_db()
             self.populate_mqtrigger_fields_from_db()

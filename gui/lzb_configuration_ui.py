@@ -2,12 +2,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QPushButton, QLineEdit, QFor
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from gui.popup_message_ui import PopupMessage
-from gui.buttons import create_button_layout
-
-# Define constants for button and field styling
-BUTTON_STYLE = "background-color: {}; color: white;"
-FIELD_SIZE = (500, 35)
-BUTTON_SIZE = (100, 30)
+from gui.buttons import ButtonFactory
 
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -22,7 +17,7 @@ class LZBConfigurationWidget(QWidget):
         form_layout = QFormLayout()
 
         # Set up Save and Reset buttons
-        button_layout = create_button_layout(self)
+        button_layout = ButtonFactory().create_button_layout(self)
         form_layout.addRow(button_layout)
 
         # Initialize input fields
@@ -35,7 +30,7 @@ class LZBConfigurationWidget(QWidget):
         layout.addLayout(form_layout)
 
         # Populate fields with data from the database
-        self.populate_fields_from_db()
+        self.set_fields_from_db()
 
     def initialize_fields(self):
         """Initialize input fields with specific properties."""
@@ -57,7 +52,7 @@ class LZBConfigurationWidget(QWidget):
     def apply_field_size(self, *fields):
         """Applies a fixed size to multiple input fields."""
         for field in fields:
-            field.setFixedSize(*FIELD_SIZE)
+            field.setFixedSize(500, 35)
 
     def add_fields_to_layout(self, layout):
         """Add input fields to the form layout with appropriate labels."""
@@ -70,7 +65,7 @@ class LZBConfigurationWidget(QWidget):
         layout.addRow("SSH Implementation:", self.ssh_implementation_input)
         layout.addRow("DNS Timeout:", self.dns_timeout_input)
 
-    def populate_fields_from_db(self):
+    def set_fields_from_db(self):
         """Fetches and populates the widget fields with data from the database."""
         data = self.get_lzb_configuration()
         if data:
