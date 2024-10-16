@@ -19,13 +19,20 @@ class NameListsWidget(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
-        
-        # Add button to create a new entry (top left)
-        self.add_new_entry_button(layout)
 
+        # Add Save and Reset buttons above the "Name List" divider
         layout.addLayout(ButtonFactory().create_button_layout(self))
+
+        # Add a divider for "Name List"
+        self.add_divider(layout, "Name List")
+
         self.create_namelist_layout(layout)
+
+        # Add a divider for "Alternate Names"
         self.add_divider(layout, "Alternate Names")
+
+        # Add button to create a new entry after the "Alternate Names" divider
+        self.add_new_entry_button(layout)
 
         # Create the alternate name entries section
         self.create_name_entries_layout(layout)
@@ -43,8 +50,10 @@ class NameListsWidget(QWidget):
         divider = QFrame()
         divider.setFrameShape(QFrame.HLine)
         divider.setFrameShadow(QFrame.Sunken)
+
         label = QLabel(text)
-        label.setAlignment(Qt.AlignCenter)
+        label.setAlignment(Qt.AlignLeft)  # Align the divider label to the left
+
         layout.addWidget(label)
         layout.addWidget(divider)
 
@@ -56,9 +65,9 @@ class NameListsWidget(QWidget):
         # Align button to the left
         button_layout = QHBoxLayout()
         button_layout.addWidget(add_entry_button)
-        button_layout.setAlignment(Qt.AlignLeft)  # Align to left
+        button_layout.setAlignment(Qt.AlignLeft)  # Align to the left
         
-        parent_layout.addLayout(button_layout)  # Add the button layout to the top
+        parent_layout.addLayout(button_layout)  # Add the button layout after the divider
 
     def add_empty_entry(self):
         entry_layout = QHBoxLayout()
@@ -66,6 +75,7 @@ class NameListsWidget(QWidget):
         # Create a QLineEdit for the new entry
         entry_input = QLineEdit()
         entry_input.setFixedWidth(300)  # Set a fixed width for consistent layout
+        entry_input.setStyleSheet("padding: 5px;")  # Add padding for consistency
 
         # Set a custom property to indicate this is a new entry (no ID yet)
         entry_input.setProperty("entry_id", None)
@@ -105,6 +115,7 @@ class NameListsWidget(QWidget):
         entry_label = QLabel("Entry:")
         entry_input = QLineEdit(entry["entry"])
         entry_input.setFixedWidth(300)
+        entry_input.setStyleSheet("padding: 5px; margin: 5px;")  # Add consistent padding and margin
 
         # Store the entry ID in the QLineEdit's properties
         entry_input.setProperty("entry_id", entry["id"])
