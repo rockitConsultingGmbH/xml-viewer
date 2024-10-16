@@ -628,7 +628,7 @@ def update_location(cursor, row):
         password = ?,
         description = ?,
         locationType = ?
-    WHERE communication_id = ?
+    WHERE communication_id = ? AND locationType = ?
     """, (
         row['location'],
         row['location_id'],
@@ -641,7 +641,8 @@ def update_location(cursor, row):
         row['password'],
         row['description'],
         row['locationType'],
-        row['communication_id']
+        row['communication_id'],
+        row['locationType']
     ))
     return cursor
 
@@ -824,32 +825,39 @@ def insert_into_description(cursor, row):
     ))
     return cursor
 
-def select_from_description(cursor, communication_id, descriptionType):
-    cursor.execute("""
-    SELECT
-        id,
-        communication_id,
-        description,
-        descriptionType
-    FROM Description
-    WHERE communication_id = ? AND descriptionType = ?
-    """,
-    (communication_id, descriptionType))
-    return cursor.fetchone()
+def select_from_description(cursor, communication_id, descriptionType=None):
+    if descriptionType is not None:
+        # When descriptionType is provided
+        cursor.execute("""
+        SELECT
+            id,
+            communication_id,
+            description,
+            descriptionType
+        FROM Description
+        WHERE communication_id = ? AND descriptionType = ?
+        """, (communication_id, descriptionType))
+    else:
+        # When descriptionType is not provided
+        cursor.execute("""
+        SELECT
+            id,
+            communication_id,
+            description,
+            descriptionType
+        FROM Description
+        WHERE communication_id = ?
+        """, (communication_id,))
+    return cursor
 
 def update_description(cursor, row):
     cursor.execute("""
     UPDATE Description
-    SET communication_id = ?,
-        description = ?,
-        descriptionType = ?
-    WHERE communication_id = ? and id = ?
+    SET description = ?
+    WHERE id = ?
     """, (
-        row['communication_id'],
         row['description'],
-        row['descriptionType'],
-        row['communication_id'],
-        row['description_id']
+        row['description_id'],
     ))
     return cursor
 

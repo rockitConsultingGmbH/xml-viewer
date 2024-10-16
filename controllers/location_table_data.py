@@ -1,63 +1,62 @@
-import logging
-from common.connection_manager import ConnectionManager
-from .communication_table_data import set_input_value, get_input_value, set_checkbox_value, get_checkbox_value
-from database.utils import select_from_location, update_location
+from controllers.utils.get_db_connection import get_db_connection
+from database.utils import update_location, select_from_location
+from controllers.utils.get_and_set_value import (get_input_value, set_input_value, get_checkbox_value,
+                                                 set_checkbox_value, convert_checkbox_to_string)
 
 
+
+#Populating function
 def populate_location_source_fields(communication_id, location_type='sourceLocation'):
-    conn_manager = ConnectionManager().get_instance()
-    conn = conn_manager.get_db_connection()
-    cursor = conn.cursor()
+    conn, cursor = get_db_connection()
 
     result = select_from_location(cursor, communication_id, location_type)
 
     if result:
-        (id, communication_id, location, location_id, use_local_filename,
-         use_path_from_config, target_must_be_archived, target_history_days,
-         rename_existing_file, userid, password, description, location_type) = result
-
-        set_input_value("source_input", location)
-        set_input_value("userid_source_input", userid)
-        set_input_value("password_source_input", password)
-        set_input_value("description_source_input", description)
-        set_input_value("location_id_input", location_id)
-        set_checkbox_value("use_local_filename_checkbox", use_local_filename)
-        set_checkbox_value("use_path_from_config_checkbox", use_path_from_config)
-        set_checkbox_value("target_history_days_checkbox", target_history_days)
-        set_checkbox_value("rename_existing_file_checkbox", rename_existing_file)
-        set_checkbox_value("target_must_be_archived_checkbox", target_must_be_archived)
+        populate_fields(result)
 
     conn.close()
 
 
-def save_location_data(communication_id, location_type='sourceLocation'):
-    conn_manager = ConnectionManager().get_instance()
-    conn = conn_manager.get_db_connection()
-    cursor = conn.cursor()
+def populate_fields(result):
+    (id, communication_id, location, location_id, use_local_filename,
+     use_path_from_config, target_must_be_archived, target_history_days,
+     rename_existing_file, userid, password, description, location_type) = result
 
-    location_row = {
+    set_input_value("source_input", location)
+    set_input_value("userid_source_input", userid)
+    set_input_value("password_source_input", password)
+    set_input_value("description_source_input", description)
+    set_input_value("location_id_input", location_id)
+    set_checkbox_value("use_local_filename_checkbox", use_local_filename)
+    set_checkbox_value("use_path_from_config_checkbox", use_path_from_config)
+    set_checkbox_value("target_history_days_checkbox", target_history_days)
+    set_checkbox_value("rename_existing_file_checkbox", rename_existing_file)
+    set_checkbox_value("target_must_be_archived_checkbox", target_must_be_archived)
+
+
+#Save function
+def save_location_data(communication_id, location_type='sourceLocation'):
+    conn, cursor = get_db_connection()
+
+    location_row = create_location_row(communication_id, location_type)
+
+    update_location(cursor, location_row)
+    conn.commit()
+    conn.close()
+
+
+def create_location_row(communication_id, location_type):
+    return {
         'location_id': get_input_value("location_id_input"),
         'location': get_input_value("source_input"),
         'userid': get_input_value("userid_source_input"),
         'password': get_input_value("password_source_input"),
-        'useLocalFilename': '',
-        'usePathFromConfig': '',
-        'targetMustBeArchived': '',
-        'targetHistoryDays': '',
-        'renameExistingFile': '',
+        'useLocalFilename': convert_checkbox_to_string(get_checkbox_value("use_local_filename_checkbox")),
+        'usePathFromConfig': convert_checkbox_to_string(get_checkbox_value("use_path_from_config_checkbox")),
+        'targetMustBeArchived': convert_checkbox_to_string(get_checkbox_value("target_must_be_archived_checkbox")),
+        'targetHistoryDays': convert_checkbox_to_string(get_checkbox_value("target_history_days_checkbox")),
+        'renameExistingFile': convert_checkbox_to_string(get_checkbox_value("rename_existing_file_checkbox")),
         'description': get_input_value("description_source_input"),
         'locationType': location_type,
         'communication_id': communication_id,
     }
-
-    logging.info(f"Saving location data for communication_id {communication_id}:")
-    logging.info(location_row)
-
-    try:
-        update_location(cursor, location_row)
-        conn.commit()
-        logging.info("Data saved successfully.")
-    except Exception as e:
-        logging.error(f"Error while saving data: {e}")
-    finally:
-        conn.close()

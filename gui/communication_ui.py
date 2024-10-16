@@ -1,16 +1,13 @@
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPushButton, QLabel, \
     QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox
 
 from controllers.communication_table_data import save_communication_data
 from controllers.location_table_data import save_location_data
+from controllers.description_table_data import save_description_data
 
-# Clickable Label class for transforming labels into clickable buttons
-class ClickableLabel(QLabel):
-    def __init__(self, text, parent=None):
-        super().__init__(text, parent)
-        self.setCursor(Qt.PointingHandCursor)
-
+from gui.components.descriptions import create_description_form
+from utils.clickable_label import ClickableLabel
+from utils.toggle_inputs import toggle_inputs
 
 # Group Builder
 from PyQt5.QtWidgets import QMessageBox
@@ -65,6 +62,7 @@ def setup_right_interface(right_widget, communication_id):
     def save_and_show_message():
         save_communication_data(communication_id)
         save_location_data(communication_id)
+        save_description_data(communication_id)
 
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
@@ -80,7 +78,7 @@ def setup_right_interface(right_widget, communication_id):
 
     scroll_layout.addLayout(button_layout)
 
-    create_group("Overview", scroll_layout)
+    create_group("Overview", scroll_layout, communication_id)
     create_group("Locations", scroll_layout)
     create_group("Settings", scroll_layout)
     create_group("Pattern", scroll_layout)
@@ -94,7 +92,7 @@ def setup_right_interface(right_widget, communication_id):
 
 
 # Group interface builder
-def create_group(group_name, layout):
+def create_group(group_name, layout, communication_id=None):
     global input_labels, input_fields, source_labels, source_inputs, target_labels, target_inputs, settings_labels, \
         settings_inputs, other_settings_labels, other_settings_inputs, post_command_labels, post_command_inputs
     group_box = QGroupBox(group_name)
@@ -173,46 +171,11 @@ def create_group(group_name, layout):
         hbox_columns.addLayout(form_layout_left)
         hbox_columns.addStretch(1)
 
-        form_layout_right = QFormLayout()
-
-        description_label = ClickableLabel("Description(s)")
-        description_label.setStyleSheet(label_style)
-
-        description_input = QLineEdit()
-        description_input.setObjectName("description_input")
-        description_input.setFixedSize(550, 30)
-
-        form_layout_right.addRow(description_label, description_input)
-
-        description_1_label = QLabel("Description")
-        description_1_label.setStyleSheet(label_style)
-        description_1_input = QLineEdit()
-        description_1_input.setFixedSize(550, 30)
-        description_1_input.setObjectName("description_1_input")
-
-        description_2_label = QLabel("Description")
-        description_2_label.setStyleSheet(label_style)
-        description_2_input = QLineEdit()
-        description_2_input.setFixedSize(550, 30)
-        description_2_input.setObjectName("description_2_input")
-
-        description_3_label = QLabel("Description")
-        description_3_label.setStyleSheet(label_style)
-        description_3_input = QLineEdit()
-        description_3_input.setFixedSize(550, 30)
-        description_3_input.setObjectName("description_3_input")
-
-        form_layout_right.addRow(description_1_label, description_1_input)
-        form_layout_right.addRow(description_2_label, description_2_input)
-        form_layout_right.addRow(description_3_label, description_3_input)
-
-        input_labels = [description_1_label, description_2_label, description_3_label]
-        input_fields = [description_1_input, description_2_input, description_3_input]
-
-        description_label.mousePressEvent = lambda event: toggle_inputs(input_labels, input_fields)
+        form_layout_right = create_description_form(label_style, communication_id)
 
         hbox_columns.addLayout(form_layout_right)
         group_layout.addLayout(hbox_columns)
+
 
     # Locations group
     elif group_name == "Locations":
@@ -317,7 +280,7 @@ def create_group(group_name, layout):
 
         form_layout.addItem(QSpacerItem(0, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        target_label = QLabel("Target Locations(s)")
+        target_label = QLabel("Target Location(s)")
         target_label.setFixedWidth(145)
         target_label.setStyleSheet(label_style)
 
@@ -953,16 +916,5 @@ def create_group(group_name, layout):
 
     group_box.setLayout(group_layout)
     layout.addWidget(group_box)
-
-
-# Toggle function
-def toggle_inputs(labels, inputs):
-    for label, input_field in zip(labels, inputs):
-        if label.isVisible():
-            label.hide()
-            input_field.hide()
-        else:
-            label.show()
-            input_field.show()
 
 

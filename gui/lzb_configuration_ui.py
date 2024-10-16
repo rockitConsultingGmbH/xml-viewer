@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QPushButton, QLineEdit, QFormLayout, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from gui.popup_message_ui import PopupMessage
-from gui.buttons import ButtonFactory
+from gui.components.buttons import ButtonFactory
 
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
