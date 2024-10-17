@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QFrame, QPushButton, QHBoxLayout, QSpacerItem, QSizePolicy)
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_alternatename, select_from_namelist
+from database.utils import select_from_alternatename, select_from_namelist, update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename
 from gui.popup_message_ui import PopupMessage
 from gui.components.buttons import ButtonFactory
 
@@ -11,7 +11,7 @@ class NameListsWidget(QWidget):
     def __init__(self, nameList_id=None, parent=None):
         super().__init__(parent)
         self.nameList_id = str(nameList_id) if nameList_id is not None else ""
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager.get_instance()
         self.popup_message = PopupMessage(self)
         self.entries_to_delete = []  # Track entries marked for deletion
         self.setup_ui()
@@ -29,8 +29,7 @@ class NameListsWidget(QWidget):
         self.create_namelist_layout(layout)
 
         # Add vertical spacing before the "Alternate Names" divider
-        spacer = QSpacerItem(20, 10, QSizePolicy.Minimum)
-        layout.addItem(spacer)  # Add the spacer to the layout
+        layout.addItem(QSpacerItem(20, 10, QSizePolicy.Minimum))
 
         # Add a divider for "Alternate Names"
         self.add_divider(layout, "Alternate Names")
@@ -164,8 +163,7 @@ class NameListsWidget(QWidget):
         entry_layout.deleteLater()
 
         # Add a spacer item to maintain consistent spacing
-        spacer = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.name_entries_layout.addItem(spacer)
+        self.name_entries_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
     def save_fields_to_db(self):
         """Save or update entries in the database, including deletion of marked entries."""
@@ -175,21 +173,17 @@ class NameListsWidget(QWidget):
 
             # Save or update the NameList table
             list_name = self.list_name_input.text()
+            if not list_name:
+                self.popup_message.show_error_message("List name cannot be empty.")
+                return
 
             if self.nameList_id:
                 # Update existing NameList if nameList_id is present
-                cursor.execute("""
-                    UPDATE NameList 
-                    SET listName = ? 
-                    WHERE id = ?
-                """, (list_name, self.nameList_id))
-            else:
-                # Insert new entry into NameList if no nameList_id is provided
-                cursor.execute("""
-                    INSERT INTO NameList (listName) 
-                    VALUES (?)
-                """, (list_name,))
-                self.nameList_id = cursor.lastrowid
+                row = {
+                    "id": self.nameList_id,
+                    "listName": list_name
+                }
+                update_namelist(cursor, row)
 
             # Save or update the AlternateName table for each entry
             for layout in self.name_entries_layout.children():
@@ -199,27 +193,22 @@ class NameListsWidget(QWidget):
 
                     # Retrieve the entry ID from the field's property
                     entry_id = entry_field.property("entry_id")
-
+                    row = {
+                        "id": entry_id,
+                        "nameList_id": self.nameList_id,
+                        "entry": entry_value
+                    }
                     if entry_value:  # Only save non-empty entries
                         if entry_id:  # If entry ID exists, update the existing entry
-                            cursor.execute("""
-                                UPDATE AlternateName 
-                                SET entry = ? 
-                                WHERE id = ?
-                            """, (entry_value, entry_id))
+                            update_alternatename(cursor, row)
                         else:
                             # Entry doesn't exist, insert new
-                            cursor.execute("""
-                                INSERT INTO AlternateName (nameList_id, entry) 
-                                VALUES (?, ?)
-                            """, (self.nameList_id, entry_value))
+                            insert_into_alternatename(cursor, row)
 
             # Process entries marked for deletion
             if self.entries_to_delete:
-                cursor.executemany("""
-                    DELETE FROM AlternateName 
-                    WHERE id = ?
-                """, [(entry_id,) for entry_id in self.entries_to_delete])
+                for entry_id in self.entries_to_delete:
+                    delete_from_alternatename(cursor, entry_id)
 
             # Clear the deletion list after committing changes
             self.entries_to_delete = []
@@ -265,7 +254,8 @@ class NameListsWidget(QWidget):
 
     def init_namelist_input_fields(self):
         self.list_name_input = QLineEdit()
-        self.list_name_input.setFixedWidth(300)  # Set the width to match the entry fields
+        self.list_name_input.setFixedWidth(300)
+        self.list_name_input.setStyleSheet("padding: 5px;")
 
     def add_namelist_fields_to_form_layout(self, form_layout):
         form_layout.addRow("Name:", self.list_name_input)

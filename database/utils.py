@@ -756,11 +756,10 @@ def update_namelist(cursor, row):
     cursor.execute("""
     UPDATE NameList
     SET listName = ?
-    WHERE basicConfig_id = ? AND communication_id = ?
+    WHERE id = ?
     """, (
         row['listName'],
-        row['basicConfig_id'],
-        row['communication_id']
+        row['id']
     ))
     return cursor
 
@@ -798,15 +797,15 @@ def update_alternatename(cursor, row):
     cursor.execute("""
     UPDATE AlternateName
     SET entry = ?
-    WHERE nameList_id = ?
+    WHERE id = ?
     """, (
         row['entry'],
-        row['nameList_id']
+        row['id']
     ))
     return cursor
 
-def delete_from_alternatename(cursor, nameList_id):
-    cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (nameList_id,))
+def delete_from_alternatename(cursor, id):
+    cursor.execute("DELETE FROM AlternateName WHERE id = ?", (id,))
     return cursor
 
 # Description
