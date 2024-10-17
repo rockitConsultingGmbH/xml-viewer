@@ -767,6 +767,19 @@ def delete_from_namelist(cursor, basicConfig_id, communication_id):
     cursor.execute("DELETE FROM NameList WHERE basicConfig_id = ? AND communication_id = ?", (basicConfig_id, communication_id,))
     return cursor
 
+def select_from_namelist_with_communication(cursor, nameList_id):
+    cursor.execute("""
+    SELECT 
+        nameList_id, 
+        listName, 
+        communication_id, 
+        communication_name
+    FROM NameListWithCommunication
+    WHERE nameList_id = ?
+    """,
+    (nameList_id,))
+    return cursor
+
 # AlternateName
 def insert_into_alternatename(cursor, row):
     cursor.execute("""

@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScro
                              QHBoxLayout, QSpacerItem, QSizePolicy)
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_alternatename, select_from_namelist, update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename
+from database.utils import select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename
 from gui.popup_message_ui import PopupMessage
 from gui.components.buttons import ButtonFactory
 
@@ -305,13 +305,7 @@ class NameListsWidget(QWidget):
         cursor = conn.cursor()
 
         # Fetch NameList information based on nameList_id
-        cursor.execute("""
-            SELECT nl.listName, nl.communication_id, c.name AS communication_name
-            FROM NameList nl
-            JOIN Communication c ON nl.communication_id = c.id
-            WHERE nl.id = ?
-        """, (self.nameList_id,))
-        
+        cursor = select_from_namelist_with_communication(cursor, self.nameList_id)
         result = cursor.fetchone()
         
         if result:
