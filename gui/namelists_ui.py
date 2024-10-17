@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QFrame, QPushButton, QHBoxLayout)
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QFrame, QPushButton, QHBoxLayout, QSpacerItem, QSizePolicy)
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_alternatename, select_from_namelist
@@ -28,11 +28,15 @@ class NameListsWidget(QWidget):
 
         self.create_namelist_layout(layout)
 
+        # Add vertical spacing before the "Alternate Names" divider
+        spacer = QSpacerItem(20, 10, QSizePolicy.Minimum)
+        layout.addItem(spacer)  # Add the spacer to the layout
+
         # Add a divider for "Alternate Names"
         self.add_divider(layout, "Alternate Names")
 
         # Add button to create a new entry after the "Alternate Names" divider
-        self.add_new_entry_button(layout)
+        self.add_new_entry_section(layout)
 
         # Create the alternate name entries section
         self.create_name_entries_layout(layout)
@@ -57,41 +61,56 @@ class NameListsWidget(QWidget):
         layout.addWidget(label)
         layout.addWidget(divider)
 
-    def add_new_entry_button(self, parent_layout):
+    def add_new_entry_section(self, parent_layout):
+        # Create layout for entry input and button
+        new_entry_layout = QHBoxLayout()
+
+        # Create input field for adding new entry
+        self.new_entry_input = QLineEdit()
+        self.new_entry_input.setFixedWidth(350)  # Set the width to match Name field
+        self.new_entry_input.setStyleSheet("padding: 5px; margin: 5px;")  # Add consistent padding and margin
+        self.new_entry_input.setPlaceholderText("Enter new entry...")
+
+        # Create "Add Entry" button
         add_entry_button = QPushButton("+ Add Entry")
         add_entry_button.setFixedWidth(100)  # Set the button width
-        add_entry_button.clicked.connect(self.add_empty_entry)
-        
-        # Align button to the left
-        button_layout = QHBoxLayout()
-        button_layout.addWidget(add_entry_button)
-        button_layout.setAlignment(Qt.AlignLeft)  # Align to the left
-        
-        parent_layout.addLayout(button_layout)  # Add the button layout after the divider
+        add_entry_button.clicked.connect(self.add_entry_from_input)
 
-    def add_empty_entry(self):
-        entry_layout = QHBoxLayout()
+        # Align the input field and button to the left
+        new_entry_layout.addWidget(self.new_entry_input)
+        new_entry_layout.addWidget(add_entry_button)
+        new_entry_layout.addStretch()  # Add stretch to push everything to the left
 
-        # Create a QLineEdit for the new entry
-        entry_input = QLineEdit()
-        entry_input.setFixedWidth(300)  # Set a fixed width for consistent layout
-        entry_input.setStyleSheet("padding: 5px;")  # Add padding for consistency
+        parent_layout.addLayout(new_entry_layout)
 
-        # Set a custom property to indicate this is a new entry (no ID yet)
-        entry_input.setProperty("entry_id", None)
+    def add_entry_from_input(self):
+        """Insert a new entry at the top when the user clicks 'Add Entry'."""
+        entry_value = self.new_entry_input.text().strip()
 
-        # Add delete button (a minus sign) to remove the entry
-        delete_button = QPushButton("-")
-        delete_button.setFixedSize(30, 30)
-        delete_button.clicked.connect(lambda: self.delete_entry(entry_layout, entry_input))
+        if entry_value:
+            entry_layout = QHBoxLayout()
 
-        # Add the widgets and a stretch for proper alignment and spacing
-        entry_layout.addWidget(QLabel("Entry:"))
-        entry_layout.addWidget(entry_input, stretch=1)  # Stretch to allow the input to take up space
-        entry_layout.addWidget(delete_button, alignment=Qt.AlignRight)
+            # Create a QLineEdit for the new entry
+            entry_input = QLineEdit(entry_value)
+            entry_input.setFixedWidth(300)  # Set a fixed width for consistent layout
+            entry_input.setStyleSheet("padding: 5px;")
+            entry_input.setProperty("entry_id", None)  # This is a new entry with no ID yet
 
-        # Add the new entry layout to the main layout
-        self.name_entries_layout.addLayout(entry_layout)
+            # Add delete button (a minus sign) to remove the entry
+            delete_button = QPushButton("x")
+            delete_button.setFixedSize(30, 30)
+            delete_button.clicked.connect(lambda: self.delete_entry(entry_layout, entry_input))
+
+            # Add the widgets
+            entry_layout.addWidget(QLabel("Entry:"))
+            entry_layout.addWidget(entry_input, stretch=1)
+            entry_layout.addWidget(delete_button, alignment=Qt.AlignRight)
+
+            # Insert the new entry layout at the top of the entries
+            self.name_entries_layout.insertLayout(0, entry_layout)
+
+            # Clear the input field after adding the entry
+            self.new_entry_input.clear()
 
     def create_name_entries_layout(self, parent_layout):
         entries_widget = QWidget()
@@ -121,7 +140,7 @@ class NameListsWidget(QWidget):
         entry_input.setProperty("entry_id", entry["id"])
 
         # Add delete button (a minus sign) to remove the entry
-        delete_button = QPushButton("-")
+        delete_button = QPushButton("x")
         delete_button.setFixedSize(30, 30)
         delete_button.clicked.connect(lambda: self.delete_entry(entry_layout, entry_input))
 
@@ -143,6 +162,10 @@ class NameListsWidget(QWidget):
                 widget.deleteLater()
 
         entry_layout.deleteLater()
+
+        # Add a spacer item to maintain consistent spacing
+        spacer = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.name_entries_layout.addItem(spacer)
 
     def save_fields_to_db(self):
         """Save or update entries in the database, including deletion of marked entries."""
@@ -242,7 +265,7 @@ class NameListsWidget(QWidget):
 
     def init_namelist_input_fields(self):
         self.list_name_input = QLineEdit()
-        self.list_name_input.setFixedWidth(300)
+        self.list_name_input.setFixedWidth(300)  # Set the width to match the entry fields
 
     def add_namelist_fields_to_form_layout(self, form_layout):
         form_layout.addRow("Name:", self.list_name_input)
