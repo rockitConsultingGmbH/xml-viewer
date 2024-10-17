@@ -46,7 +46,22 @@ class NameListsWidget(QWidget):
         namelist_layout = QFormLayout()
         namelist_layout.setSpacing(10)
         self.init_namelist_input_fields()
-        self.add_namelist_fields_to_form_layout(namelist_layout)
+        #self.add_namelist_fields_to_form_layout(namelist_layout)
+
+        # Create clickable communication name label
+        self.communication_label = QLabel("Communication")
+        #self.communication_label.setStyleSheet("color: blue; text-decoration: underline; cursor: pointer;")
+        #self.communication_label.setCursor(Qt.PointingHandCursor)
+        # self.communication_label.mousePressEvent = self.on_communication_label_click  # Set click event
+
+        # Add the Name field and Communication label in a horizontal layout
+        name_layout = QHBoxLayout()
+        name_layout.addWidget(self.list_name_input)
+        name_layout.addWidget(self.communication_label)
+
+        # Add the horizontal layout to the form layout
+        namelist_layout.addRow("Name:", name_layout)
+                            
         self.populate_namelist_fields_from_db()
         parent_layout.addLayout(namelist_layout)
 
@@ -288,8 +303,23 @@ class NameListsWidget(QWidget):
     def populate_namelist_fields_from_db(self):
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        cursor = select_from_namelist(cursor, self.nameList_id)
+
+        # Fetch NameList information based on nameList_id
+        cursor.execute("""
+            SELECT nl.listName, nl.communication_id, c.name AS communication_name
+            FROM NameList nl
+            JOIN Communication c ON nl.communication_id = c.id
+            WHERE nl.id = ?
+        """, (self.nameList_id,))
+        
         result = cursor.fetchone()
+        
         if result:
+            # Populate the Name field
             self.list_name_input.setText(result["listName"])
+
+            # Set the communication label text to the communication name
+            self.communication_label.setText(f"Communication: {result['communication_name']}")
+            # Optionally set the communication ID to the label's property if needed for further interaction
+            self.communication_label.setProperty("communication_id", result["communication_id"])
         conn.close()
