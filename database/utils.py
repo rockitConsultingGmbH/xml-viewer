@@ -824,9 +824,8 @@ def insert_into_description(cursor, row):
     ))
     return cursor
 
-def select_from_description(cursor, communication_id, descriptionType=None):
-    if descriptionType is not None:
-        # When descriptionType is provided
+def select_from_description(cursor, communication_id, description_id=None):
+    if description_id is not None:
         cursor.execute("""
         SELECT
             id,
@@ -834,10 +833,9 @@ def select_from_description(cursor, communication_id, descriptionType=None):
             description,
             descriptionType
         FROM Description
-        WHERE communication_id = ? AND descriptionType = ?
-        """, (communication_id, descriptionType))
+        WHERE communication_id = ? AND id = ?
+        """, (communication_id, description_id))
     else:
-        # When descriptionType is not provided
         cursor.execute("""
         SELECT
             id,

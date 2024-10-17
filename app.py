@@ -12,7 +12,7 @@ from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
 
 from controllers.communication_table_data import populate_communication_table_fields
-from controllers.location_table_data import populate_location_source_fields
+from controllers.location_table_data import populate_location_source_fields, populate_location_target_fields
 from controllers.description_table_data import populate_description_fields
 from common.connection_manager import ConnectionManager
 
@@ -259,6 +259,7 @@ class MainWindow(QMainWindow):
                 setup_right_interface(self.right_widget, communication_id)
                 populate_communication_table_fields(communication_id)
                 populate_location_source_fields(communication_id)
+                populate_location_target_fields(communication_id)
                 populate_description_fields(communication_id)
 
         elif item == self.basic_config_item:
