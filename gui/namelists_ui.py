@@ -98,6 +98,7 @@ class NameListsWidget(QWidget):
             # Create a QLabel for "Entry:"
             entry_label = QLabel("Entry:")
             entry_label.setFixedWidth(50)  # Ensure consistent width for the label
+            entry_label.setAlignment(Qt.AlignLeft)
             entry_layout.addWidget(entry_label)
 
             # Create a QLineEdit for the new entry
@@ -115,6 +116,7 @@ class NameListsWidget(QWidget):
             # Add the widgets
             entry_layout.addWidget(entry_input)
             entry_layout.addWidget(delete_button)
+            entry_layout.setAlignment(Qt.AlignLeft)
 
             # Insert the new entry layout at the top of the entries
             #self.name_entries_layout.insertLayout(0, entry_layout)
@@ -167,6 +169,7 @@ class NameListsWidget(QWidget):
 
         entry_layout.addWidget(entry_input)
         entry_layout.addWidget(delete_button)
+        entry_layout.setAlignment(Qt.AlignLeft)
 
     def delete_entry(self, entry_layout, entry_input):
         """Visually remove the entry from the UI and mark it for deletion."""
