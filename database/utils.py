@@ -764,28 +764,37 @@ def insert_into_description(cursor, row):
     ))
     return cursor
 
-def select_from_description(cursor, communication_id, descriptionType):
-    cursor.execute("""
-    SELECT
-        id,
-        communication_id,
-        description,
-        descriptionType
-    FROM Description
-    WHERE communication_id = ? AND descriptionType = ?
-    """,
-    (communication_id, descriptionType))
-    return cursor.fetchone()
+def select_from_description(cursor, communication_id, description_id=None):
+    if description_id is not None:
+        cursor.execute("""
+        SELECT
+            id,
+            communication_id,
+            description,
+            descriptionType
+        FROM Description
+        WHERE communication_id = ? AND id = ?
+        """, (communication_id, description_id))
+    else:
+        cursor.execute("""
+        SELECT
+            id,
+            communication_id,
+            description,
+            descriptionType
+        FROM Description
+        WHERE communication_id = ?
+        """, (communication_id,))
+    return cursor
 
 def update_description(cursor, row):
     cursor.execute("""
     UPDATE Description
     SET description = ?
-    WHERE communication_id = ? AND descriptionType = ?
+    WHERE id = ?
     """, (
         row['description'],
-        row['communication_id'],
-        row['descriptionType']
+        row['description_id'],
     ))
     return cursor
 

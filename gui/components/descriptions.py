@@ -1,47 +1,28 @@
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel
+from controllers.utils.get_db_connection import get_db_connection
+from database.utils import select_from_description
 from utils.clickable_label import ClickableLabel
 
-from utils.toggle_inputs import toggle_inputs
+input_names = []
 
-
-def create_description_form(label_style):
-
+def create_description_form(label_style, communication_id):
     form_layout_right = QFormLayout()
-
     description_label = ClickableLabel("Description(s)")
     description_label.setStyleSheet(label_style)
 
-    description_input = QLineEdit()
-    description_input.setObjectName("description_input")
-    description_input.setFixedSize(550, 30)
+    conn, cursor = get_db_connection()
+    descriptions = select_from_description(cursor, communication_id)
 
-    form_layout_right.addRow(description_label, description_input)
+    for description in descriptions:
+        description_label = QLabel(description["descriptionType"])
+        description_input = QLineEdit(description["description"])
+        object_name = f"description_{description['id']}_input"
+        description_input.setObjectName(object_name)
+        description_input.setFixedSize(550, 30)
 
-    description_1_label = QLabel("Description")
-    description_1_label.setStyleSheet(label_style)
-    description_1_input = QLineEdit()
-    description_1_input.setFixedSize(550, 30)
-    description_1_input.setObjectName("description_1_input")
+        form_layout_right.addRow(description_label, description_input)
+        input_names.append(object_name)
 
-    description_2_label = QLabel("Description")
-    description_2_label.setStyleSheet(label_style)
-    description_2_input = QLineEdit()
-    description_2_input.setFixedSize(550, 30)
-    description_2_input.setObjectName("description_2_input")
-
-    description_3_label = QLabel("Description")
-    description_3_label.setStyleSheet(label_style)
-    description_3_input = QLineEdit()
-    description_3_input.setFixedSize(550, 30)
-    description_3_input.setObjectName("description_3_input")
-
-    form_layout_right.addRow(description_1_label, description_1_input)
-    form_layout_right.addRow(description_2_label, description_2_input)
-    form_layout_right.addRow(description_3_label, description_3_input)
-
-    input_labels = [description_1_label, description_2_label, description_3_label]
-    input_fields = [description_1_input, description_2_input, description_3_input]
-
-    description_label.mousePressEvent = lambda event: toggle_inputs(input_labels, input_fields)
+    conn.close()
 
     return form_layout_right
