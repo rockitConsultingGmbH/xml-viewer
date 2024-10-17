@@ -69,10 +69,10 @@ class MainWindow(QMainWindow):
         communication_menu = menubar.addMenu('Communication')
 
         copy_action = QAction('Copy', self)
-        communication_menu.addAction(copy_action)  # TODO: add functionality
+        communication_menu.addAction(copy_action)
 
         delete_action = QAction('Delete', self)
-        communication_menu.addAction(delete_action)  # TODO: add functionality
+        communication_menu.addAction(delete_action)
 
         self.splitter = QSplitter(Qt.Horizontal)
 
@@ -89,9 +89,24 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.splitter)
 
+        # Automatically import the XML file upon startup
+        self.import_xml_on_startup()
+
+    def import_xml_on_startup(self):
+        """Automatically open a default XML file when the application starts."""
+        default_file_path = 'path/to/your/default.xml'  # Set the default XML file path
+        if default_file_path:
+            # Simulate the file dialog selection
+            dialog = FileDialog(self)
+            dialog.xml_path.setText(default_file_path)  # Simulate the path being set
+            dialog.accept()  # Simulate the dialog being accepted
+            
+            # Trigger the XML file loading process
+            self.open_xml()
+
     def open_xml(self):
         dialog = FileDialog(self)
-        if dialog.exec_():
+        if dialog.exec_():  # The exec_() is used for the dialog, which waits for user input
             if self.recent_files:
                 self.reinitialize()
             self.display_db_tables()
@@ -103,6 +118,7 @@ class MainWindow(QMainWindow):
             if self.basic_config_item:
                 tree_widget = self.left_widget.layout().itemAt(0).widget()
                 tree_widget.setCurrentItem(self.basic_config_item)
+
 
     def reinitialize(self):
         """Reinitialize the application state for a new XML import."""
@@ -338,15 +354,15 @@ class MainWindow(QMainWindow):
         QApplication.quit()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, "Confirm Exit",
-                                     "Are you sure you want to close the application?",
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        #reply = QMessageBox.question(self, "Confirm Exit",
+        #                             "Are you sure you want to close the application?",
+        #                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            self.perform_cleanup()
-            event.accept()
-        else:
-            event.ignore()
+        #if reply == QMessageBox.Yes:
+        self.perform_cleanup()
+            #event.accept()
+        #else:
+            #event.ignore()
 
     def perform_cleanup(self):
          empty_database()
