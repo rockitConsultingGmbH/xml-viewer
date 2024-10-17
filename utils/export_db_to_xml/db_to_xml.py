@@ -117,7 +117,7 @@ def create_xml_from_dbconfig(config_id):
         columns = get_columns_from_table(cursor, 'AlternateName')
         rows = get_rows_from_db_table(cursor, 'AlternateName', columns, f"WHERE nameList_id = {nameList_id}")
         for row in rows:
-            xml_tree, alternatename = db_to_xml_map.create_xml_from_alternatename(namelist, row)
+            xml_tree, entry = db_to_xml_map.create_xml_from_alternatename(namelist, row)
 
     xml_tree.indent(root, space="    ")
     pretty_xml_tree = xml_tree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True).decode('utf-8')

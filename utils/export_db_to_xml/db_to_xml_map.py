@@ -183,7 +183,7 @@ def create_xml_from_namelist(root, row):
 
 # AlternateName
 def create_xml_from_alternatename(root, row):
-    xml_element = add_row_element_if_not_empty(root, 'entry',                row['alternateName'])
+    xml_element = add_row_element_if_not_empty(root, 'entry',                row['entry'])
     return etree, xml_element
 
 # Description

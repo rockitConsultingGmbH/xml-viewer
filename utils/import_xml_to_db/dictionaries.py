@@ -67,8 +67,9 @@ def createMqConfigDict(basicConfig_id, mq):
     }
     return MqConfigDict
 
-def createMqTriggerDict(mqConfig_id, mqtrigger):
+def createMqTriggerDict(basicConfig_id, mqConfig_id, mqtrigger):
     MqTriggerDict = {
+        'basicConfig_id':               basicConfig_id,
         'mqConfig_id':                  mqConfig_id,
         'success_interval':             mqtrigger.find('successintervall').text,
         'trigger_interval':             mqtrigger.find('intervall').text,
@@ -80,8 +81,9 @@ def createMqTriggerDict(mqConfig_id, mqtrigger):
     }
     return MqTriggerDict
 
-def createIPQueueDict(mqConfig_id, ipqueue):
+def createIPQueueDict(basicConfig_id, mqConfig_id, ipqueue):
     IPQueueDict = {
+        'basicConfig_id':               basicConfig_id,
         'mqConfig_id':                  mqConfig_id,
         'queue':                        ipqueue.find('queue').text,
         'errorQueue':                   ipqueue.find('errorQueue').text,
@@ -175,10 +177,10 @@ def createNameListDict(basicConfig_id, communication_id, listName):
     }
     return NameListDict
     
-def createAlternateNameDict(nameList_id, alternateName):
+def createAlternateNameDict(nameList_id, entry):
     AlternateNameDict = {
         'nameList_id':                  nameList_id,
-        'alternateName':                alternateName
+        'entry':                        entry
     }
     return AlternateNameDict
 

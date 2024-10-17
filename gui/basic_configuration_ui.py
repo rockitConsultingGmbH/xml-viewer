@@ -3,26 +3,26 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from gui.popup_message_ui import PopupMessage
-from gui.components.buttons import create_button_layout
+from gui.components.buttons import ButtonFactory
 
 class BasicConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.conn_manager = ConnectionManager.get_instance()
-        self.setup_ui()
         self.popup_message = PopupMessage(self)
+        self.setup_ui()
 
     def setup_ui(self):
         # Main layout
         layout = QVBoxLayout(self)
 
         # Button layout
-        button_layout = create_button_layout(self)
+        button_layout = ButtonFactory().create_button_layout(self)
 
         # Form layout for input fields
         form_layout = QFormLayout()
         self.init_input_fields()
-        self.populate_fields_from_db()
+        self.set_fields_from_db()
         self.add_fields_to_form_layout(form_layout)
 
         # Add layouts to the main layout
@@ -79,7 +79,7 @@ class BasicConfigurationWidget(QWidget):
         form_layout.addRow("Watcher Escalation Timeout:", self.watcher_escalation_timeout_input)
         form_layout.addRow("Watcher Sleep Time:", self.watcher_sleep_time_input)
 
-    def populate_fields_from_db(self):
+    def set_fields_from_db(self):
         # Retrieve and populate fields from database
         data = self.get_basic_configuration()
         if data:

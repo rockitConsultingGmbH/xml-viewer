@@ -1,6 +1,7 @@
 -- Drop dependent tables in reverse order of creation to avoid foreign key conflicts
 DROP TABLE IF EXISTS Description;
 DROP TABLE IF EXISTS AlternateName;
+DROP VIEW IF EXISTS NameListWithCommunication;
 DROP TABLE IF EXISTS NameList;
 DROP TABLE IF EXISTS CommandParam;
 DROP TABLE IF EXISTS Command;
@@ -74,6 +75,7 @@ CREATE TABLE MqConfig (
 -- Create MqTrigger table with reference to MqConfig
 CREATE TABLE MqTrigger (
     id INTEGER PRIMARY KEY,
+    basicConfig_id INT NOT NULL,
     mqConfig_id INT NOT NULL,
     success_interval VARCHAR(255),
     trigger_interval VARCHAR(255),
@@ -82,17 +84,20 @@ CREATE TABLE MqTrigger (
     dynamic_success_count VARCHAR(255),
     dynamic_success_interval VARCHAR(255),
     dynamic_max_instances VARCHAR(255),
+    FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
     FOREIGN KEY (mqConfig_id) REFERENCES MqConfig(id) ON DELETE CASCADE
 );
 
 -- Create IPQueue table with reference to MqConfig
 CREATE TABLE IPQueue (
     id INTEGER PRIMARY KEY,
+    basicConfig_id INT NOT NULL,
     mqConfig_id INT NOT NULL,
     queue VARCHAR(255) NOT NULL,
     errorQueue VARCHAR(255),
     numberOfThreads VARCHAR(255),
     description VARCHAR(255),
+    FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
     FOREIGN KEY (mqConfig_id) REFERENCES MqConfig(id) ON DELETE CASCADE
 );
 
@@ -180,11 +185,25 @@ CREATE TABLE NameList (
     FOREIGN KEY (communication_id) REFERENCES Communication(id) ON DELETE CASCADE
 );
 
+-- Create view NameListWithCommunication
+CREATE VIEW NameListWithCommunication AS
+SELECT 
+    nl.id AS nameList_id,
+    nl.listName, 
+    nl.communication_id, 
+    c.name AS communication_name
+FROM 
+    NameList nl
+JOIN 
+    Communication c 
+ON 
+    nl.communication_id = c.id;
+
 -- Create AlternateName table with reference to NameList
 CREATE TABLE AlternateName (
     id INTEGER PRIMARY KEY,
     nameList_id INT,
-    alternateName VARCHAR(255) NOT NULL,
+    entry VARCHAR(255) NOT NULL,
     FOREIGN KEY (nameList_id) REFERENCES NameList(id) ON DELETE CASCADE
 );
 

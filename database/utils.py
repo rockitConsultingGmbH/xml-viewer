@@ -260,9 +260,10 @@ def delete_from_mqconfig(cursor, basicConfig_id):
     return cursor
 
 # MqTrigger
-def InsertIntoMqTrigger(cursor, row):
+def insert_into_mqtrigger(cursor, row):
     cursor.execute("""
     INSERT INTO MqTrigger (
+        basicConfig_id,
         mqConfig_id,
         success_interval,
         trigger_interval,
@@ -272,8 +273,9 @@ def InsertIntoMqTrigger(cursor, row):
         dynamic_success_interval,
         dynamic_max_instances
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
+        row['basicConfig_id'],
         row['mqConfig_id'],
         row['success_interval'],
         row['trigger_interval'],
@@ -285,7 +287,24 @@ def InsertIntoMqTrigger(cursor, row):
     ))
     return cursor
 
-def UpdateMqTrigger(cursor, row):
+def select_from_mqtrigger(cursor, basicConfig_id):
+    cursor.execute("""
+    SELECT
+        basicConfig_id,
+        mqConfig_id,
+        success_interval,
+        trigger_interval,
+        polling,
+        dynamic_instance_management,
+        dynamic_success_count,
+        dynamic_success_interval,
+        dynamic_max_instances
+    FROM MqTrigger
+    WHERE basicConfig_id = ?
+    """, (basicConfig_id,))
+    return cursor
+
+def update_mqtrigger(cursor, row):
     cursor.execute("""
     UPDATE MqTrigger
     SET success_interval = ?,
@@ -295,7 +314,7 @@ def UpdateMqTrigger(cursor, row):
         dynamic_success_count = ?,
         dynamic_success_interval = ?,
         dynamic_max_instances = ?
-    WHERE mqConfig_id = ?
+    WHERE basicConfig_id = ?
     """, (
         row['success_interval'],
         row['trigger_interval'],
@@ -304,26 +323,28 @@ def UpdateMqTrigger(cursor, row):
         row['dynamic_success_count'],
         row['dynamic_success_interval'],
         row['dynamic_max_instances'],
-        row['mqConfig_id']
+        row['basicConfig_id']
     ))
     return cursor
 
-def DeleteFromMqTrigger(cursor, mqConfig_id):
-    cursor.execute("DELETE FROM MqTrigger WHERE mqConfig_id = ?", (mqConfig_id,))
+def delete_from_mqtrigger(cursor, mqTrigger_id):
+    cursor.execute("DELETE FROM MqTrigger WHERE id = ?", (mqTrigger_id,))
     return cursor
 
 # IPQueue
-def InsertIntoIPQueue(cursor, row):
+def insert_into_ipqueue(cursor, row):
     cursor.execute("""
     INSERT INTO IPQueue (
+        basicConfig_id,
         mqConfig_id,
         queue,
         errorQueue,
         numberOfThreads,
         description
     )
-    VALUES (?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?)
     """, (
+        row['basicConfig_id'],
         row['mqConfig_id'],
         row['queue'],
         row['errorQueue'],
@@ -332,25 +353,41 @@ def InsertIntoIPQueue(cursor, row):
     ))
     return cursor
 
-def UpdateIPQueue(cursor, row):
+def select_from_ipqueue(cursor, basicConfig_id):
+    cursor.execute("""
+    SELECT
+        id,
+        basicConfig_id,
+        mqConfig_id,
+        queue,
+        errorQueue,
+        numberOfThreads,
+        description
+    FROM IPQueue
+    WHERE basicConfig_id = ?
+    """, (basicConfig_id,))
+    return cursor
+
+def update_ipqueue(cursor, row):
     cursor.execute("""
     UPDATE IPQueue
     SET queue = ?,
         errorQueue = ?,
         numberOfThreads = ?,
         description = ?
-    WHERE mqConfig_id = ?
+    WHERE basicConfig_id = ? AND id = ?
     """, (
         row['queue'],
         row['errorQueue'],
         row['numberOfThreads'],
         row['description'],
-        row['mqConfig_id']
+        row['basicConfig_id'],
+        row['ipqueue_id']
     ))
     return cursor
 
-def DeleteFromIPQueue(cursor, mqConfig_id):
-    cursor.execute("DELETE FROM IPQueue WHERE mqConfig_id = ?", (mqConfig_id,))
+def delete_from_ipqueue(cursor, ipqueue_id):
+    cursor.execute("DELETE FROM IPQueue WHERE ipqueue_id = ? AND ", (ipqueue_id,))
     return cursor
 
 # Communication
@@ -688,7 +725,7 @@ def DeleteFromCommandParam(cursor, command_id):
     return cursor
 
 # NameList
-def InsertIntoNameList(cursor, row):
+def insert_into_namelist(cursor, row):
     cursor.execute("""
     INSERT INTO NameList (
         basicConfig_id,
@@ -703,49 +740,85 @@ def InsertIntoNameList(cursor, row):
     ))
     return cursor
 
-def UpdateNameList(cursor, row):
+def select_from_namelist(cursor, nameList_id):
+    cursor.execute("""
+    SELECT
+        basicConfig_id,
+        communication_id,
+        listName
+    FROM NameList
+    WHERE id = ?
+    """,
+    (nameList_id,))
+    return cursor
+
+def update_namelist(cursor, row):
     cursor.execute("""
     UPDATE NameList
     SET listName = ?
-    WHERE basicConfig_id = ? AND communication_id = ?
+    WHERE id = ?
     """, (
         row['listName'],
-        row['basicConfig_id'],
-        row['communication_id']
+        row['id']
     ))
     return cursor
 
-def DeleteFromNameList(cursor, basicConfig_id, communication_id):
+def delete_from_namelist(cursor, basicConfig_id, communication_id):
     cursor.execute("DELETE FROM NameList WHERE basicConfig_id = ? AND communication_id = ?", (basicConfig_id, communication_id,))
     return cursor
 
+def select_from_namelist_with_communication(cursor, nameList_id):
+    cursor.execute("""
+    SELECT 
+        nameList_id, 
+        listName, 
+        communication_id, 
+        communication_name
+    FROM NameListWithCommunication
+    WHERE nameList_id = ?
+    """,
+    (nameList_id,))
+    return cursor
+
 # AlternateName
-def InsertIntoAlternateName(cursor, row):
+def insert_into_alternatename(cursor, row):
     cursor.execute("""
     INSERT INTO AlternateName (
         nameList_id,
-        alternateName
+        entry
     )
     VALUES (?, ?)
     """, (
         row['nameList_id'],
-        row['alternateName']
+        row['entry']
     ))
     return cursor
 
-def UpdateAlternateName(cursor, row):
+def select_from_alternatename(cursor, nameList_id):
+    cursor.execute("""
+    SELECT
+        id,
+        nameList_id,
+        entry
+    FROM AlternateName
+    WHERE nameList_id = ?
+    """,
+    (nameList_id,))
+    return cursor
+
+def update_alternatename(cursor, row):
     cursor.execute("""
     UPDATE AlternateName
-    SET alternateName = ?
-    WHERE nameList_id = ?
+    SET entry = ?
+    WHERE id = ?
     """, (
-        row['alternateName'],
-        row['nameList_id']
+        row['entry'],
+        row['id']
     ))
     return cursor
 
-def DeleteFromAlternateName(cursor, nameList_id):
-    cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (nameList_id,))
+def delete_from_alternatename(cursor, id):
+    cursor.execute("DELETE FROM AlternateName WHERE id = ?", (id,))
     return cursor
 
 # Description
