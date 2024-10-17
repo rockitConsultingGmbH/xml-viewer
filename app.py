@@ -287,10 +287,23 @@ class MainWindow(QMainWindow):
             self.right_widget = NameListsWidget(nameList_id=namelist_id)
         else:
             self.right_widget = NameListsWidget(self)
+
+        # Connect the name_updated signal to the slot that updates the name in the tree
+        self.right_widget.name_updated.connect(self.update_namelist_in_tree)
+
         self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
         self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
+
+    def update_namelist_in_tree(self, nameList_id, new_name):
+        """Update the NameList name in the tree widget when it is changed."""
+        for i in range(self.namelist_item.childCount()):
+            child_item = self.namelist_item.child(i)
+            if child_item.data(0, Qt.UserRole) == nameList_id:
+                # Update the name in the tree widget
+                child_item.setText(0, new_name)
+                break
 
     def save_config(self):
         """Save configuration to a predetermined file path."""

@@ -184,6 +184,8 @@ class NameListsWidget(QWidget):
                     "listName": list_name
                 }
                 update_namelist(cursor, row)
+                # Emit the name_updated signal to notify MainWindow
+                self.name_updated.emit(int(self.nameList_id), list_name)
 
             # Save or update the AlternateName table for each entry
             for layout in self.name_entries_layout.children():
