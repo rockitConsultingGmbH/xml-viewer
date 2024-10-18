@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QHBoxLayout, QCheckBox, QPus
     QLineEdit, QFormLayout, QSpacerItem, QSizePolicy, QScrollArea, QWidget, QFrame, QComboBox
 
 from controllers.communication_table_data import save_communication_data
-from controllers.location_table_data import save_location_data
+from controllers.location_table_data import save_source_location_data,save_target_location_data
 from controllers.description_table_data import save_description_data
 
 from gui.components.descriptions import create_description_form
@@ -62,7 +62,8 @@ def setup_right_interface(right_widget, communication_id):
 
     def save_and_show_message():
         save_communication_data(communication_id)
-        save_location_data(communication_id)
+        save_source_location_data(communication_id)
+        save_target_location_data(communication_id)
         save_description_data(communication_id)
 
         msg = QMessageBox()
