@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
                              QLineEdit, QWidget)
 from common import config_manager
 from common.connection_manager import ConnectionManager
-from gui.popup_message_ui import PopupMessage
+from gui.components.popup_message_ui import PopupMessage
 from gui.components.buttons import ButtonFactory
 
 class BasicConfigurationWidget(QWidget):
@@ -62,7 +62,7 @@ class BasicConfigurationWidget(QWidget):
         for field in large_fields:
             field.setFixedSize(500, 35)
         for field in small_fields:
-            field.setFixedSize(100, 35)
+            field.setFixedSize(500, 35)
 
     def add_fields_to_form_layout(self, form_layout):
         # Adds input fields to the form layout with labels

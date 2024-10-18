@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
-                             QLineEdit, QWidget, QScrollArea)
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, QLineEdit, QWidget, QScrollArea, QGroupBox, QSpacerItem, QSizePolicy)
+from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
-from gui.popup_message_ui import PopupMessage
+from gui.components.popup_message_ui import PopupMessage
 from gui.components.buttons import ButtonFactory
 
 class MQConfigurationWidget(QWidget):
@@ -11,124 +11,52 @@ class MQConfigurationWidget(QWidget):
         super().__init__(parent)
         self.conn_manager = ConnectionManager().get_instance()
         self.popup_message = PopupMessage(self)
+        self.ipqueue_fields = []  # Store references to the input fields for saving   
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
+        # Create the main layout
+        main_layout = QVBoxLayout(self)
 
         # Initialize buttons and add them at the top
         button_layout = ButtonFactory().create_button_layout(self)
-        layout.addLayout(button_layout)
+        main_layout.addLayout(button_layout)
 
-        # Create and add the form layout
-        #form_layout = QFormLayout()
-        #self.init_input_fields()
-        #self.add_fields_to_form_layout(form_layout)
-        #self.populate_fields_from_db()
-        #layout.addLayout(form_layout)
+        # Create scroll area
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
 
-       # Create and add the separate form layouts for MQConfig, MQTrigger, and IPQueue
-        self.create_mqconfig_layout(layout)
-        self.create_mqtrigger_layout(layout)
-        self.create_ipqueue_layout(layout) 
-        #self.set_input_field_sizes()
+        # Create and add separate form layouts for MQConfig, MQTrigger, and IPQueue
+        self.create_mqconfig_layout(scroll_layout)
+        self.add_spacing(scroll_layout)
+        self.create_mqtrigger_layout(scroll_layout)
+        self.add_spacing(scroll_layout)
+        self.create_ipqueue_layout(scroll_layout)
 
-        self.setLayout(layout)
+        scroll_area.setWidget(scroll_content)
+        main_layout.addWidget(scroll_area)
+        self.setLayout(main_layout)
 
+    # Add spacing method
+    def add_spacing(self, layout):
+        spacer = QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        layout.addItem(spacer)
+
+#MQConfig Layout
     def create_mqconfig_layout(self, parent_layout):
-        # MQConfig Layout
+        mqconfig_group = QGroupBox("MQConfig Settings")
+        mqconfig_group.setFont(QFont("Arial", weight=QFont.Bold))
         mqconfig_layout = QFormLayout()
-        self.init_mqconfig_input_fields()
+
         self.add_mqconfig_fields_to_form_layout(mqconfig_layout)
         self.populate_mqconfig_fields_from_db()
-        parent_layout.addLayout(mqconfig_layout)
 
-    def create_mqtrigger_layout(self, parent_layout):
-        # MQTrigger Layout
-        mqtrigger_layout = QFormLayout()
-        self.init_mqtrigger_input_fields()
-        self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)
-        self.populate_mqtrigger_fields_from_db()
-        parent_layout.addLayout(mqtrigger_layout)
+        mqconfig_group.setLayout(mqconfig_layout)
+        parent_layout.addWidget(mqconfig_group)
 
-    def create_ipqueue_layout(self, parent_layout):
-        # IPQueue Layout
-
-        # IPQueue Layouts
-        ipqueue_layout = QVBoxLayout()  # Create a vertical layout to hold all IPQueue entries
-        ipqueue_entries = self.get_ipqueue_data()
-
-        # Loop through each entry and create a form layout for it
-        for entry in ipqueue_entries:
-            entry_layout = QFormLayout()
-            #self.init_ipqueue_input_fields()
-            self.add_ipqueue_fields_to_form_layout(entry_layout, entry)
-            #self.populate_ipqueue_fields_from_db()
-            ipqueue_layout.addLayout(entry_layout)
-
-        # Wrap the layout in a scroll area if needed
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(QWidget())
-        scroll_area.widget().setLayout(ipqueue_layout)
-        parent_layout.addWidget(scroll_area)
-
-    def init_input_fields(self):
-        try:
-            self.init_mqconfig_input_fields()
-            self.init_mqtrigger_input_fields()
-            self.init_ipqueue_input_fields()
-            #self.create_mqconfig_layout(layout)
-            #self.create_mqtrigger_layout(layout)
-            #self.create_ipqueue_layout(layout)
-            self.set_input_field_sizes()
-        except Exception as e:
-            print(f"Error initializing input fields: {e}")
-            self.popup_message.show_message("Error initializing input fields.")
-
-    def set_fields_from_db(self):
-        try:
-            self.populate_mqconfig_fields_from_db()
-            self.populate_mqtrigger_fields_from_db()
-            self.populate_ipqueue_fields_from_db()
-        except Exception as e:
-            print(f"Error populating fields from database: {e}")
-            self.popup_message.show_message("Error populating fields from database.")
-
-    def save_fields_to_db(self):
-        try:
-            conn = self.conn_manager.get_db_connection()
-            cursor = conn.cursor()
-            self.save_mqconfig_fields_to_db(cursor)
-            self.save_mqtrigger_fields_to_db(cursor)
-            self.save_ipqueue_fields_to_db(cursor)
-            conn.commit()
-            self.popup_message.show_message("Changes in MQ Configuration have been successfully saved.")
-        except Exception as e:
-            print(f"Error while saving data: {e}")
-            conn.rollback()
-            self.popup_message.show_error_message(f"Error while saving data: {e}")
-        finally:
-            conn.close()
-
-    def set_input_field_sizes(self):
-        input_fields = [
-            self.qmgr_input, self.hostname_input, self.port_input, self.channel_input,
-            self.userid_input, self.password_input, self.cipher_input, self.sslPeer_input,
-            self.ccsid_input, self.queue_input, self.number_of_threads_input,
-            self.error_queue_input, self.command_queue_input, self.command_reply_queue_input,
-            self.wait_interval_input, self.success_interval_input, self.trigger_interval_input,
-            self.polling_input, self.dynamic_instance_management_input, self.dynamic_success_count_input,
-            self.dynamic_success_interval_input, self.dynamic_max_instances_input,
-            self.ipqueue_input, self.ipqueue_errorqueue_input, self.ipqueue_number_of_threads_input,
-            self.ipqueue_description_input
-        ]
-        for field in input_fields:
-            field.setFixedSize(500, 35)
-
-
-    # MQConfig
-    def init_mqconfig_input_fields(self):
+    def add_mqconfig_fields_to_form_layout(self, form_layout):
         self.is_remote_input = QCheckBox()
         self.qmgr_input = QLineEdit()
         self.hostname_input = QLineEdit()
@@ -146,18 +74,12 @@ class MQConfigurationWidget(QWidget):
         self.command_reply_queue_input = QLineEdit()
         self.wait_interval_input = QLineEdit()
 
-    def add_fields_to_form_layout(self, form_layout):
-        self.add_mqconfig_fields_to_form_layout(form_layout)
-        self.add_mqtrigger_fields_to_form_layout(form_layout)
-        self.add_ipqueue_fields_to_form_layout(form_layout)
-
-    def add_mqconfig_fields_to_form_layout(self, form_layout):
         form_layout.addRow("Remote:", self.is_remote_input)
-        form_layout.addRow("Queue manager:", self.qmgr_input)
+        form_layout.addRow("Queue Manager:", self.qmgr_input)
         form_layout.addRow("Hostname:", self.hostname_input)
         form_layout.addRow("Port:", self.port_input)
         form_layout.addRow("Channel:", self.channel_input)
-        form_layout.addRow("User Id:", self.userid_input)
+        form_layout.addRow("User ID:", self.userid_input)
         form_layout.addRow("Password:", self.password_input)
         form_layout.addRow("Cipher:", self.cipher_input)
         form_layout.addRow("SSL Peer:", self.sslPeer_input)
@@ -168,41 +90,6 @@ class MQConfigurationWidget(QWidget):
         form_layout.addRow("Command Queue:", self.command_queue_input)
         form_layout.addRow("Command Reply Queue:", self.command_reply_queue_input)
         form_layout.addRow("Wait Interval:", self.wait_interval_input)
-
-    def add_mqtrigger_fields_to_form_layout(self, form_layout):
-        form_layout.addRow("Success Interval:", self.success_interval_input)
-        form_layout.addRow("Trigger Interval:", self.trigger_interval_input)
-        form_layout.addRow("Polling:", self.polling_input)
-        form_layout.addRow("Dynamic Instance Management:", self.dynamic_instance_management_input)
-        form_layout.addRow("Dynamic Success Count:", self.dynamic_success_count_input)
-        form_layout.addRow("Dynamic Success Interval:", self.dynamic_success_interval_input)
-        form_layout.addRow("Dynamic Max Instances:", self.dynamic_max_instances_input)
-
-    def add_ipqueue_fields_to_form_layout(self, form_layout, entry):
-        # Add input fields for a single IPQueue entry
-        ipqueue_input = QLineEdit(entry["queue"])
-        ipqueue_errorqueue_input = QLineEdit(entry["errorQueue"])
-        ipqueue_number_of_threads_input = QLineEdit(entry["numberOfThreads"])
-        ipqueue_description_input = QLineEdit(entry["description"])
-
-        form_layout.addRow("Queue:", ipqueue_input)
-        form_layout.addRow("Error Queue:", ipqueue_errorqueue_input)
-        form_layout.addRow("Number of Threads:", ipqueue_number_of_threads_input)
-        form_layout.addRow("Description:", ipqueue_description_input)
-
-    #def add_ipqueue_fields_to_form_layout(self, form_layout):
-        #form_layout.addRow("Queue:", self.ipqueue_input)
-        #form_layout.addRow("Error Queue:", self.ipqueue_errorqueue_input)
-        #form_layout.addRow("Number of Threads:", self.ipqueue_number_of_threads_input)
-        #form_layout.addRow("Description:", self.ipqueue_description_input)
-
-    def get_mqconfig_data(self):
-        conn = self.conn_manager.get_db_connection()
-        cursor = conn.cursor()
-        cursor = select_from_mqconfig(cursor, config_manager.config_id)
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
 
     def populate_mqconfig_fields_from_db(self):
         data = self.get_mqconfig_data()
@@ -224,34 +111,28 @@ class MQConfigurationWidget(QWidget):
             self.command_reply_queue_input.setText(data["commandReplyQueue"])
             self.wait_interval_input.setText(data["waitinterval"])
 
-    def save_mqconfig_fields_to_db(self, cursor):
-        mqconfig_data = {
-            "isRemote": "true" if self.is_remote_input.isChecked() else "false",
-            "qmgr": self.qmgr_input.text(),
-            "hostname": self.hostname_input.text(),
-            "port": self.port_input.text(),
-            "channel": self.channel_input.text(),
-            "userid": self.userid_input.text(),
-            "password": self.password_input.text(),
-            "cipher": self.cipher_input.text(),
-            "sslPeer": self.sslPeer_input.text(),
-            "ccsid": self.ccsid_input.text(),
-            "queue": self.queue_input.text(),
-            "numberOfThreads": self.number_of_threads_input.text(),
-            "errorQueue": self.error_queue_input.text(),
-            "commandQueue": self.command_queue_input.text(),
-            "commandReplyQueue": self.command_reply_queue_input.text(),
-            "waitinterval": self.wait_interval_input.text(),
-            "description": '',
-            "basicConfig_id": config_manager.config_id
-        }
+    def get_mqconfig_data(self):
+        conn = self.conn_manager.get_db_connection()
+        cursor = conn.cursor()
+        cursor = select_from_mqconfig(cursor, config_manager.config_id)
+        row = cursor.fetchone()
+        conn.close()
+        return dict(row) if row else None
 
-        update_mqconfig(cursor, mqconfig_data)
-        return cursor
+# MQTrigger Layout 
+    def create_mqtrigger_layout(self, parent_layout):
+        # MQTrigger Layout
+        mqtrigger_group = QGroupBox("MQTrigger Settings")
+        mqtrigger_group.setFont(QFont("Arial", weight=QFont.Bold))
+        mqtrigger_layout = QFormLayout()
 
+        self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)
+        self.populate_mqtrigger_fields_from_db()
 
-    # MQTrigger
-    def init_mqtrigger_input_fields(self):
+        mqtrigger_group.setLayout(mqtrigger_layout)
+        parent_layout.addWidget(mqtrigger_group)
+
+    def add_mqtrigger_fields_to_form_layout(self, form_layout):
         self.success_interval_input = QLineEdit()
         self.trigger_interval_input = QLineEdit()
         self.polling_input = QLineEdit()
@@ -259,6 +140,14 @@ class MQConfigurationWidget(QWidget):
         self.dynamic_success_count_input = QLineEdit()
         self.dynamic_success_interval_input = QLineEdit()
         self.dynamic_max_instances_input = QLineEdit()
+
+        form_layout.addRow("Success Interval:", self.success_interval_input)
+        form_layout.addRow("Trigger Interval:", self.trigger_interval_input)
+        form_layout.addRow("Polling:", self.polling_input)
+        form_layout.addRow("Dynamic Instance Management:", self.dynamic_instance_management_input)
+        form_layout.addRow("Dynamic Success Count:", self.dynamic_success_count_input)
+        form_layout.addRow("Dynamic Success Interval:", self.dynamic_success_interval_input)
+        form_layout.addRow("Dynamic Max Instances:", self.dynamic_max_instances_input)
 
     def populate_mqtrigger_fields_from_db(self):
         data = self.get_mqtrigger_data()
@@ -278,6 +167,110 @@ class MQConfigurationWidget(QWidget):
         row = cursor.fetchone()
         conn.close()
         return dict(row) if row else None
+    
+# IPQueue Layout
+    def create_ipqueue_layout(self, parent_layout):
+        # IPQueue Group Box
+        ipqueue_group = QGroupBox("IPQueue Settings")
+        ipqueue_group.setFont(QFont("Arial", weight=QFont.Bold))
+        ipqueue_layout = QVBoxLayout()
+
+        ipqueue_entries = self.get_ipqueue_data()
+
+        for entry in ipqueue_entries:
+            entry_layout = QFormLayout()
+            entry_layout = self.add_ipqueue_fields_to_form_layout(entry_layout, entry)
+            ipqueue_layout.addLayout(entry_layout)
+
+        ipqueue_group.setLayout(ipqueue_layout)
+        parent_layout.addWidget(ipqueue_group)
+
+    def add_ipqueue_fields_to_form_layout(self, entry_layout, entry):
+        ipqueue_input = QLineEdit()
+        ipqueue_errorqueue_input = QLineEdit()
+        ipqueue_number_of_threads_input = QLineEdit()
+        ipqueue_description_input = QLineEdit()
+
+        # Store the IPQueue ID in each input field using setProperty
+        ipqueue_input.setProperty("ipqueue_id", entry["id"])
+        ipqueue_errorqueue_input.setProperty("ipqueue_id", entry["id"])
+        ipqueue_number_of_threads_input.setProperty("ipqueue_id", entry["id"])
+        ipqueue_description_input.setProperty("ipqueue_id", entry["id"])
+
+        # Populate fields with the current data
+        ipqueue_input.setText(entry["queue"])
+        ipqueue_errorqueue_input.setText(entry["errorQueue"])
+        ipqueue_number_of_threads_input.setText(entry["numberOfThreads"])
+        ipqueue_description_input.setText(entry["description"])
+
+        # Add fields to the layout
+        entry_layout.addRow("Queue:", ipqueue_input)
+        entry_layout.addRow("Error Queue:", ipqueue_errorqueue_input)
+        entry_layout.addRow("Number of Threads:", ipqueue_number_of_threads_input)
+        entry_layout.addRow("Description:", ipqueue_description_input)
+
+        # Store a reference to these fields for later saving
+        self.ipqueue_fields.append({
+            "queue": ipqueue_input,
+            "errorQueue": ipqueue_errorqueue_input,
+            "numberOfThreads": ipqueue_number_of_threads_input,
+            "description": ipqueue_description_input
+        })
+
+        return entry_layout
+
+    def get_ipqueue_data(self):
+        conn = self.conn_manager.get_db_connection()
+        cursor = conn.cursor()
+        cursor = select_from_ipqueue(cursor, config_manager.config_id)
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
+    
+    def save_ipqueue_fields_to_db(self, cursor):
+        """Save each IPQueue field's data to the database."""
+        for field_group in self.ipqueue_fields:
+            # Retrieve the ID from one of the input fields
+            ipqueue_id = field_group["queue"].property("ipqueue_id")
+
+            ipqueue_data = {
+                "ipqueue_id": ipqueue_id,
+                "queue": field_group["queue"].text(),
+                "errorQueue": field_group["errorQueue"].text(),
+                "numberOfThreads": field_group["numberOfThreads"].text(),
+                "description": field_group["description"].text(),
+                "basicConfig_id": config_manager.config_id
+            }
+
+            # Update the database for this specific IPQueue entry
+            update_ipqueue(cursor, ipqueue_data)
+
+        return cursor   
+
+#Save and Reset Functions
+    def save_mqconfig_fields_to_db(self, cursor):
+        mqconfig_data = {
+            "isRemote": "true" if self.is_remote_input.isChecked() else "false",
+            "qmgr": self.qmgr_input.text(),
+            "hostname": self.hostname_input.text(),
+            "port": self.port_input.text(),
+            "channel": self.channel_input.text(),
+            "userid": self.userid_input.text(),
+            "password": self.password_input.text(),
+            "cipher": self.cipher_input.text(),
+            "sslPeer": self.sslPeer_input.text(),
+            "ccsid": self.ccsid_input.text(),
+            "queue": self.queue_input.text(),
+            "numberOfThreads": self.number_of_threads_input.text(),
+            "errorQueue": self.error_queue_input.text(),
+            "commandQueue": self.command_queue_input.text(),
+            "commandReplyQueue": self.command_reply_queue_input.text(),
+            "waitinterval": self.wait_interval_input.text(),
+            "basicConfig_id": config_manager.config_id
+        }
+
+        update_mqconfig(cursor, mqconfig_data)
+        return cursor
 
     def save_mqtrigger_fields_to_db(self, cursor):
         mqtrigger_data = {
@@ -293,40 +286,28 @@ class MQConfigurationWidget(QWidget):
 
         update_mqtrigger(cursor, mqtrigger_data)
         return cursor
-        
 
-    # IPQueue
-    def init_ipqueue_input_fields(self):
-        self.ipqueue_input = QLineEdit()
-        self.ipqueue_errorqueue_input = QLineEdit()
-        self.ipqueue_number_of_threads_input = QLineEdit()
-        self.ipqueue_description_input = QLineEdit()
+    def save_fields_to_db(self):
+        try:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+            self.save_mqconfig_fields_to_db(cursor)
+            self.save_mqtrigger_fields_to_db(cursor)
+            self.save_ipqueue_fields_to_db(cursor)
+            conn.commit()
+            self.popup_message.show_message("Changes in MQ Configuration have been successfully saved.")
+        except Exception as e:
+            print(f"Error while saving data: {e}")
+            conn.rollback()
+            self.popup_message.show_error_message(f"Error while saving data: {e}")
+        finally:
+            conn.close()
 
-
-    def populate_ipqueue_fields_from_db(self):
-        data = self.get_ipqueue_data()
-        if data:
-            self.ipqueue_input.setText(data["queue"])
-            self.ipqueue_errorqueue_input.setText(data["errorQueue"])
-            self.ipqueue_number_of_threads_input.setText(data["numberOfThreads"])
-            self.ipqueue_description_input.setText(data["description"])
-
-    def get_ipqueue_data(self):
-        conn = self.conn_manager.get_db_connection()
-        cursor = conn.cursor()
-        cursor = select_from_ipqueue(cursor, config_manager.config_id)
-        rows = cursor.fetchall()
-        conn.close()
-        return rows #dict(row) if row else None
-
-    def save_ipqueue_fields_to_db(self, cursor):
-        ipqueue_data = {
-            "queue": self.ipqueue_input.text(),
-            "errorQueue": self.ipqueue_errorqueue_input.text(),
-            "numberOfThreads": self.ipqueue_number_of_threads_input.text(),
-            "description": self.ipqueue_description_input.text(),
-            "basicConfig_id": config_manager.config_id
-        }
-
-        update_ipqueue(cursor, ipqueue_data)
-        return cursor
+    def set_fields_from_db(self):
+        try:
+            self.populate_mqconfig_fields_from_db()
+            self.populate_mqtrigger_fields_from_db()
+            self.populate_ipqueue_fields_from_db()
+        except Exception as e:
+            print(f"Error populating fields from database: {e}")
+            self.popup_message.show_message("Error populating fields from database.")

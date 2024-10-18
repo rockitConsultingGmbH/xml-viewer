@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget
 from common import config_manager
 from common.connection_manager import ConnectionManager
-from gui.popup_message_ui import PopupMessage
+from gui.components.popup_message_ui import PopupMessage
 from gui.components.buttons import ButtonFactory
 
 class LZBConfigurationWidget(QWidget):
@@ -47,7 +47,7 @@ class LZBConfigurationWidget(QWidget):
         self.apply_field_size(self.encrypt_key_input, self.keystore_path_input, 
                               self.keystore_password_input, self.truststore_path_input, 
                               self.truststore_password_input, self.ssh_implementation_input)
-        self.dns_timeout_input.setFixedSize(100, 35)  # Custom width for dns_timeout
+        self.dns_timeout_input.setFixedSize(500, 35)  # Custom width for dns_timeout
 
     def apply_field_size(self, *fields):
         """Applies a fixed size to multiple input fields."""
