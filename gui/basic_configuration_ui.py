@@ -144,4 +144,4 @@ class BasicConfigurationWidget(QWidget):
         conn.close()
 
         # Show success message
-        self.popup_message.show_message("Changes in Basic Configuration have been successfully saved.")
+        self.popup_message.show_message("Changes have been successfully saved.")
