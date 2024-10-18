@@ -64,25 +64,22 @@ def create_location_row(communication_id, location_type):
 def populate_location_target_fields(communication_id, location_type='targetLocation'):
     conn, cursor = get_db_connection()
 
-    result = select_from_location(cursor, communication_id, location_type)
-
-    if result:
-        populate_target_fields(result)
+    targetLocations = select_from_location(cursor, communication_id, location_type).fetchall()
+    for targetLocation in targetLocations:
+        if targetLocation:
+            populate_target_fields(targetLocation)
 
     conn.close()
 
-def populate_target_fields(result):
-    (id, communication_id, location, location_id, use_local_filename,
-     use_path_from_config, target_must_be_archived, target_history_days,
-     rename_existing_file, userid, password, description, location_type) = result
+def populate_target_fields(targetLocation):
 
-    set_input_value("target_second_input", location)
-    set_input_value("userid_target_second_input", userid)
-    set_input_value("password_target_second_input", password)
-    set_input_value("description_target_second_input", description)
-    set_input_value("location_id_target_second_input", location_id)
-    set_checkbox_value("use_local_filename_checkbox_target_second", use_local_filename)
-    set_checkbox_value("use_path_from_config_checkbox_target_second", use_path_from_config)
-    set_checkbox_value("target_history_days_checkbox_second", target_history_days)
-    set_checkbox_value("rename_existing_file_checkbox_second", rename_existing_file)
-    set_checkbox_value("target_must_be_archived_checkbox_second", target_must_be_archived)
+    set_input_value(f"target_{targetLocation['id']}_input", targetLocation["location"])
+    set_input_value(f"userid_target_{targetLocation['id']}_input", targetLocation["userid"])
+    #set_input_value(f"password_target_{targetLocation['id']}_input", targetLocation["password"])
+    #set_input_value(f"description_target_{targetLocation['id']}_input", targetLocation["description"])
+    #set_input_value(f"location_id_target_{targetLocation['id']}_input", targetLocation["location_id"])
+    #set_checkbox_value(f"use_local_filename_checkbox_target_{targetLocation['id']}", targetLocation["useLocalFilename"])
+    #set_checkbox_value(f"use_path_from_config_checkbox_target_{targetLocation['id']}", targetLocation["usePathFromConfig"])
+    #set_checkbox_value(f"target_history_days_checkbox_{targetLocation['id']}", targetLocation["targetHistoryDays"])
+    #set_checkbox_value(f"rename_existing_file_checkbox_{targetLocation['id']}", targetLocation["renameExistingFile"])
+    #set_checkbox_value(f"target_must_be_archived_checkbox_{targetLocation['id']}", targetLocation["targetMustBeArchived)"])

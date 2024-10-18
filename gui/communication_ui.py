@@ -312,8 +312,8 @@ def create_group(group_name, layout, communication_id=None):
 
         form_layout.addRow(hbox_target)
 
-        hbox_columns_2 = create_target_location_form(label_children_style, communication_id)
-        form_layout.addRow(hbox_columns_2)
+        target_locations_form_layout = create_target_location_form(label_children_style, communication_id)
+        form_layout.addRow(target_locations_form_layout)
 
         group_layout.addLayout(form_layout)
 
