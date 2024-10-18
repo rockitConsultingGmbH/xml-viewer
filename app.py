@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
                     column_item = QTreeWidgetItem([namelist_name])
                     column_item.setData(0, Qt.UserRole, namelist_id)
                     table_item.addChild(column_item)
-
+                conn.close()
             elif table_name == "Communications":
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
@@ -220,6 +220,7 @@ class MainWindow(QMainWindow):
                     column_item = QTreeWidgetItem([communication_name])
                     column_item.setData(0, Qt.UserRole, communication_id)
                     table_item.addChild(column_item)
+                conn.close()
 
         tree_widget.itemClicked.connect(self.on_item_clicked)
 
@@ -235,7 +236,7 @@ class MainWindow(QMainWindow):
 
                 self.right_widget.setParent(None)
                 self.right_widget = QWidget()
-                self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+                #self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
                 self.splitter.addWidget(self.right_widget)
                 self.splitter.setSizes([250, 1000])
                 self.setCentralWidget(self.splitter)

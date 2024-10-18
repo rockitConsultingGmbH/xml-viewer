@@ -612,7 +612,7 @@ def select_from_location(cursor, communication_id, locationType):
     WHERE communication_id = ? AND locationType = ?
     """,
     (communication_id,locationType))
-    return cursor.fetchone()
+    return cursor
 
 def update_location(cursor, row):
     cursor.execute("""

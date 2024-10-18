@@ -9,7 +9,7 @@ from controllers.utils.get_and_set_value import (get_input_value, set_input_valu
 def populate_location_source_fields(communication_id, location_type='sourceLocation'):
     conn, cursor = get_db_connection()
 
-    result = select_from_location(cursor, communication_id, location_type)
+    result = select_from_location(cursor, communication_id, location_type).fetchone()
 
     if result:
         populate_source_fields(result)
