@@ -44,10 +44,10 @@ class MQConfigurationWidget(QWidget):
         spacer = QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
         layout.addItem(spacer)
 
-#MQConfig Layout
+# MQConfig Layout
     def create_mqconfig_layout(self, parent_layout):
         mqconfig_group = QGroupBox("MQConfig Settings")
-        mqconfig_group.setFont(QFont("Arial", weight=QFont.Bold))
+        mqconfig_group.setFont(QFont("Arial", 10, QFont.Bold))  # Larger font for group titles
         mqconfig_layout = QFormLayout()
 
         self.add_mqconfig_fields_to_form_layout(mqconfig_layout)
@@ -57,6 +57,9 @@ class MQConfigurationWidget(QWidget):
         parent_layout.addWidget(mqconfig_group)
 
     def add_mqconfig_fields_to_form_layout(self, form_layout):
+        #font = QFont("Arial", 10)  # Larger font for labels and input fields
+
+        # Input fields with larger font and size
         self.is_remote_input = QCheckBox()
         self.qmgr_input = QLineEdit()
         self.hostname_input = QLineEdit()
@@ -74,6 +77,15 @@ class MQConfigurationWidget(QWidget):
         self.command_reply_queue_input = QLineEdit()
         self.wait_interval_input = QLineEdit()
 
+        # Apply the larger font to input fields
+        for field in [self.qmgr_input, self.hostname_input, self.port_input, self.channel_input, self.userid_input,
+                      self.password_input, self.cipher_input, self.sslPeer_input, self.ccsid_input, self.queue_input,
+                      self.number_of_threads_input, self.error_queue_input, self.command_queue_input, self.command_reply_queue_input,
+                      self.wait_interval_input]:
+            #field.setFont(font)
+            field.setFixedHeight(35)  # Increase field height
+
+        # Add rows with larger fonts for labels
         form_layout.addRow("Remote:", self.is_remote_input)
         form_layout.addRow("Queue Manager:", self.qmgr_input)
         form_layout.addRow("Hostname:", self.hostname_input)
@@ -119,11 +131,10 @@ class MQConfigurationWidget(QWidget):
         conn.close()
         return dict(row) if row else None
 
-# MQTrigger Layout 
+# MQTrigger Layout
     def create_mqtrigger_layout(self, parent_layout):
-        # MQTrigger Layout
         mqtrigger_group = QGroupBox("MQTrigger Settings")
-        mqtrigger_group.setFont(QFont("Arial", weight=QFont.Bold))
+        mqtrigger_group.setFont(QFont("Arial", 10, QFont.Bold))  # Larger font for group titles
         mqtrigger_layout = QFormLayout()
 
         self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)
@@ -133,6 +144,9 @@ class MQConfigurationWidget(QWidget):
         parent_layout.addWidget(mqtrigger_group)
 
     def add_mqtrigger_fields_to_form_layout(self, form_layout):
+        #font = QFont("Arial", 10)  # Larger font for labels and input fields
+
+        # Input fields with larger font and size
         self.success_interval_input = QLineEdit()
         self.trigger_interval_input = QLineEdit()
         self.polling_input = QLineEdit()
@@ -141,6 +155,13 @@ class MQConfigurationWidget(QWidget):
         self.dynamic_success_interval_input = QLineEdit()
         self.dynamic_max_instances_input = QLineEdit()
 
+        for field in [self.success_interval_input, self.trigger_interval_input, self.polling_input,
+                      self.dynamic_instance_management_input, self.dynamic_success_count_input,
+                      self.dynamic_success_interval_input, self.dynamic_max_instances_input]:
+            #field.setFont(font)
+            field.setFixedHeight(35)  # Increase field height
+
+        # Add rows with larger fonts for labels
         form_layout.addRow("Success Interval:", self.success_interval_input)
         form_layout.addRow("Trigger Interval:", self.trigger_interval_input)
         form_layout.addRow("Polling:", self.polling_input)
@@ -167,12 +188,11 @@ class MQConfigurationWidget(QWidget):
         row = cursor.fetchone()
         conn.close()
         return dict(row) if row else None
-    
+
 # IPQueue Layout
     def create_ipqueue_layout(self, parent_layout):
-        # IPQueue Group Box
         ipqueue_group = QGroupBox("IPQueue Settings")
-        ipqueue_group.setFont(QFont("Arial", weight=QFont.Bold))
+        ipqueue_group.setFont(QFont("Arial", 10, QFont.Bold))  # Larger font for group titles
         ipqueue_layout = QVBoxLayout()
 
         ipqueue_entries = self.get_ipqueue_data()
@@ -186,10 +206,16 @@ class MQConfigurationWidget(QWidget):
         parent_layout.addWidget(ipqueue_group)
 
     def add_ipqueue_fields_to_form_layout(self, entry_layout, entry):
+        #font = QFont("Arial", 10)  # Larger font for labels and input fields
+
         ipqueue_input = QLineEdit()
         ipqueue_errorqueue_input = QLineEdit()
         ipqueue_number_of_threads_input = QLineEdit()
         ipqueue_description_input = QLineEdit()
+
+        for field in [ipqueue_input, ipqueue_errorqueue_input, ipqueue_number_of_threads_input, ipqueue_description_input]:
+            #field.setFont(font)
+            field.setFixedHeight(35)  # Increase field height
 
         # Store the IPQueue ID in each input field using setProperty
         ipqueue_input.setProperty("ipqueue_id", entry["id"])
@@ -226,7 +252,7 @@ class MQConfigurationWidget(QWidget):
         rows = cursor.fetchall()
         conn.close()
         return rows
-    
+
     def save_ipqueue_fields_to_db(self, cursor):
         """Save each IPQueue field's data to the database."""
         for field_group in self.ipqueue_fields:

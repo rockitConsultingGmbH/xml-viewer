@@ -230,8 +230,7 @@ def update_mqconfig(cursor, row):
         errorQueue = ?,
         commandQueue = ?,
         commandReplyQueue = ?,
-        waitinterval = ?,
-        description = ?
+        waitinterval = ?
     WHERE basicConfig_id = ?
     """, (
         row['isRemote'],
@@ -250,7 +249,6 @@ def update_mqconfig(cursor, row):
         row['commandQueue'],
         row['commandReplyQueue'],
         row['waitinterval'],
-        row['description'],
         row['basicConfig_id']
     ))
     return cursor
