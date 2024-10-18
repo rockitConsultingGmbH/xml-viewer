@@ -20,12 +20,10 @@ def save_description_data(communication_id):
 
     for input_name in input_names:
         description_text = get_input_value(input_name)
-        print(f"Saving: {input_name} -> {description_text}")
 
         if description_text:
             description_id = input_name.split('_')[1]
             existing_result = select_from_description(cursor, communication_id, description_id).fetchone()
-            print(f"Existing result for {input_name}: {existing_result}")
 
             if existing_result:
                 description_row = {
@@ -34,7 +32,6 @@ def save_description_data(communication_id):
                     'descriptionType': existing_result['descriptionType']
                 }
                 update_description(cursor, description_row)
-                print(f"Updated: {description_row}")
 
     conn.commit()
     conn.close()

@@ -624,9 +624,8 @@ def update_location(cursor, row):
         renameExistingFile = ?,
         userid = ?,
         password = ?,
-        description = ?,
-        locationType = ?
-    WHERE communication_id = ? AND locationType = ?
+        description = ?
+    WHERE id = ?  
     """, (
         row['location'],
         row['location_id'],
@@ -638,11 +637,10 @@ def update_location(cursor, row):
         row['userid'],
         row['password'],
         row['description'],
-        row['locationType'],
-        row['communication_id'],
-        row['locationType']
+        row['id']
     ))
     return cursor
+
 
 def delete_from_location(cursor, communication_id):
     cursor.execute("DELETE FROM Location WHERE communication_id = ?", (communication_id,))
