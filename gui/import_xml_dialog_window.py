@@ -92,6 +92,8 @@ class FileDialog(QDialog):
                 config_manager.config_filepath = self.xml_path.text()
 
                 QMessageBox.information(self, "Success", "XML file was successfully imported.")
+                self.parent().setWindowTitle(f"XML Editor - {self.xml_path.text()}")
+
                 self.accept()
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Error: {str(e)}")

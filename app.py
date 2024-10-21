@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import sys
 from PyQt5.QtCore import Qt
@@ -311,6 +312,7 @@ class MainWindow(QMainWindow):
         """Save configuration to a predetermined file path."""
         file_path = config_manager.config_filepath
         self._export_to_file(file_path)
+        self.update_window_title(file_path)
 
     def export_config(self):
         """Export configuration with a user-specified file path."""
@@ -318,7 +320,9 @@ class MainWindow(QMainWindow):
         file_path, _ = QFileDialog.getSaveFileName(
             self, "Save XML File", "", "XML Files (*.xml);;All Files (*)", options=options
         )
-        self._export_to_file(file_path)
+        if file_path:
+            self._export_to_file(file_path)
+            self.update_window_title(file_path)
 
     def _export_to_file(self, file_path):
         """Handles file export operations for configuration data."""
@@ -330,14 +334,19 @@ class MainWindow(QMainWindow):
             try:
                 export_to_xml_function(file_path, config_manager.config_id)
                 QMessageBox.information(self, "Success", f"Data saved successfully to:\n{file_path}")
+                config_manager.config_filepath = file_path
             except Exception:
                 QMessageBox.critical(self, "Error", "Failed to export data")
         else:
             QMessageBox.warning(self, "Cancelled", "Export operation was cancelled.")
 
+    def update_window_title(self, file_path):
+        """Update the window title with the file name."""
+        #file_name = os.path.basename(file_path)
+        self.setWindowTitle(f"XML Editor - {file_path}")
+
     def exit_application(self):
         self.close()
-        QApplication.quit()
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "Confirm Exit",
@@ -347,6 +356,7 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             self.perform_cleanup()
             event.accept()
+            QApplication.quit()
         else:
             event.ignore()
 
