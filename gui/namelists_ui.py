@@ -173,6 +173,7 @@ class NameListsWidget(QWidget):
                 row = {"id": self.nameList_id, "listName": list_name}
                 update_namelist(cursor, row)
                 update_communication_column(cursor, "alternateNameList", list_name, communication_id)
+                self.name_updated.emit(int(self.nameList_id), list_name)
 
             for layout in self.name_entries_layout.children():
                 if isinstance(layout, QHBoxLayout):
