@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget, QGroupBox
+from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from gui.components.popup_message_ui import PopupMessage
@@ -13,12 +14,14 @@ class LZBConfigurationWidget(QWidget):
     
     def setup_ui(self):
         # Set up the main layout and form layout
+        lzb_config_group = QGroupBox("LZB Configuration")
+        lzb_config_group.setFont(QFont("Arial", 10, QFont.Bold))
         layout = QVBoxLayout(self)
         form_layout = QFormLayout()
 
         # Set up Save and Reset buttons
         button_layout = ButtonFactory().create_button_layout(self)
-        form_layout.addRow(button_layout)
+        #form_layout.addRow(button_layout)
 
         # Initialize input fields
         self.initialize_fields()
@@ -27,7 +30,10 @@ class LZBConfigurationWidget(QWidget):
         self.add_fields_to_layout(form_layout)
 
         # Set the layout for the widget
-        layout.addLayout(form_layout)
+        lzb_config_group.setLayout(form_layout)
+        layout.addLayout(button_layout)
+        layout.addWidget(lzb_config_group)
+        #layout.addLayout(form_layout)
 
         # Populate fields with data from the database
         self.set_fields_from_db()

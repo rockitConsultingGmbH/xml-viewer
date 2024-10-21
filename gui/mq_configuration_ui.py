@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, QLineEdit, QWidget, QScrollArea, QGroupBox, QSpacerItem, QSizePolicy)
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, QLineEdit, QWidget, QScrollArea, QGroupBox, QSpacerItem, QSizePolicy, QFrame)
 from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
@@ -27,7 +27,9 @@ class MQConfigurationWidget(QWidget):
         self.scroll_area.setWidgetResizable(True)
         #self.scroll_area.setStyleSheet("QScrollArea { border: none; } QWidget { border: none; } "
         #                      "QLineEdit, QComboBox, QPushButton { border: 1px solid gray; }")
-        self.scroll_area.setStyleSheet("QLineEdit { border: 1px solid gray; }")
+        #self.scroll_area.setStyleSheet("QLineEdit { border: 1px solid gray; }")
+                # Remove the border from the scroll area
+        self.scroll_area.setFrameShape(QFrame.NoFrame)
 
         scroll_content = QWidget()
         self.scroll_layout = QVBoxLayout(scroll_content)
@@ -45,13 +47,13 @@ class MQConfigurationWidget(QWidget):
 
     # Add spacing method
     def add_spacing(self, layout):
-        spacer = QSpacerItem(20, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        spacer = QSpacerItem(30, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
         layout.addItem(spacer)
 
 # MQConfig Layout
     def create_mqconfig_layout(self, parent_layout):
-        mqconfig_group = QGroupBox("MQConfig Settings")
-        mqconfig_group.setFont(QFont("Arial", 10, QFont.Bold))  # Larger font for group titles
+        mqconfig_group = QGroupBox("MQ Configuration")
+        mqconfig_group.setFont(QFont("Arial", 10, QFont.Bold))
         mqconfig_layout = QFormLayout()
 
         self.add_mqconfig_fields_to_form_layout(mqconfig_layout)
@@ -60,7 +62,7 @@ class MQConfigurationWidget(QWidget):
         parent_layout.addWidget(mqconfig_group)
 
     def add_mqconfig_fields_to_form_layout(self, form_layout):
-        #font = QFont("Arial", 10)  # Larger font for labels and input fields
+        #font = QFont("Arial", 10)
 
         # Input fields with larger font and size
         self.is_remote_input = QCheckBox()
@@ -138,7 +140,7 @@ class MQConfigurationWidget(QWidget):
 # MQTrigger Layout
     def create_mqtrigger_layout(self, parent_layout):
         mqtrigger_group = QGroupBox("MQTrigger Settings")
-        mqtrigger_group.setFont(QFont("Arial", 10, QFont.Bold))  # Larger font for group titles
+        mqtrigger_group.setFont(QFont("Arial", 10, QFont.Bold))
         mqtrigger_layout = QFormLayout()
 
         self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)

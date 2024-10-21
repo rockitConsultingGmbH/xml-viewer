@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, 
-                             QLineEdit, QWidget)
+                             QLineEdit, QWidget, QGroupBox)
+from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from gui.components.popup_message_ui import PopupMessage
@@ -14,6 +15,9 @@ class BasicConfigurationWidget(QWidget):
 
     def setup_ui(self):
         # Main layout
+        basic_config_group = QGroupBox("Basic Configuration")
+        basic_config_group.setFont(QFont("Arial", 10, QFont.Bold))
+
         layout = QVBoxLayout(self)
 
         # Button layout
@@ -25,9 +29,12 @@ class BasicConfigurationWidget(QWidget):
         self.set_fields_from_db()
         self.add_fields_to_form_layout(form_layout)
 
+        # Add form layout to the group box
+        basic_config_group.setLayout(form_layout)
+
         # Add layouts to the main layout
         layout.addLayout(button_layout)
-        layout.addLayout(form_layout)
+        layout.addWidget(basic_config_group)
         self.setLayout(layout)
 
     def init_input_fields(self):
