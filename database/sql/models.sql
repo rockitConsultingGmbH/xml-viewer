@@ -172,6 +172,8 @@ CREATE TABLE CommandParam (
     id INTEGER PRIMARY KEY,
     command_id INT NOT NULL,
     param VARCHAR(255),
+    paramName VARCHAR(255),
+    paramOrder INT,
     FOREIGN KEY (command_id) REFERENCES Command(id) ON DELETE CASCADE
 );
 
