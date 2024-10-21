@@ -589,7 +589,7 @@ def update_communication(cursor, row):
     ))
     return cursor
 
-def update_communication_column(cursor, column_name, column_value, id, basic_config_id):
+def update_communication_column(cursor, column_name, column_value, id):
     # List of allowed column names
     valid_columns = ['name', 'alternateNameList', 'watcherEscalationTimeout', 'isToPoll', 
                      'pollUntilFound', 'noTransfer', 'targetMustBeArchived', 'mustBeArchived', 
@@ -604,9 +604,9 @@ def update_communication_column(cursor, column_name, column_value, id, basic_con
     query = f"""
     UPDATE Communication
     SET {column_name} = ?
-    WHERE id = ? AND basicConfig_id = ?
+    WHERE id = ?
     """
-    cursor.execute(query, (column_value, id, basic_config_id))
+    cursor.execute(query, (column_value, id,))
     return cursor
 
 def delete_from_communication(cursor, basicConfig_id):

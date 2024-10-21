@@ -164,6 +164,7 @@ class NameListsWidget(QWidget):
 
             list_name = self.list_name_input.text()
             communication_id = self.communication_label.property("communication_id")
+            print(f"Communication ID: {communication_id}")
             if not list_name:
                 self.popup_message.show_error_message("List name cannot be empty.")
                 return
@@ -171,7 +172,7 @@ class NameListsWidget(QWidget):
             if self.nameList_id:
                 row = {"id": self.nameList_id, "listName": list_name}
                 update_namelist(cursor, row)
-                self.name_updated.emit(int(self.nameList_id), list_name)
+                update_communication_column(cursor, "alternateNameList", list_name, communication_id)
 
             for layout in self.name_entries_layout.children():
                 if isinstance(layout, QHBoxLayout):
