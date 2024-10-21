@@ -26,7 +26,8 @@ class BasicConfigurationWidget(QWidget):
 
     def create_basic_config_group(self):
         basic_config_group = QGroupBox("Basic Configuration")
-        basic_config_group.setFont(QFont("Arial", 10, QFont.Bold))
+        basic_config_group.setFont(QFont("Arial", 12, QFont.Bold))
+        basic_config_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         form_layout = QFormLayout()
 
         self.init_input_fields()

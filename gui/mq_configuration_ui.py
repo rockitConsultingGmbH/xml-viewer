@@ -42,7 +42,8 @@ class MQConfigurationWidget(QWidget):
 
     def create_mqconfig_layout(self, parent_layout):
         mqconfig_group = QGroupBox("MQ Configuration")
-        mqconfig_group.setFont(QFont("Arial", 10, QFont.Bold))
+        mqconfig_group.setFont(QFont("Arial", 12, QFont.Bold))
+        mqconfig_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         mqconfig_layout = QFormLayout()
 
         self.add_mqconfig_fields_to_form_layout(mqconfig_layout)
@@ -123,7 +124,8 @@ class MQConfigurationWidget(QWidget):
 
     def create_mqtrigger_layout(self, parent_layout):
         mqtrigger_group = QGroupBox("MQTrigger Settings")
-        mqtrigger_group.setFont(QFont("Arial", 10, QFont.Bold))
+        mqtrigger_group.setFont(QFont("Arial", 12, QFont.Bold))
+        mqtrigger_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         mqtrigger_layout = QFormLayout()
 
         self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)
@@ -177,14 +179,15 @@ class MQConfigurationWidget(QWidget):
 
     def create_ipqueue_layout(self, parent_layout):
         ipqueue_group = QGroupBox("IPQueue Settings")
-        ipqueue_group.setFont(QFont("Arial", 10, QFont.Bold))
+        ipqueue_group.setFont(QFont("Arial", 12, QFont.Bold))
+        ipqueue_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         ipqueue_main_layout = QVBoxLayout()
 
         ipqueue_entries = self.get_ipqueue_data()
 
         for entry in ipqueue_entries:
             individual_ipqueue_group = QGroupBox(f"IPQueue")
-            individual_ipqueue_group.setFont(QFont("Arial", 8, QFont.Bold))
+            individual_ipqueue_group.setFont(QFont("Arial", 10, QFont.Bold, italic=True))
             individual_ipqueue_layout = QFormLayout()
 
             individual_ipqueue_layout = self.add_ipqueue_fields_to_form_layout(individual_ipqueue_layout, entry)
