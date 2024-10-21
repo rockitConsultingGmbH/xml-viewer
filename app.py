@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidg
 
 from controllers.empty_database import empty_database
 from gui.import_xml_dialog_window import FileDialog
-from gui.communication_ui import setup_right_interface
+from gui.communication_ui import CommunicationUI
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
@@ -19,6 +19,7 @@ from common.connection_manager import ConnectionManager
 from gui.namelists_ui import NameListsWidget
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
 from common import config_manager
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -106,7 +107,7 @@ class MainWindow(QMainWindow):
 
     def reinitialize(self):
         """Reinitialize the application state for a new XML import."""
-        
+
         # Remove layout and widgets for right_widget
         if self.right_widget.layout() is not None:
             old_layout = self.right_widget.layout()
@@ -133,7 +134,7 @@ class MainWindow(QMainWindow):
         if self.left_widget.layout() is not None:
             old_layout = self.left_widget.layout()
             QWidget().setLayout(old_layout)  # Detach and delete the old layout
-        
+
         # Initialize a new QTreeWidget
         tree_widget = QTreeWidget()
         tree_widget.setStyleSheet("""
@@ -166,17 +167,17 @@ class MainWindow(QMainWindow):
 
         # Define tables with titles
         tables = [('Basic Configuration',), ('LZB Configuration',), ('MQ Configuration',), ('Communications',),
-                ('NameLists',)]
+                  ('NameLists',)]
 
         for table in tables:
             table_name = table[0]
             table_item = QTreeWidgetItem([table_name])
-            
+
             # Ensure each item is collapsed by default
             table_item.setExpanded(False)
-            
+
             tree_widget.addTopLevelItem(table_item)
-            
+
             if table_name == 'Basic Configuration':
                 self.basic_config_item = table_item
             elif table_name == 'LZB Configuration':
@@ -186,7 +187,7 @@ class MainWindow(QMainWindow):
             elif table_name == ('MQ Configuration'):
                 self.mq_config_item = table_item
             elif table_name == 'NameLists':
-                #self.namelists_item = table_item
+                # self.namelists_item = table_item
 
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
@@ -199,7 +200,7 @@ class MainWindow(QMainWindow):
                 for row in rows:
                     namelist_id = row['id']
                     namelist_name = row['listName']
-                    
+
                     column_item = QTreeWidgetItem([namelist_name])
                     column_item.setData(0, Qt.UserRole, namelist_id)
                     table_item.addChild(column_item)
@@ -216,7 +217,7 @@ class MainWindow(QMainWindow):
                 for row in rows:
                     communication_id = row['id']
                     communication_name = row['name']
-                    
+
                     column_item = QTreeWidgetItem([communication_name])
                     column_item.setData(0, Qt.UserRole, communication_id)
                     table_item.addChild(column_item)
@@ -233,15 +234,13 @@ class MainWindow(QMainWindow):
         if item.parent() == self.communication_config_item:
             communication_id = item.data(0, Qt.UserRole)
             if communication_id is not None:
-
                 self.right_widget.setParent(None)
                 self.right_widget = QWidget()
-                #self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
                 self.splitter.addWidget(self.right_widget)
                 self.splitter.setSizes([250, 1000])
                 self.setCentralWidget(self.splitter)
 
-                setup_right_interface(self.right_widget, communication_id)
+                CommunicationUI(self.right_widget, communication_id)
                 populate_communication_table_fields(communication_id)
                 populate_location_source_fields(communication_id)
                 populate_location_target_fields(communication_id)
@@ -255,7 +254,6 @@ class MainWindow(QMainWindow):
             self.load_mq_config_view()
         elif item.parent() == self.namelist_item:
             namelist_id = item.data(0, Qt.UserRole)
-    
             print(f"NameList ID: {namelist_id}")
             self.load_namelists_view(namelist_id)
 
@@ -351,8 +349,9 @@ class MainWindow(QMainWindow):
             event.ignore()
 
     def perform_cleanup(self):
-         empty_database()
-    
+        empty_database()
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 

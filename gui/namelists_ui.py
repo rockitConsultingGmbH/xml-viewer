@@ -2,9 +2,9 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScro
                              QHBoxLayout, QSpacerItem, QSizePolicy)
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename
+from database.utils import select_from_alternatename, select_from_namelist_with_communication, update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename
 from gui.popup_message_ui import PopupMessage
-from gui.components.buttons import ButtonFactory
+from utils.buttons import ButtonFactory
 
 class NameListsWidget(QWidget):
     name_updated = pyqtSignal(int, str)  # Signal to notify when the name is updated

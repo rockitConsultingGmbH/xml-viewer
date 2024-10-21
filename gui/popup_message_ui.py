@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QLabel, QWidget
 from PyQt5.QtCore import Qt, QTimer
 
+
 class PopupMessage:
     def __init__(self, parent: QWidget, max_width: int = 800, height: int = 30, duration: int = 3000):
         self.parent = parent

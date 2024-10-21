@@ -2,6 +2,7 @@ import sqlite3
 from common.connection_manager import ConnectionManager
 from database.utils import select_all_tablenames_from_db
 
+
 def empty_database():
     conn_manager = ConnectionManager().get_instance()
     conn = conn_manager.get_db_connection()

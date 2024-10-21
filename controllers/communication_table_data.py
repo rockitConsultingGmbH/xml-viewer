@@ -1,4 +1,4 @@
-from controllers.utils.get_db_connection import get_db_connection
+from common.connection_manager import ConnectionManager
 from common import config_manager
 from database.utils import update_communication, select_from_communication
 from controllers.utils.get_and_set_value import (get_input_value, set_input_value, get_checkbox_value,
@@ -6,7 +6,9 @@ from controllers.utils.get_and_set_value import (get_input_value, set_input_valu
 
 
 def populate_communication_table_fields(communication_id):
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
 
     result = select_from_communication(cursor, communication_id, config_manager.config_id)
 
@@ -14,6 +16,7 @@ def populate_communication_table_fields(communication_id):
         populate_fields(result)
 
     conn.close()
+
 
 def populate_fields(result):
     (name, is_to_poll, poll_until_found, no_transfer, befoerderung_ab, befoerderung_bis,
@@ -38,6 +41,7 @@ def populate_fields(result):
     populate_patterns(find_pattern, quit_pattern, ack_pattern, zip_pattern, mov_pattern, put_pattern, rcv_pattern)
     set_input_value("alt_name_input", alternate_name_list)
 
+
 def populate_patterns(*patterns):
     pattern_names = [
         "find_pattern_input", "quit_pattern_input", "ack_pattern_input",
@@ -49,7 +53,9 @@ def populate_patterns(*patterns):
 
 
 def save_communication_data(communication_id):
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
 
     communication_row = create_communication_row(communication_id)
 
@@ -91,4 +97,3 @@ def create_communication_row(communication_id):
         'communication_id': communication_id,
         'basicConfig_id': config_manager.config_id
     }
-

@@ -1,12 +1,15 @@
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QCheckBox, QHBoxLayout, QSpacerItem, QSizePolicy
-from controllers.utils.get_db_connection import get_db_connection
+
+from common.connection_manager import ConnectionManager
 from database.utils import select_from_location
 
 
 def create_target_location_form(label_children_style, communication_id):
     target_locations_form_layout = QFormLayout()
 
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
     targetLocations = select_from_location(cursor, communication_id, 'targetLocation').fetchall()
 
     for targetLocation in targetLocations:
@@ -97,8 +100,7 @@ def create_target_location_form(label_children_style, communication_id):
 
         target_locations_form_layout.addRow(hbox_columns)
         target_locations_form_layout.addItem(
-        QSpacerItem(0, 15, QSizePolicy.Minimum, QSizePolicy.Fixed))
+            QSpacerItem(0, 15, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
     conn.close()
     return target_locations_form_layout
-

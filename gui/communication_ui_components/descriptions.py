@@ -1,16 +1,20 @@
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel
-from controllers.utils.get_db_connection import get_db_connection
+
+from common.connection_manager import ConnectionManager
 from database.utils import select_from_description
 from utils.clickable_label import ClickableLabel
 
 input_names = []
+
 
 def create_description_form(label_style, communication_id):
     form_layout_right = QFormLayout()
     description_label = ClickableLabel("Description(s)")
     description_label.setStyleSheet(label_style)
 
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
     descriptions = select_from_description(cursor, communication_id)
 
     for description in descriptions:
