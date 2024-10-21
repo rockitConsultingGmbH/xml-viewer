@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
 from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
+from database.utils import select_from_basicconfig, update_basicconfig
 from gui.components.popup_message_ui import PopupMessage
 from gui.components.buttons import ButtonFactory
 
@@ -17,7 +18,6 @@ class BasicConfigurationWidget(QWidget):
         # Main layout
         basic_config_group = QGroupBox("Basic Configuration")
         basic_config_group.setFont(QFont("Arial", 10, QFont.Bold))
-
         layout = QVBoxLayout(self)
 
         # Button layout
@@ -90,63 +90,51 @@ class BasicConfigurationWidget(QWidget):
         # Retrieve and populate fields from database
         data = self.get_basic_configuration()
         if data:
-            self.stage_input.setText(data[0])
-            self.temp_dir_input.setText(data[1])
-            self.temp_dir1_input.setText(data[2])
-            self.temp_dir2_input.setText(data[3])
-            self.history_file_input.setText(data[4])
-            self.history_file1_input.setText(data[5])
-            self.history_file2_input.setText(data[6])
-            self.already_transferred_file_input.setChecked(data[7] == "true")
-            self.history_days_input.setText(data[8])
-            self.archiver_time_input.setText(data[9])
-            self.watcher_escalation_timeout_input.setText(data[10])
-            self.watcher_sleep_time_input.setText(data[11])
+            self.stage_input.setText(data["stage"])
+            self.temp_dir_input.setText(data["tempDir"])
+            self.temp_dir1_input.setText(data["tempDir1"])
+            self.temp_dir2_input.setText(data["tempDir2"])
+            self.history_file_input.setText(data["historyFile"])
+            self.history_file1_input.setText(data["historyFile1"])
+            self.history_file2_input.setText(data["historyFile2"])
+            self.already_transferred_file_input.setChecked(data["alreadyTransferedFile"] == "true")
+            self.history_days_input.setText(data["historyDays"])
+            self.archiver_time_input.setText(data["archiverTime"])
+            self.watcher_escalation_timeout_input.setText(data["watcherEscalationTimeout"])
+            self.watcher_sleep_time_input.setText(data["watcherSleepTime"])
 
     def get_basic_configuration(self):
         # Fetch configuration data from the database
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        
-        cursor.execute("""
-            SELECT stage, tempDir, tempDir1, tempDir2, historyFile, historyFile1, historyFile2, 
-                   alreadyTransferedFile, historyDays, archiverTime, watcherEscalationTimeout, watcherSleepTime
-            FROM BasicConfig
-            WHERE id = ?
-        """, (config_manager.config_id,))
-        
+        select_from_basicconfig(cursor, config_manager.config_id)
         row = cursor.fetchone()
         conn.close()
         return row if row else None
 
     def save_fields_to_db(self):
         # Save data from input fields back to the database
-        data = (
-            self.stage_input.text(),
-            self.temp_dir_input.text(),
-            self.temp_dir1_input.text(),
-            self.temp_dir2_input.text(),
-            self.history_file_input.text(),
-            self.history_file1_input.text(),
-            self.history_file2_input.text(),
-            "true" if self.already_transferred_file_input.isChecked() else "false",
-            self.history_days_input.text(),
-            self.archiver_time_input.text(),
-            self.watcher_escalation_timeout_input.text(),
-            self.watcher_sleep_time_input.text(),
-            config_manager.config_id
-        )
+        row = {
+            'id': config_manager.config_id,
+            'stage': self.stage_input.text(),
+            'tempDir': self.temp_dir_input.text(),
+            'tempDir1': self.temp_dir1_input.text(),
+            'tempDir2': self.temp_dir2_input.text(),
+            'historyFile':self.history_file_input.text(),
+            'historyFile1':self.history_file1_input.text(),
+            'historyFile2': self.history_file2_input.text(),
+            'alreadyTransferedFile': "true" if self.already_transferred_file_input.isChecked() else "false",
+            #'alreadyTransferedFile': self.history_days_input.text(),
+            'historyDays': self.history_days_input.text(),
+            'archiverTime': self.archiver_time_input.text(),
+            'watcherEscalationTimeout': self.watcher_escalation_timeout_input.text(),
+            'watcherSleepTime': self.watcher_sleep_time_input.text()
+        }
 
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE BasicConfig
-            SET stage = ?, tempDir = ?, tempDir1 = ?, tempDir2 = ?, historyFile = ?, 
-                historyFile1 = ?, historyFile2 = ?, alreadyTransferedFile = ?, historyDays = ?, 
-                archiverTime = ?, watcherEscalationTimeout = ?, watcherSleepTime = ?
-            WHERE id = ?
-        """, data)
-        
+
+        update_basicconfig(cursor, row)
         conn.commit()
         conn.close()
 

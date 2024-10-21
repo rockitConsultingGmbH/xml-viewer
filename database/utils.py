@@ -43,6 +43,29 @@ def insert_into_basicconfig(cursor, row):
     ))
     return cursor
 
+def select_from_basicconfig(cursor, basicConfig_id):
+    cursor.execute("""
+    SELECT
+        id,
+        stage,
+        tempDir,
+        tempDir1,
+        tempDir2,
+        historyFile,
+        historyFile1,
+        historyFile2,
+        alreadyTransferedFile,
+        historyDays,
+        archiverTime,
+        watcherEscalationTimeout,
+        watcherSleepTime,
+        description,
+        configFilePath
+    FROM BasicConfig
+    WHERE id = ?
+    """, (basicConfig_id,))
+    return cursor
+
 def update_basicconfig(cursor, row):
     cursor.execute("""
     UPDATE BasicConfig
@@ -57,9 +80,7 @@ def update_basicconfig(cursor, row):
         historyDays = ?,
         archiverTime = ?,
         watcherEscalationTimeout = ?,
-        watcherSleepTime = ?,
-        description = ?,
-        configFilePath = ?
+        watcherSleepTime = ?
     WHERE id = ?
     """, (
         row['stage'],
@@ -74,8 +95,6 @@ def update_basicconfig(cursor, row):
         row['archiverTime'],
         row['watcherEscalationTimeout'],
         row['watcherSleepTime'],
-        row['description'],
-        row['configFilePath'],
         row['id']
     ))
     return cursor
@@ -110,6 +129,24 @@ def insert_into_lzbconfig(cursor, row):
         row['ssh_implementation'],
         row['dns_timeout']
     ))
+    return cursor
+
+def select_from_lzbconfig(cursor, basicConfig_id):
+    cursor.execute("""
+    SELECT
+        id,
+        basicConfig_id,
+        encrypt_key,
+        encrypt_enabled,
+        keystore_path,
+        keystore_password,
+        truststore_path,
+        truststore_password,
+        ssh_implementation,
+        dns_timeout
+    FROM LzbConfig
+    WHERE basicConfig_id = ?
+    """, (basicConfig_id,))
     return cursor
 
 def update_lzbconfig(cursor, row):
@@ -550,6 +587,26 @@ def update_communication(cursor, row):
         row['communication_id'],
         row['basicConfig_id']
     ))
+    return cursor
+
+def update_communication_column(cursor, column_name, column_value, id, basic_config_id):
+    # List of allowed column names
+    valid_columns = ['name', 'alternateNameList', 'watcherEscalationTimeout', 'isToPoll', 
+                     'pollUntilFound', 'noTransfer', 'targetMustBeArchived', 'mustBeArchived', 
+                     'historyDays', 'targetHistoryDays', 'findPattern', 'movPattern', 
+                     'tmpPattern', 'quitPattern', 'putPattern', 'ackPattern', 'rcvPattern', 
+                     'zipPattern', 'befoerderung', 'pollInterval', 'gueltigAb', 'gueltigBis', 
+                     'befoerderungAb', 'befoerderungBis', 'befoerderungCron', 'preunzip', 'postzip', 'renameWithTimestamp']
+
+    if column_name not in valid_columns:
+        raise ValueError(f"Invalid column name: {column_name}")
+
+    query = f"""
+    UPDATE Communication
+    SET {column_name} = ?
+    WHERE id = ? AND basicConfig_id = ?
+    """
+    cursor.execute(query, (column_value, id, basic_config_id))
     return cursor
 
 def delete_from_communication(cursor, basicConfig_id):

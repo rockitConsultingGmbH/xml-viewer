@@ -28,7 +28,6 @@ class MQConfigurationWidget(QWidget):
         #self.scroll_area.setStyleSheet("QScrollArea { border: none; } QWidget { border: none; } "
         #                      "QLineEdit, QComboBox, QPushButton { border: 1px solid gray; }")
         #self.scroll_area.setStyleSheet("QLineEdit { border: 1px solid gray; }")
-                # Remove the border from the scroll area
         self.scroll_area.setFrameShape(QFrame.NoFrame)
 
         scroll_content = QWidget()
@@ -50,7 +49,7 @@ class MQConfigurationWidget(QWidget):
         spacer = QSpacerItem(30, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
         layout.addItem(spacer)
 
-# MQConfig Layout
+    # MQConfig Layout
     def create_mqconfig_layout(self, parent_layout):
         mqconfig_group = QGroupBox("MQ Configuration")
         mqconfig_group.setFont(QFont("Arial", 10, QFont.Bold))
@@ -137,7 +136,7 @@ class MQConfigurationWidget(QWidget):
         conn.close()
         return dict(row) if row else None
 
-# MQTrigger Layout
+    # MQTrigger Layout
     def create_mqtrigger_layout(self, parent_layout):
         mqtrigger_group = QGroupBox("MQTrigger Settings")
         mqtrigger_group.setFont(QFont("Arial", 10, QFont.Bold))
@@ -196,34 +195,36 @@ class MQConfigurationWidget(QWidget):
         conn.close()
         return dict(row) if row else None
 
-# IPQueue Layout
+    # IPQueue Layout
     def create_ipqueue_layout(self, parent_layout):
         # Main Group for IPQueue Settings
         ipqueue_group = QGroupBox("IPQueue Settings")
-        ipqueue_group.setFont(QFont("Arial", 10, QFont.Bold))  # Larger font for the main group title
-        ipqueue_main_layout = QVBoxLayout()  # Layout for all IPQueue groups
+        ipqueue_group.setFont(QFont("Arial", 10, QFont.Bold))
+        ipqueue_main_layout = QVBoxLayout()
 
         ipqueue_entries = self.get_ipqueue_data()
 
         for entry in ipqueue_entries:
             # Create a separate group for each IPQueue
             individual_ipqueue_group = QGroupBox(f"IPQueue") #QGroupBox(f"Queue: {entry['queue']}")
-            individual_ipqueue_group.setFont(QFont("Arial", 8, QFont.Bold))  # Font for individual queue groups
+            individual_ipqueue_group.setFont(QFont("Arial", 8, QFont.Bold))
             individual_ipqueue_layout = QFormLayout()
 
             # Add the IPQueue fields
             individual_ipqueue_layout = self.add_ipqueue_fields_to_form_layout(individual_ipqueue_layout, entry)
+            self.populate_ipqueue_fields_from_db()
+
             individual_ipqueue_group.setLayout(individual_ipqueue_layout)
 
             # Add some spacing between each group
             ipqueue_main_layout.addWidget(individual_ipqueue_group)
-            ipqueue_main_layout.addSpacing(20)  # Add space between IPQueue groups
+            ipqueue_main_layout.addSpacing(20)
 
         ipqueue_group.setLayout(ipqueue_main_layout)
         parent_layout.addWidget(ipqueue_group)
 
     def add_ipqueue_fields_to_form_layout(self, entry_layout, entry):
-        #font = QFont("Arial", 12)  # Larger font for labels and input fields
+        #font = QFont("Arial", 12)
 
         ipqueue_input = QLineEdit()
         ipqueue_errorqueue_input = QLineEdit()
@@ -234,18 +235,6 @@ class MQConfigurationWidget(QWidget):
             #field.setFont(font)
             field.setFixedWidth(500)
             field.setFixedHeight(30)
-
-        # Store the IPQueue ID in each input field using setProperty
-        ipqueue_input.setProperty("ipqueue_id", entry["id"])
-        ipqueue_errorqueue_input.setProperty("ipqueue_id", entry["id"])
-        ipqueue_number_of_threads_input.setProperty("ipqueue_id", entry["id"])
-        ipqueue_description_input.setProperty("ipqueue_id", entry["id"])
-
-        # Populate fields with the current data
-        ipqueue_input.setText(entry["queue"])
-        ipqueue_errorqueue_input.setText(entry["errorQueue"])
-        ipqueue_number_of_threads_input.setText(entry["numberOfThreads"])
-        ipqueue_description_input.setText(entry["description"])
 
         # Add fields to the layout
         entry_layout.addRow("Queue:", ipqueue_input)
@@ -262,6 +251,19 @@ class MQConfigurationWidget(QWidget):
         })
 
         return entry_layout
+    
+    def populate_ipqueue_fields_from_db(self):
+        ipqueue_entries = self.get_ipqueue_data()
+        for entry, field_group in zip(ipqueue_entries, self.ipqueue_fields):
+            field_group["queue"].setProperty("ipqueue_id", entry["id"])
+            field_group["errorQueue"].setProperty("ipqueue_id", entry["id"])
+            field_group["numberOfThreads"].setProperty("ipqueue_id", entry["id"])
+            field_group["description"].setProperty("ipqueue_id", entry["id"])
+
+            field_group["queue"].setText(entry["queue"])
+            field_group["errorQueue"].setText(entry["errorQueue"])
+            field_group["numberOfThreads"].setText(entry["numberOfThreads"])
+            field_group["description"].setText(entry["description"])
 
     def get_ipqueue_data(self):
         conn = self.conn_manager.get_db_connection()
@@ -272,7 +274,6 @@ class MQConfigurationWidget(QWidget):
         return rows
 
     def save_ipqueue_fields_to_db(self, cursor):
-        """Save each IPQueue field's data to the database."""
         for field_group in self.ipqueue_fields:
             # Retrieve the ID from one of the input fields
             ipqueue_id = field_group["queue"].property("ipqueue_id")
@@ -291,7 +292,7 @@ class MQConfigurationWidget(QWidget):
 
         return cursor   
 
-#Save and Reset Functions
+    #Save and Reset Functions
     def save_mqconfig_fields_to_db(self, cursor):
         mqconfig_data = {
             "isRemote": "true" if self.is_remote_input.isChecked() else "false",
@@ -359,7 +360,6 @@ class MQConfigurationWidget(QWidget):
 
     # Refresh page after an update
     def refresh_page(self):
-        """Refresh the page by clearing and reloading the data"""
         # Clear the current layout
         self.clear_layout(self.scroll_layout)
 
@@ -370,10 +370,9 @@ class MQConfigurationWidget(QWidget):
         self.add_spacing(self.scroll_layout)
         self.create_ipqueue_layout(self.scroll_layout)
         
-        self.repaint()  # Repaint the UI to reflect changes
+        self.repaint()
 
     def clear_layout(self, layout):
-        """Helper method to clear the layout"""
         while layout.count():
             child = layout.takeAt(0)
             if child.widget():
