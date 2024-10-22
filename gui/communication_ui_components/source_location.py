@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, \
-    QSpacerItem, QSizePolicy
-from utils.clickable_label import ClickableLabel
-from gui.communication_ui_components.target_location import create_target_location_form
+from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, QSizePolicy
+from gui.common_components.clickable_label import ClickableLabel
+from gui.communication_ui_components.target_location import create_target_location_form, add_target_location_fields
 
-
-def create_locations_group(group_layout, communication_id):
+def create_locations_group(group_layout, communication_id, toggle_inputs, source_labels, source_inputs, source_checkboxes):
     label_style = "border: none; font-size: 14px; font-weight: bold;"
     label_children_style = "border: none; font-size: 14px;"
     form_layout = QFormLayout()
@@ -110,10 +108,10 @@ def create_locations_group(group_layout, communication_id):
     target_label.setFixedWidth(145)
     target_label.setStyleSheet(label_style)
 
-    add_button = QPushButton("+")
-    add_button.setFixedSize(30, 30)
-    add_button.setObjectName("addButton")
-    add_button.setStyleSheet("""
+    add_target_location_button = QPushButton("+")
+    add_target_location_button.setFixedSize(30, 30)
+    add_target_location_button.setObjectName("addButton")
+    add_target_location_button.setStyleSheet("""
         #addButton {
             background-color: #f0f0f0;
             border: 1px solid #A9A9A9;
@@ -133,7 +131,7 @@ def create_locations_group(group_layout, communication_id):
 
     hbox_target = QHBoxLayout()
     hbox_target.addWidget(target_label)
-    hbox_target.addWidget(add_button)
+    hbox_target.addWidget(add_target_location_button)
 
     form_layout.addRow(hbox_target)
 
@@ -141,3 +139,12 @@ def create_locations_group(group_layout, communication_id):
     form_layout.addRow(target_locations_form_layout)
 
     group_layout.addLayout(form_layout)
+
+    source_labels.extend([userid_label, location_id_label, password_label, description_source_label])
+    source_inputs.extend([userid_input, location_id_input, password_input, description_source_input])
+    source_checkboxes.extend([use_local_filename_checkbox, use_path_from_config_checkbox, target_history_days_checkbox,
+                              rename_existing_file_checkbox, target_must_be_archived_checkbox])
+
+    source_label.mousePressEvent = lambda event: toggle_inputs(source_labels + source_checkboxes, source_inputs)
+
+    add_target_location_button.clicked.connect(lambda: add_target_location_fields(target_locations_form_layout, label_children_style, {'id': 'new'}, toggle_inputs))
