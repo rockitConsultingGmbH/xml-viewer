@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy
 
-from utils.clickable_label import ClickableLabel
+from gui.common_components.clickable_label import ClickableLabel
 
 
 def create_settings_group(group_layout, settings_labels, settings_inputs, other_settings_labels, other_settings_inputs, toggle_inputs):

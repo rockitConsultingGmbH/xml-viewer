@@ -68,6 +68,14 @@ def create_pattern_group(group_layout):
     pattern_input7.setFixedSize(450, 30)
     form_layout_right.addRow(pattern_label7, pattern_input7)
 
+    pattern_label8 = QLabel("tmpPattern")
+    pattern_label8.setFixedWidth(120)
+    pattern_label8.setStyleSheet(label_style)
+    pattern_input8 = QLineEdit()
+    pattern_input8.setObjectName("tmp_pattern_input")
+    pattern_input8.setFixedSize(450, 30)
+    form_layout_right.addRow(pattern_label8, pattern_input8)
+
     hbox_columns = QHBoxLayout()
     hbox_columns.addLayout(hbox_left_column)
     hbox_columns.addStretch()

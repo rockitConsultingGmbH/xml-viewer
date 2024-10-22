@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_alternatename, select_from_namelist_with_communication, update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename
 from gui.popup_message_ui import PopupMessage
-from utils.buttons import ButtonFactory
+from gui.common_components.buttons import ButtonFactory
 
 class NameListsWidget(QWidget):
     name_updated = pyqtSignal(int, str)  # Signal to notify when the name is updated
