@@ -9,6 +9,7 @@ from gui.components.descriptions import create_description_form
 from gui.components.target_location import create_target_location_form
 from utils.clickable_label import ClickableLabel
 from utils.toggle_inputs import toggle_inputs
+from gui.components.popup_message_ui import PopupMessage
 
 # Group Builder
 from PyQt5.QtWidgets import QMessageBox
@@ -31,7 +32,7 @@ def setup_right_interface(right_widget, communication_id):
     reset_button.setObjectName("resetButton")
     reset_button.setStyleSheet("""
         #resetButton {
-            background-color: #9c9c9c; color: white;
+            background-color: #960e0e; color: white;
         }
 
         #resetButton:hover {
@@ -48,15 +49,15 @@ def setup_right_interface(right_widget, communication_id):
     save_button.setObjectName("saveButton")
     save_button.setStyleSheet("""
         #saveButton {
-            background-color: #db0d0d; color: white;
+            background-color: #41414a; color: white;
         }
 
         #saveButton:hover {
-            background-color: #b00c0c;
+            background-color: #568bad;
         }
 
         #saveButton:pressed {
-            background-color: #910909;
+            background-color: #154c79;
         }
     """)
 
@@ -65,13 +66,8 @@ def setup_right_interface(right_widget, communication_id):
         save_source_location_data(communication_id)
         save_target_location_data(communication_id)
         save_description_data(communication_id)
-
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Changes in Communication have been successfully saved.")
-        msg.setWindowTitle("Save Successful")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        popup_message = PopupMessage(scroll_area)
+        popup_message.show_message("Changes have been successfully saved.")
 
     save_button.clicked.connect(save_and_show_message)
 

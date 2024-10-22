@@ -10,7 +10,7 @@ class PopupMessage:
         # Create the bubble popup message label
         self.popup_message = QLabel(parent)
         self.popup_message.setStyleSheet("""
-            background-color: lightgreen; 
+            background-color: lightblue; 
             color: black; 
             padding: 5px 10px; 
             border-radius: 10px; 
