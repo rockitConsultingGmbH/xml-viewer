@@ -2,7 +2,6 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QFormLayout, QSpacer
 
 
 def create_pattern_group(group_layout):
-    label_style = "border: none; font-size: 14px;"
     form_layout_left = QFormLayout()
     form_layout_right = QFormLayout()
 
@@ -14,7 +13,6 @@ def create_pattern_group(group_layout):
 
     pattern_label1 = QLabel("findPattern")
     pattern_label1.setFixedWidth(100)
-    pattern_label1.setStyleSheet(label_style)
     pattern_input1 = QLineEdit()
     pattern_input1.setObjectName("find_pattern_input")
     pattern_input1.setFixedSize(450, 30)
@@ -22,7 +20,6 @@ def create_pattern_group(group_layout):
 
     pattern_label2 = QLabel("quitPattern")
     pattern_label2.setFixedWidth(100)
-    pattern_label2.setStyleSheet(label_style)
     pattern_input2 = QLineEdit()
     pattern_input2.setObjectName("quit_pattern_input")
     pattern_input2.setFixedSize(450, 30)
@@ -30,7 +27,6 @@ def create_pattern_group(group_layout):
 
     pattern_label3 = QLabel("ackPattern")
     pattern_label3.setFixedWidth(100)
-    pattern_label3.setStyleSheet(label_style)
     pattern_input3 = QLineEdit()
     pattern_input3.setObjectName("ack_pattern_input")
     pattern_input3.setFixedSize(450, 30)
@@ -38,7 +34,6 @@ def create_pattern_group(group_layout):
 
     pattern_label4 = QLabel("zipPattern")
     pattern_label4.setFixedWidth(100)
-    pattern_label4.setStyleSheet(label_style)
     pattern_input4 = QLineEdit()
     pattern_input4.setObjectName("zip_pattern_input")
     pattern_input4.setFixedSize(450, 30)
@@ -46,7 +41,6 @@ def create_pattern_group(group_layout):
 
     pattern_label5 = QLabel("movPattern")
     pattern_label5.setFixedWidth(120)
-    pattern_label5.setStyleSheet(label_style)
     pattern_input5 = QLineEdit()
     pattern_input5.setObjectName("mov_pattern_input")
     pattern_input5.setFixedSize(450, 30)
@@ -54,7 +48,6 @@ def create_pattern_group(group_layout):
 
     pattern_label6 = QLabel("putPattern")
     pattern_label6.setFixedWidth(120)
-    pattern_label6.setStyleSheet(label_style)
     pattern_input6 = QLineEdit()
     pattern_input6.setObjectName("put_pattern_input")
     pattern_input6.setFixedSize(450, 30)
@@ -62,7 +55,6 @@ def create_pattern_group(group_layout):
 
     pattern_label7 = QLabel("rcvPattern")
     pattern_label7.setFixedWidth(120)
-    pattern_label7.setStyleSheet(label_style)
     pattern_input7 = QLineEdit()
     pattern_input7.setObjectName("rcv_pattern_input")
     pattern_input7.setFixedSize(450, 30)
@@ -70,7 +62,6 @@ def create_pattern_group(group_layout):
 
     pattern_label8 = QLabel("tmpPattern")
     pattern_label8.setFixedWidth(120)
-    pattern_label8.setStyleSheet(label_style)
     pattern_input8 = QLineEdit()
     pattern_input8.setObjectName("tmp_pattern_input")
     pattern_input8.setFixedSize(450, 30)

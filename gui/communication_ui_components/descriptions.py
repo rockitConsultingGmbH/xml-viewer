@@ -5,7 +5,7 @@ from database.utils import select_from_description
 
 input_names = []
 
-def create_description_form(label_style, communication_id):
+def create_description_form(communication_id):
     form_layout_right = QFormLayout()
 
     conn_manager = ConnectionManager().get_instance()
@@ -14,14 +14,14 @@ def create_description_form(label_style, communication_id):
     descriptions = select_from_description(cursor, communication_id)
 
     for description in descriptions:
-        add_description_fields(form_layout_right, label_style, description)
+        add_description_fields(form_layout_right, description)
 
     conn.close()
     return form_layout_right
 
-def add_description_fields(form_layout_right, label_style, description):
+def add_description_fields(form_layout_right, description):
     description_label = QLabel("Description")
-    description_label.setStyleSheet(label_style)
+    description_label.setFixedWidth(80)
     description_input = QLineEdit(description["description"])
     object_name = f"description_{description['id']}_input"
     description_input.setObjectName(object_name)

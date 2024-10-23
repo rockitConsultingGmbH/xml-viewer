@@ -4,9 +4,6 @@ from gui.common_components.clickable_label import ClickableLabel
 
 
 def create_settings_group(group_layout, settings_labels, settings_inputs, other_settings_labels, other_settings_inputs, toggle_inputs):
-    label_style = "border: none; font-size: 14px; font-weight: bold;"
-    label_children_style = "border: none; font-size: 14px;"
-    checkbox_style = "border: none;"
 
     hbox = QHBoxLayout()
 
@@ -14,21 +11,18 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
 
     polling_label = ClickableLabel("Polling")
     polling_label.setFixedWidth(120)
-    polling_label.setStyleSheet(label_style)
+    polling_label.setObjectName("label_parent")
     hbox.addWidget(polling_label)
 
     polling_active_checkbox = QCheckBox("Polling active")
-    polling_active_checkbox.setStyleSheet(checkbox_style)
     polling_active_checkbox.setFixedWidth(200)
 
     poll_until_found_checkbox = QCheckBox("Poll until found")
     poll_until_found_checkbox.setObjectName("poll_until_found_checkbox")
-    poll_until_found_checkbox.setStyleSheet(checkbox_style)
     poll_until_found_checkbox.setFixedWidth(200)
 
     no_transfer_checkbox = QCheckBox("No transfer")
     no_transfer_checkbox.setObjectName("no_transfer_checkbox")
-    no_transfer_checkbox.setStyleSheet(checkbox_style)
 
     hbox.addWidget(polling_active_checkbox)
     hbox.addWidget(poll_until_found_checkbox)
@@ -44,7 +38,6 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
     hbox_input1.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
     input1_label = QLabel("Beförderung ab")
     input1_label.setFixedWidth(100)
-    input1_label.setStyleSheet(label_children_style)
     input1 = QLineEdit()
     input1.setObjectName("befoerderung_ab_input")
     input1.setFixedSize(450, 30)
@@ -59,7 +52,6 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
     hbox_input2.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
     input2_label = QLabel("Poll Intervall")
     input2_label.setFixedWidth(100)
-    input2_label.setStyleSheet(label_children_style)
     input2 = QLineEdit()
     input2.setObjectName("poll_interval_input")
     input2.setFixedSize(450, 30)
@@ -75,7 +67,6 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
     hbox_input3 = QHBoxLayout()
     input3_label = QLabel("Beförderung bis")
     input3_label.setFixedWidth(120)
-    input3_label.setStyleSheet(label_children_style)
     input3 = QLineEdit()
     input3.setObjectName("befoerderung_bis_input")
     input3.setFixedSize(450, 30)
@@ -89,7 +80,6 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
     hbox_input4 = QHBoxLayout()
     input4_label = QLabel("Escalation timeout")
     input4_label.setFixedWidth(120)
-    input4_label.setStyleSheet(label_children_style)
     input4 = QLineEdit()
     input4.setObjectName("escalation_timeout_input")
     input4.setFixedSize(450, 30)
@@ -113,19 +103,17 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
 
     hbox_new_settings = QHBoxLayout()
     new_label = QLabel("Compression")
-    new_label.setStyleSheet(label_style)
+    new_label.setObjectName("label_parent")
     new_label.setFixedWidth(120)
     hbox_new_settings.addWidget(new_label)
 
     new_checkbox1 = QCheckBox("Pre-Unzip")
     new_checkbox1.setObjectName("pre_unzip_checkbox")
-    new_checkbox1.setStyleSheet(checkbox_style)
     new_checkbox1.setFixedWidth(200)
     hbox_new_settings.addWidget(new_checkbox1)
 
     new_checkbox2 = QCheckBox("Post-Zip")
     new_checkbox2.setObjectName("post_zip_checkbox")
-    new_checkbox2.setStyleSheet(checkbox_style)
     hbox_new_settings.addWidget(new_checkbox2)
 
     group_layout.addLayout(hbox_new_settings)
@@ -134,13 +122,12 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
 
     hbox_additional_settings = QHBoxLayout()
     additional_label = ClickableLabel("Other Settings")
-    additional_label.setStyleSheet(label_style)
+    additional_label.setObjectName("label_parent")
     additional_label.setFixedWidth(120)
     hbox_additional_settings.addWidget(additional_label)
 
     additional_checkbox1 = QCheckBox("Rename with Timestamp")
     additional_checkbox1.setObjectName("rename_with_timestamp_checkbox")
-    additional_checkbox1.setStyleSheet(checkbox_style)
     hbox_additional_settings.addWidget(additional_checkbox1)
 
     group_layout.addLayout(hbox_additional_settings)
@@ -154,7 +141,6 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
     new_input_label1 = QLabel("Gültig ab")
     hbox_new_input1.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
     new_input_label1.setFixedWidth(100)
-    new_input_label1.setStyleSheet(label_children_style)
     new_input1 = QLineEdit()
     new_input1.setObjectName("gueltig_ab_input")
     new_input1.setFixedSize(450, 30)
@@ -169,7 +155,6 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
     hbox_new_input2 = QHBoxLayout()
     new_input_label2 = QLabel("Gültig bis")
     new_input_label2.setFixedWidth(120)
-    new_input_label2.setStyleSheet(label_children_style)
     new_input2 = QLineEdit()
     new_input2.setObjectName("gueltig_bis_input")
     new_input2.setFixedSize(450, 30)

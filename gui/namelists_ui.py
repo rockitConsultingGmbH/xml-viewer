@@ -4,7 +4,9 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_alternatename, select_from_namelist_with_communication, update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename
 from gui.popup_message_ui import PopupMessage
+
 from gui.common_components.buttons import ButtonFactory
+from gui.common_components.stylesheet_loader import load_stylesheet
 
 class NameListsWidget(QWidget):
     name_updated = pyqtSignal(int, str)  # Signal to notify when the name is updated
@@ -16,6 +18,8 @@ class NameListsWidget(QWidget):
         self.popup_message = PopupMessage(self)
         self.entries_to_delete = []  # Track entries marked for deletion
         self.setup_ui()
+
+        load_stylesheet(self, "css/right_widget_styling.qss")
 
     def setup_ui(self):
         layout = QVBoxLayout(self)

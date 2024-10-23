@@ -4,7 +4,9 @@ from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
 from gui.popup_message_ui import PopupMessage
+
 from gui.common_components.buttons import ButtonFactory
+from gui.common_components.stylesheet_loader import load_stylesheet
 
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -12,6 +14,8 @@ class MQConfigurationWidget(QWidget):
         self.conn_manager = ConnectionManager().get_instance()
         self.popup_message = PopupMessage(self)
         self.setup_ui()
+
+        load_stylesheet(self, "css/right_widget_styling.qss")
 
     def setup_ui(self):
         layout = QVBoxLayout(self)

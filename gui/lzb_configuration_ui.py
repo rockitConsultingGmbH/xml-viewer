@@ -2,7 +2,9 @@ from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWid
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from gui.popup_message_ui import PopupMessage
+
 from gui.common_components.buttons import ButtonFactory
+from gui.common_components.stylesheet_loader import load_stylesheet
 
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -10,6 +12,8 @@ class LZBConfigurationWidget(QWidget):
         self.conn_manager = ConnectionManager().get_instance()
         self.popup_message = PopupMessage(self)
         self.setup_ui()
+
+        load_stylesheet(self, "css/right_widget_styling.qss")
     
     def setup_ui(self):
         # Set up the main layout and form layout

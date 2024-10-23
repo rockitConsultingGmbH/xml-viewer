@@ -3,8 +3,6 @@ from gui.common_components.clickable_label import ClickableLabel
 from gui.communication_ui_components.target_location import create_target_location_form, add_target_location_fields
 
 def create_locations_group(group_layout, communication_id, toggle_inputs, source_labels, source_inputs, source_checkboxes):
-    label_style = "border: none; font-size: 14px; font-weight: bold;"
-    label_children_style = "border: none; font-size: 14px;"
     form_layout = QFormLayout()
     form_layout.setHorizontalSpacing(20)
     form_layout.setVerticalSpacing(15)
@@ -13,15 +11,14 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
     group_layout.addItem(spacer)
 
     source_location_label = QLabel("Source Location")
-    source_location_label.setStyleSheet(label_style)
+    source_location_label.setObjectName("label_parent")
     group_layout.addWidget(source_location_label)
 
     source_label = ClickableLabel("Source")
-    source_label.setStyleSheet(label_children_style)
     source_label.setFixedWidth(70)
     source_input = QLineEdit()
-    source_input.setObjectName("source_input")
     source_input.setFixedHeight(30)
+    source_input.setObjectName("source_input")
 
     form_layout.addRow(source_label, source_input)
 
@@ -31,24 +28,20 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
     left_column_layout.setVerticalSpacing(15)
 
     userid_label = QLabel("User ID")
-    userid_label.setStyleSheet(label_children_style)
     userid_input = QLineEdit()
     userid_input.setObjectName("userid_source_input")
     userid_input.setFixedHeight(30)
 
     location_id_label = QLabel("Location ID")
-    location_id_label.setStyleSheet(label_children_style)
     location_id_label.setFixedWidth(100)
     location_id_input = QLineEdit()
     location_id_input.setObjectName("location_id_input")
     location_id_input.setFixedHeight(30)
 
     use_local_filename_checkbox = QCheckBox("Use Local Filename")
-    use_local_filename_checkbox.setStyleSheet(label_children_style)
     use_local_filename_checkbox.setObjectName("use_local_filename_checkbox")
 
     use_path_from_config_checkbox = QCheckBox("Use Path From Config")
-    use_path_from_config_checkbox.setStyleSheet(label_children_style)
     use_path_from_config_checkbox.setObjectName("use_path_from_config_checkbox")
 
     left_column_layout.addRow(userid_label, userid_input)
@@ -65,29 +58,24 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
     right_column_layout.setVerticalSpacing(15)
 
     password_label = QLabel("Password")
-    password_label.setStyleSheet(label_children_style)
     password_label.setFixedWidth(80)
     password_input = QLineEdit()
     password_input.setObjectName("password_source_input")
     password_input.setFixedHeight(30)
 
     description_source_label = QLabel("Description")
-    description_source_label.setStyleSheet(label_children_style)
     description_source_label.setFixedWidth(100)
     description_source_input = QLineEdit()
     description_source_input.setObjectName("description_source_input")
     description_source_input.setFixedHeight(30)
 
     target_history_days_checkbox = QCheckBox("Target History Days")
-    target_history_days_checkbox.setStyleSheet(label_children_style)
     target_history_days_checkbox.setObjectName("target_history_days_checkbox")
 
     rename_existing_file_checkbox = QCheckBox("Rename Existing File")
-    rename_existing_file_checkbox.setStyleSheet(label_children_style)
     rename_existing_file_checkbox.setObjectName("rename_existing_file_checkbox")
 
     target_must_be_archived_checkbox = QCheckBox("Target Must Be Archived")
-    target_must_be_archived_checkbox.setStyleSheet(label_children_style)
     target_must_be_archived_checkbox.setObjectName("target_must_be_archived_checkbox")
 
     right_column_layout.addRow(password_label, password_input)
@@ -106,28 +94,11 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
 
     target_label = QLabel("Target Location(s)")
     target_label.setFixedWidth(145)
-    target_label.setStyleSheet(label_style)
+    target_label.setObjectName("label_parent")
 
     add_target_location_button = QPushButton("+")
     add_target_location_button.setFixedSize(30, 30)
     add_target_location_button.setObjectName("addButton")
-    add_target_location_button.setStyleSheet("""
-        #addButton {
-            background-color: #f0f0f0;
-            border: 1px solid #A9A9A9;
-            border-radius: 15px;
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        #addButton:hover {
-            background-color: #dcdcdc;
-            cursor: pointer;
-        }
-        #addButton:pressed {
-            background-color: #c0c0c0;
-        }
-    """)
 
     hbox_target = QHBoxLayout()
     hbox_target.addWidget(target_label)
@@ -135,7 +106,7 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
 
     form_layout.addRow(hbox_target)
 
-    target_locations_form_layout = create_target_location_form(label_children_style, communication_id)
+    target_locations_form_layout = create_target_location_form(communication_id)
     form_layout.addRow(target_locations_form_layout)
 
     group_layout.addLayout(form_layout)
@@ -147,4 +118,4 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
 
     source_label.mousePressEvent = lambda event: toggle_inputs(source_labels + source_checkboxes, source_inputs)
 
-    add_target_location_button.clicked.connect(lambda: add_target_location_fields(target_locations_form_layout, label_children_style, {'id': 'new'}, toggle_inputs))
+    add_target_location_button.clicked.connect(lambda: add_target_location_fields(target_locations_form_layout, {'id': 'new'}, toggle_inputs))
