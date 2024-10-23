@@ -1,7 +1,7 @@
 import os
 import sqlite3
 import sys
-from PyQt5.QtCore import Qt, right
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog
 
@@ -50,8 +50,6 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
         self.setCentralWidget(self.splitter)
-
-        load_stylesheet(self, "css/tree_widget_styling.qss")
 
         self.create_menu()
 

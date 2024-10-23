@@ -1,0 +1,53 @@
+/* styles.css */
+
+/* QTreeWidget */
+QTreeWidget {
+    border: none;
+    outline: 0;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background-color: #F0F0F0;
+    width: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+}
+QScrollBar::handle:vertical {
+    background-color: #B0B0B0;
+    min-height: 20px;
+    border-radius: 6px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+}
+QScrollBar::handle:vertical:hover {
+    background-color: #A0A0A0;
+}
+QScrollBar::handle:vertical:pressed {
+    background-color: #888888;
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background-color: #F0F0F0;
+    height: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+}
+QScrollBar::handle:horizontal {
+    background-color: #B0B0B0;
+    min-width: 20px;
+    border-radius: 6px;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    background: none;
+}
+QScrollBar::handle:horizontal:hover {
+    background-color: #A0A0A0;
+}
+QScrollBar::handle:horizontal:pressed {
+    background-color: #888888;
+}
+QLabel { border: none; font-size: 12px; } 
+QLineEdit, QCheckBox { font-size: 12px; }
