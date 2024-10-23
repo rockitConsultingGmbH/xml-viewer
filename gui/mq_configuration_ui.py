@@ -4,7 +4,7 @@ from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
 from gui.common_components.popup_message import PopupMessage
-from gui.common_components.buttons import ButtonFactory
+from gui.common_components.buttons import Buttons
 
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -16,7 +16,7 @@ class MQConfigurationWidget(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
-        button_layout = ButtonFactory().create_button_layout(self)
+        button_layout = Buttons().create_button_layout(self)
         main_layout.addLayout(button_layout)
 
         self.scroll_area = QScrollArea(self)

@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.splitter)
 
         self.create_menu()
+        self.open_xml()
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -213,12 +214,12 @@ class MainWindow(QMainWindow):
             communication_id = item.data(0, Qt.UserRole)
             if communication_id is not None:
                 self.right_widget.setParent(None)
-                self.right_widget = QWidget()
+                self.right_widget = CommunicationUI(communication_id)
+                self.right_widget.setObjectName("communications_widget")
                 self.splitter.addWidget(self.right_widget)
                 self.splitter.setSizes([250, 1000])
                 self.setCentralWidget(self.splitter)
-
-                CommunicationUI(self.right_widget, communication_id)
+                
                 populate_communication_table_fields(communication_id)
                 populate_location_source_fields(communication_id)
                 populate_location_target_fields(communication_id)
@@ -319,16 +320,16 @@ class MainWindow(QMainWindow):
         self.close()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, "Confirm Exit",
-                                     "Are you sure you want to close the application?",
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        #reply = QMessageBox.question(self, "Confirm Exit",
+        #                             "Are you sure you want to close the application?",
+        #                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            self.perform_cleanup()
-            event.accept()
-            QApplication.quit()
-        else:
-            event.ignore()
+        #if reply == QMessageBox.Yes:
+        ##    self.perform_cleanup()
+        #    event.accept()
+        QApplication.quit()
+        #else:
+        #    event.ignore()
 
     def perform_cleanup(self):
         empty_database()

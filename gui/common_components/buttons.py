@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QPushButton)
 BUTTON_STYLE = "background-color: {}; color: white;"
 BUTTON_SIZE = (100, 30)
 
-class ButtonFactory:
+class Buttons:
     def __init__(self):
         pass
 

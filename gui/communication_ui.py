@@ -11,26 +11,28 @@ from gui.communication_ui_components.post_command_group import create_post_comma
 from gui.communication_ui_components.settings_group import create_settings_group
 from gui.communication_ui_components.source_location import create_locations_group
 
-from gui.common_components.buttons import ButtonFactory
+from gui.common_components.popup_message import PopupMessage
+from gui.common_components.buttons import Buttons
 from gui.common_components.toggle_inputs import toggle_inputs
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
-class CommunicationUI:
-    def __init__(self, right_widget, communication_id):
-        self.right_widget = right_widget
+class CommunicationUI(QWidget):
+    def __init__(self, communication_id, parent=None):
+        super().__init__(parent)
         self.communication_id = communication_id
-        self.setup_right_interface()
+        self.popup_message = PopupMessage(self)
+        self.setup_ui()
 
-        load_stylesheet(self.right_widget, "css/right_widget_styling.qss")
+        load_stylesheet(self, "css/right_widget_styling.qss")
 
-    def setup_right_interface(self):
+    def setup_ui(self):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_content = QWidget()
         scroll_layout = QVBoxLayout(scroll_content)
 
-        button_layout = ButtonFactory().create_button_layout(self)
+        button_layout = Buttons().create_button_layout(self)
         communication_label_group = QGroupBox("Communication")
         communication_label_group.setFixedWidth(200)
         communication_label_group.setObjectName("communication-label-group")
@@ -50,9 +52,9 @@ class CommunicationUI:
 
         scroll_area.setWidget(scroll_content)
 
-        right_layout = QVBoxLayout(self.right_widget)
-        right_layout.addWidget(scroll_area)
-        self.right_widget.setLayout(right_layout)
+        layout = QVBoxLayout(self)
+        layout.addWidget(scroll_area)
+        self.setLayout(layout)
 
     def set_fields_from_db(self):
         populate_communication_table_fields(self.communication_id)
@@ -61,10 +63,14 @@ class CommunicationUI:
         populate_location_source_fields(self.communication_id)
 
     def save_fields_to_db(self):
-        save_communication_data(self.communication_id)
-        save_source_location_data(self.communication_id)
-        save_target_location_data(self.communication_id)
-        save_description_data(self.communication_id)
+        try:
+            save_communication_data(self.communication_id)
+            save_source_location_data(self.communication_id)
+            save_target_location_data(self.communication_id)
+            save_description_data(self.communication_id)
+            self.popup_message.show_message("Changes have been successfully saved.")
+        except Exception as e:
+            self.popup_message.show_error_message(f"Error while saving data: {e}")
 
     def create_group(self, group_name, layout, communication_id=None):
         group_box = QGroupBox(group_name)
