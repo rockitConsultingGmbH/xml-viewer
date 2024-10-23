@@ -5,8 +5,8 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
 from database.utils import (select_from_alternatename, select_from_namelist_with_communication, update_communication_column, 
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
-from gui.components.popup_message_ui import PopupMessage
-from gui.components.buttons import ButtonFactory
+from gui.common_components.popup_message import PopupMessage
+from gui.common_components.buttons import ButtonFactory
 from common.config_manager import config_manager
 
 class NameListsWidget(QWidget):

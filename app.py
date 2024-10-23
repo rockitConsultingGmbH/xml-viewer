@@ -1,13 +1,13 @@
 import os
 import sqlite3
 import sys
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, right
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog
 
 from controllers.empty_database import empty_database
 from gui.import_xml_dialog_window import FileDialog
-from gui.communication_ui import setup_right_interface
+from gui.communication_ui import CommunicationUI
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
@@ -20,6 +20,9 @@ from common.connection_manager import ConnectionManager
 from gui.namelists_ui import NameListsWidget
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
 from common import config_manager
+
+from gui.common_components.stylesheet_loader import load_stylesheet
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -37,6 +40,22 @@ class MainWindow(QMainWindow):
         y = (screen.height() - self.height()) // 2
         self.move(x, y)
 
+        self.left_widget = QWidget()
+        self.right_widget = QWidget()
+        self.left_widget.setObjectName("left_widget")
+        self.right_widget.setObjectName("right_widget")
+
+        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter.addWidget(self.left_widget)
+        self.splitter.addWidget(self.right_widget)
+        self.splitter.setSizes([250, 1000])
+        self.setCentralWidget(self.splitter)
+
+        load_stylesheet(self, "css/tree_widget_styling.qss")
+
+        self.create_menu()
+
+    def create_menu(self):
         menubar = self.menuBar()
         file_menu = menubar.addMenu('File')
 
@@ -54,7 +73,7 @@ class MainWindow(QMainWindow):
         file_menu.addAction(save_action)
         save_action.triggered.connect(self.save_config)
 
-        export_action = QAction('Saves As...', self)
+        export_action = QAction('Save As...', self)
         export_action.setShortcut('Ctrl+E')
         export_action.setStatusTip('Ctrl+E')
         file_menu.addAction(export_action)
@@ -75,20 +94,6 @@ class MainWindow(QMainWindow):
         delete_action = QAction('Delete', self)
         communication_menu.addAction(delete_action)
 
-        self.splitter = QSplitter(Qt.Horizontal)
-
-        self.left_widget = QWidget()
-        self.right_widget = QWidget()
-
-        self.left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
-        self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
-
-        self.splitter.addWidget(self.left_widget)
-        self.splitter.addWidget(self.right_widget)
-
-        self.splitter.setSizes([250, 1000])
-
-        self.setCentralWidget(self.splitter)
 
     def open_xml(self):
         dialog = FileDialog(self)
@@ -107,14 +112,14 @@ class MainWindow(QMainWindow):
 
     def reinitialize(self):
         """Reinitialize the application state for a new XML import."""
-        
+
         # Remove layout and widgets for right_widget
         if self.right_widget.layout() is not None:
             old_layout = self.right_widget.layout()
             QWidget().setLayout(old_layout)  # Detach and delete the old layout
         self.right_widget.setParent(None)
         self.right_widget = QWidget()
-        self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+        self.right_widget.setObjectName("right_widget")
         self.splitter.addWidget(self.right_widget)
 
         # Remove layout and widgets for left_widget
@@ -123,7 +128,7 @@ class MainWindow(QMainWindow):
             QWidget().setLayout(old_layout)  # Detach and delete the old layout
         self.left_widget.setParent(None)
         self.left_widget = QWidget()
-        self.left_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
+        self.right_widget.setObjectName("left_widget")
         self.splitter.insertWidget(0, self.left_widget)
 
         # Call method to re-display the tables
@@ -134,60 +139,35 @@ class MainWindow(QMainWindow):
         if self.left_widget.layout() is not None:
             old_layout = self.left_widget.layout()
             QWidget().setLayout(old_layout)  # Detach and delete the old layout
-        
+
         # Initialize a new QTreeWidget
         tree_widget = QTreeWidget()
-        tree_widget.setStyleSheet("""
-            QTreeWidget {
-                border: none;
-                outline: 0;
-                background-color: white;
-            }
-            QTreeWidget::item {
-                font-size: 16px;  
-                padding: 10px;    
-            }
-            QTreeWidget::item:has-children {
-                border: 1px solid black; 
-            }
-            QTreeWidget::item:!has-children {
-                border: none;  
-                padding-left: 20px; 
-            }
-            QTreeWidget::item:hover {
-                background-color: lightgray;
-            }
-            QTreeWidget::item:selected {
-                background-color: #83acf7;  
-            }
-        """)
-
+        tree_widget.setObjectName("customTreeWidget")
+        tree_widget.setStyleSheet("border: none;")
         tree_widget.setIndentation(0)
         tree_widget.setHeaderHidden(True)
 
         # Define tables with titles
         tables = [('Basic Configuration',), ('LZB Configuration',), ('MQ Configuration',), ('Communications',),
-                ('NameLists',)]
+                  ('NameLists',)]
 
         for table in tables:
             table_name = table[0]
             table_item = QTreeWidgetItem([table_name])
-            
+
             # Ensure each item is collapsed by default
             table_item.setExpanded(False)
-            
+
             tree_widget.addTopLevelItem(table_item)
-            
+
             if table_name == 'Basic Configuration':
                 self.basic_config_item = table_item
             elif table_name == 'LZB Configuration':
                 self.lzb_config_item = table_item
             elif table_name == 'MQ Configuration':
                 self.mq_config_item = table_item
-            elif table_name == ('MQ Configuration'):
-                self.mq_config_item = table_item
             elif table_name == 'NameLists':
-                #self.namelists_item = table_item
+                # self.namelists_item = table_item
 
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
@@ -200,7 +180,7 @@ class MainWindow(QMainWindow):
                 for row in rows:
                     namelist_id = row['id']
                     namelist_name = row['listName']
-                    
+
                     column_item = QTreeWidgetItem([namelist_name])
                     column_item.setData(0, Qt.UserRole, namelist_id)
                     table_item.addChild(column_item)
@@ -217,7 +197,7 @@ class MainWindow(QMainWindow):
                 for row in rows:
                     communication_id = row['id']
                     communication_name = row['name']
-                    
+
                     column_item = QTreeWidgetItem([communication_name])
                     column_item.setData(0, Qt.UserRole, communication_id)
                     table_item.addChild(column_item)
@@ -234,15 +214,13 @@ class MainWindow(QMainWindow):
         if item.parent() == self.communication_config_item:
             communication_id = item.data(0, Qt.UserRole)
             if communication_id is not None:
-
                 self.right_widget.setParent(None)
                 self.right_widget = QWidget()
-                #self.right_widget.setStyleSheet("background-color: white; border: 1px solid #A9A9A9;")
                 self.splitter.addWidget(self.right_widget)
                 self.splitter.setSizes([250, 1000])
                 self.setCentralWidget(self.splitter)
 
-                setup_right_interface(self.right_widget, communication_id)
+                CommunicationUI(self.right_widget, communication_id)
                 populate_communication_table_fields(communication_id)
                 populate_location_source_fields(communication_id)
                 populate_location_target_fields(communication_id)
@@ -256,31 +234,27 @@ class MainWindow(QMainWindow):
             self.load_mq_config_view()
         elif item.parent() == self.namelist_item:
             namelist_id = item.data(0, Qt.UserRole)
-    
             print(f"NameList ID: {namelist_id}")
             self.load_namelists_view(namelist_id)
 
     def load_basic_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = BasicConfigurationWidget(self)
-        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
-        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
+        self.right_widget.setObjectName("basic_config_widget")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
     def load_lzb_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = LZBConfigurationWidget(self)
-        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
-        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
+        self.right_widget.setObjectName("lzb_config_widget")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
     def load_mq_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = MQConfigurationWidget(self)
-        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
-        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
+        self.right_widget.setObjectName("mq_config_widget")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
@@ -293,9 +267,7 @@ class MainWindow(QMainWindow):
 
         # Connect the name_updated signal to the slot that updates the name in the tree
         self.right_widget.name_updated.connect(self.update_namelist_in_tree)
-
-        self.right_widget.setStyleSheet("font-weight: bold; font-size: 15px; border: none;")
-        self.right_widget.setStyleSheet("""QLabel {font-weight: bold;}QLineEdit {font-weight: normal;}""")
+        self.right_widget.setObjectName("namelists_widget")
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
@@ -361,15 +333,11 @@ class MainWindow(QMainWindow):
             event.ignore()
 
     def perform_cleanup(self):
-         empty_database()
-    
+        empty_database()
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-
-    with open("styles.css", "r", encoding="utf-8") as f:
-        css = f.read()
-        app.setStyleSheet(css)
-
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())

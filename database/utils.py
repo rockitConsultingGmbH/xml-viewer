@@ -515,7 +515,8 @@ def select_from_communication(cursor, communication_id, basicConfig_id):
         zipPattern,
         movPattern,
         putPattern, 
-        rcvPattern, 
+        rcvPattern,
+        tmpPattern, 
         alternateNameList
     FROM Communication
     WHERE id = ? AND basicConfig_id = ?

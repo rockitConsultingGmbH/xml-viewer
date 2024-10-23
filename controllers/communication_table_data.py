@@ -1,4 +1,4 @@
-from controllers.utils.get_db_connection import get_db_connection
+from common.connection_manager import ConnectionManager
 from common import config_manager
 from database.utils import update_communication, select_from_communication
 from controllers.utils.get_and_set_value import (get_input_value, set_input_value, get_checkbox_value,
@@ -6,7 +6,9 @@ from controllers.utils.get_and_set_value import (get_input_value, set_input_valu
 
 
 def populate_communication_table_fields(communication_id):
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
 
     result = select_from_communication(cursor, communication_id, config_manager.config_id)
 
@@ -15,11 +17,12 @@ def populate_communication_table_fields(communication_id):
 
     conn.close()
 
+
 def populate_fields(result):
     (name, is_to_poll, poll_until_found, no_transfer, befoerderung_ab, befoerderung_bis,
      poll_interval, escalation_timeout, pre_unzip, post_zip, rename_with_timestamp,
      gueltig_ab, gueltig_bis, find_pattern, quit_pattern, ack_pattern, zip_pattern,
-     mov_pattern, put_pattern, rcv_pattern, alternate_name_list) = result
+     mov_pattern, put_pattern, rcv_pattern, tmp_pattern, alternate_name_list) = result
 
     set_input_value("name_input", name)
     set_checkbox_value("polling_activate_checkbox", is_to_poll)
@@ -34,14 +37,17 @@ def populate_fields(result):
     set_checkbox_value("rename_with_timestamp_checkbox", rename_with_timestamp)
     set_input_value("gueltig_ab_input", gueltig_ab)
     set_input_value("gueltig_bis_input", gueltig_bis)
-
-    populate_patterns(find_pattern, quit_pattern, ack_pattern, zip_pattern, mov_pattern, put_pattern, rcv_pattern)
     set_input_value("alt_name_input", alternate_name_list)
+
+    populate_patterns(find_pattern, quit_pattern, ack_pattern, zip_pattern,
+                                mov_pattern, put_pattern, rcv_pattern, tmp_pattern)
+
 
 def populate_patterns(*patterns):
     pattern_names = [
         "find_pattern_input", "quit_pattern_input", "ack_pattern_input",
-        "zip_pattern_input", "mov_pattern_input", "put_pattern_input", "rcv_pattern_input"
+        "zip_pattern_input", "mov_pattern_input", "put_pattern_input", "rcv_pattern_input",
+        "tmp_pattern_input"
     ]
 
     for pattern_name, pattern_value in zip(pattern_names, patterns):
@@ -49,7 +55,9 @@ def populate_patterns(*patterns):
 
 
 def save_communication_data(communication_id):
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
 
     communication_row = create_communication_row(communication_id)
 
@@ -72,12 +80,12 @@ def create_communication_row(communication_id):
         'targetHistoryDays': '',
         'findPattern': get_input_value("find_pattern_input"),
         'movPattern': get_input_value("mov_pattern_input"),
-        'tmpPattern': '',
         'quitPattern': get_input_value("quit_pattern_input"),
         'putPattern': get_input_value("put_pattern_input"),
         'ackPattern': get_input_value("ack_pattern_input"),
         'rcvPattern': get_input_value("rcv_pattern_input"),
         'zipPattern': get_input_value("zip_pattern_input"),
+        'tmpPattern': get_input_value("tmp_pattern_input"),
         'befoerderung': '',
         'pollInterval': get_input_value("poll_interval_input"),
         'gueltigAb': get_input_value("gueltig_ab_input"),
@@ -91,4 +99,3 @@ def create_communication_row(communication_id):
         'communication_id': communication_id,
         'basicConfig_id': config_manager.config_id
     }
-

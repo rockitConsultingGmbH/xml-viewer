@@ -4,8 +4,8 @@ from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_basicconfig, update_basicconfig
-from gui.components.popup_message_ui import PopupMessage
-from gui.components.buttons import ButtonFactory
+from gui.common_components.popup_message import PopupMessage
+from gui.common_components.buttons import ButtonFactory
 import sqlite3
 
 class BasicConfigurationWidget(QWidget):

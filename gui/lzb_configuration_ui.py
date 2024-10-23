@@ -3,8 +3,8 @@ from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_lzbconfig, update_lzbconfig
-from gui.components.popup_message_ui import PopupMessage
-from gui.components.buttons import ButtonFactory
+from gui.common_components.popup_message import PopupMessage
+from gui.common_components.buttons import ButtonFactory
 
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):

@@ -1,10 +1,13 @@
-from controllers.utils.get_db_connection import get_db_connection
+from common.connection_manager import ConnectionManager
 from database.utils import select_from_description, update_description
 from controllers.utils.get_and_set_value import set_input_value, get_input_value
-from gui.components.descriptions import input_names
+from gui.communication_ui_components.descriptions import input_names
+
 
 def populate_description_fields(communication_id):
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
 
     for input_name in input_names:
         description_id = input_name.split('_')[1]
@@ -15,8 +18,11 @@ def populate_description_fields(communication_id):
 
     conn.close()
 
+
 def save_description_data(communication_id):
-    conn, cursor = get_db_connection()
+    conn_manager = ConnectionManager().get_instance()
+    conn = conn_manager.get_db_connection()
+    cursor = conn.cursor()
 
     for input_name in input_names:
         description_text = get_input_value(input_name)
