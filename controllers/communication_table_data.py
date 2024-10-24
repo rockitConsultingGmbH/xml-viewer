@@ -10,11 +10,10 @@ def populate_communication_table_fields(communication_id):
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
 
-    result = select_from_communication(cursor, communication_id, config_manager.config_id)
+    result = select_from_communication(cursor, communication_id, config_manager.config_id).fetchone()
 
     if result:
         populate_fields(result)
-
     conn.close()
 
 

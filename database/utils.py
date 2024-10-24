@@ -522,7 +522,7 @@ def select_from_communication(cursor, communication_id, basicConfig_id):
     WHERE id = ? AND basicConfig_id = ?
     """,
     (communication_id, basicConfig_id))
-    return cursor.fetchone()
+    return cursor
 
 def update_communication(cursor, row):
     cursor.execute("""

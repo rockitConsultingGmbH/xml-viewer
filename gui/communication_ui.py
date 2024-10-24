@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
 
+from controllers import description_table_data
 from controllers.communication_table_data import save_communication_data, populate_communication_table_fields
-from controllers.description_table_data import save_description_data, populate_description_fields
+from controllers.description_table_data import DescriptionTableData#, save_description_data #, populate_description_fields
 from controllers.location_table_data import save_source_location_data, save_target_location_data, \
     populate_location_target_fields, populate_location_source_fields
 
@@ -22,6 +23,7 @@ class CommunicationUI(QWidget):
         super().__init__(parent)
         self.communication_id = communication_id
         self.popup_message = PopupMessage(self)
+        self.descritpion_table_data = DescriptionTableData()
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
@@ -50,6 +52,12 @@ class CommunicationUI(QWidget):
         self.create_group("Pattern", scroll_layout)
         self.create_group("PostCommand(s)", scroll_layout)
 
+        #populate_communication_table_fields(self.communication_id)
+        #populate_location_source_fields(self.communication_id)
+        #populate_location_target_fields(self.communication_id)
+        #populate_description_fields(self.communication_id)
+        self.descritpion_table_data.populate_description_fields(scroll_layout, self.communication_id)
+
         scroll_area.setWidget(scroll_content)
 
         layout = QVBoxLayout(self)
@@ -57,17 +65,18 @@ class CommunicationUI(QWidget):
         self.setLayout(layout)
 
     def set_fields_from_db(self):
-        populate_communication_table_fields(self.communication_id)
-        populate_location_target_fields(self.communication_id)
-        populate_description_fields(self.communication_id)
-        populate_location_source_fields(self.communication_id)
+        pass
+        #populate_communication_table_fields(self.communication_id)
+        #populate_location_target_fields(self.communication_id)
+        #populate_description_fields(self.communication_id)
+        #populate_location_source_fields(self.communication_id)
 
     def save_fields_to_db(self):
         try:
             save_communication_data(self.communication_id)
             save_source_location_data(self.communication_id)
             save_target_location_data(self.communication_id)
-            save_description_data(self.communication_id)
+            DescriptionTableData().save_description_data(self, self.communication_id)
             self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")

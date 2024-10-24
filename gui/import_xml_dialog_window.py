@@ -18,7 +18,7 @@ class FileDialog(QDialog):
         layout = QVBoxLayout()
 
         self.xml_label = QLabel("Choose XML File:")
-        self.xml_path = QLineEdit("C:/Users/MPA/Downloads/acsfiletransfer.xml")
+        self.xml_path = QLineEdit("C:/Users/MichalisPantazis/MPA/WORK/projects/bbk/acsft_client/test/acsfiletransfer.xml.e_export.xml")
         self.xml_path.setReadOnly(True)
         self.xml_button = QPushButton()
         self.xml_button.setIcon(QIcon('gui/icon/folder.svg'))
