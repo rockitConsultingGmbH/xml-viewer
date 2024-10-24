@@ -53,11 +53,10 @@ def create_overview_group(group_layout, communication_id):
 
     hbox_columns.addLayout(form_layout_left)
     hbox_columns.addStretch(1)
-
     description_form = DescriptionForm(communication_id)
-    form_layout_right = description_form.create_description_form()
+    form_layout_right = description_form.get_form_layout()
     hbox_columns.addLayout(form_layout_right)
 
     group_layout.addLayout(hbox_columns)
 
-    add_descriptions_button.clicked.connect(lambda: description_form.add_description_fields(form_layout_right, {'id': 'new', 'description': ''}))
+    add_descriptions_button.clicked.connect(lambda: description_form.add_description_fields({'id': 'new', 'description': ''}))

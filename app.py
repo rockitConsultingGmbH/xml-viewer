@@ -210,13 +210,14 @@ class MainWindow(QMainWindow):
         layout.addWidget(tree_widget)
         self.left_widget.setLayout(layout)
 
-    def on_item_clicked(self, item, column):
+    def on_item_clicked(self, item):
         if item.parent() == self.communication_config_item:
             communication_id = item.data(0, Qt.UserRole)
             if communication_id is not None:
                 print(f"Communication ID: {communication_id}")
                 self.right_widget.setParent(None)
-                self.right_widget = CommunicationUI(communication_id)
+                communication_ui = CommunicationUI(communication_id)
+                self.right_widget = communication_ui
                 self.right_widget.setObjectName("communications_widget")
                 self.splitter.addWidget(self.right_widget)
                 self.splitter.setSizes([250, 1000])
@@ -227,6 +228,7 @@ class MainWindow(QMainWindow):
                 #populate_location_target_fields(communication_id)
                 #populate_description_fields(communication_id)
                 #DescriptionTableData().populate_description_fields(self.right_widget, communication_id)
+                communication_ui.set_fields_from_db(self.right_widget)
 
         elif item == self.basic_config_item:
             self.load_basic_config_view()
@@ -328,7 +330,7 @@ class MainWindow(QMainWindow):
         #                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         #if reply == QMessageBox.Yes:
-        ##    self.perform_cleanup()
+        self.perform_cleanup()
         #    event.accept()
         QApplication.quit()
         #else:

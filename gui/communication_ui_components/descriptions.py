@@ -14,7 +14,7 @@ class DescriptionForm:
         conn_manager = ConnectionManager().get_instance()
         conn = conn_manager.get_db_connection()
         cursor = conn.cursor()
-        descriptions = select_from_description(cursor, self.communication_id)
+        descriptions = select_from_description(cursor, self.communication_id).fetchall()
 
         for description in descriptions:
             self.add_description_fields(description)
