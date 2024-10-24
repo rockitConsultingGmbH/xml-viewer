@@ -23,7 +23,7 @@ def populate_source_fields(result):
     set_input_value("source_input", location)
     set_input_value("userid_source_input", userid)
     set_input_value("password_source_input", password)
-    set_input_value("description_source_input", description)
+    set_input_value("source_description_input", description)
     set_input_value("location_id_input", location_id)
     set_checkbox_value("use_local_filename_checkbox", use_local_filename)
     set_checkbox_value("use_path_from_config_checkbox", use_path_from_config)
@@ -56,7 +56,7 @@ def create_source_location_row(source_location, communication_id, location_type)
         'targetMustBeArchived': convert_checkbox_to_string(get_checkbox_value("target_must_be_archived_checkbox")),
         'targetHistoryDays': convert_checkbox_to_string(get_checkbox_value("target_history_days_checkbox")),
         'renameExistingFile': convert_checkbox_to_string(get_checkbox_value("rename_existing_file_checkbox")),
-        'description': get_input_value("description_source_input"),
+        'description': get_input_value("source_description_input"),
         'locationType': location_type,
         'communication_id': communication_id,
     }
@@ -77,7 +77,7 @@ def populate_target_fields(targetLocation):
     set_input_value(f"target_{targetLocation['id']}_input", targetLocation["location"])
     set_input_value(f"userid_target_{targetLocation['id']}_input", targetLocation["userid"])
     set_input_value(f"password_target_{targetLocation['id']}_input", targetLocation["password"])
-    set_input_value(f"description_target_{targetLocation['id']}_input", targetLocation["description"])
+    set_input_value(f"target_description_{targetLocation['id']}_input", targetLocation["description"])
     set_input_value(f"location_id_target_{targetLocation['id']}_input", targetLocation["location_id"])
     set_checkbox_value(f"use_local_filename_checkbox_target_{targetLocation['id']}", targetLocation["useLocalFilename"])
     set_checkbox_value(f"use_path_from_config_checkbox_target_{targetLocation['id']}",
@@ -119,7 +119,7 @@ def create_target_location_row(target_location, communication_id, location_type)
             get_checkbox_value(f"target_history_days_checkbox_{target_location[0]}")),
         'renameExistingFile': convert_checkbox_to_string(
             get_checkbox_value(f"rename_existing_file_checkbox_{target_location[0]}")),
-        'description': get_input_value(f"description_target_{target_location[0]}_input"),
+        'description': get_input_value(f"target_description_{target_location[0]}_input"),
         'locationType': location_type,
         'communication_id': communication_id,
     }

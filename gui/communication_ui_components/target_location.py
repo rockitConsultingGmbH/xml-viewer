@@ -74,11 +74,11 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
     password_input.setObjectName(f"password_target_{targetLocation['id']}_input")
     password_input.setFixedHeight(30)
 
-    description_target_label = QLabel("Description")
-    description_target_label.setFixedWidth(100)
-    description_target_input = QLineEdit()
-    description_target_input.setObjectName(f"description_target_{targetLocation['id']}_input")
-    description_target_input.setFixedHeight(30)
+    target_description_label = QLabel("Description")
+    target_description_label.setFixedWidth(100)
+    target_description_input = QLineEdit()
+    target_description_input.setObjectName(f"description_target_{targetLocation['id']}_input")
+    target_description_input.setFixedHeight(30)
 
     target_history_days_checkbox = QCheckBox("Target History Days")
     target_history_days_checkbox.setObjectName(f"target_history_days_checkbox_{targetLocation['id']}")
@@ -90,7 +90,7 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
     target_must_be_archived_checkbox.setObjectName(f"target_must_be_archived_checkbox_{targetLocation['id']}")
 
     right_column_layout.addRow(password_label, password_input)
-    right_column_layout.addRow(description_target_label, description_target_input)
+    right_column_layout.addRow(target_description_label, target_description_input)
     right_column_layout.addRow(target_history_days_checkbox)
     right_column_layout.addRow(rename_existing_file_checkbox)
     right_column_layout.addRow(target_must_be_archived_checkbox)
@@ -102,8 +102,8 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
     layout.addRow(hbox_columns)
     layout.addItem(QSpacerItem(0, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-    target_labels.extend([userid_label, location_id_label, password_label, description_target_label])
-    target_inputs.extend([userid_input, location_id_input, password_input, description_target_input])
+    target_labels.extend([userid_label, location_id_label, password_label, target_description_label])
+    target_inputs.extend([userid_input, location_id_input, password_input, target_description_input])
     target_checkboxes.extend([use_local_filename_checkbox, use_path_from_config_checkbox, target_history_days_checkbox,
                               rename_existing_file_checkbox, target_must_be_archived_checkbox])
 
