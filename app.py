@@ -14,8 +14,6 @@ from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
 
 from controllers.communication_table_data import populate_communication_table_fields
-from controllers.location_table_data import populate_location_source_fields, populate_location_target_fields
-#from controllers.description_table_data import populate_description_fields
 from common.connection_manager import ConnectionManager
 
 from gui.namelists_ui import NameListsWidget
@@ -228,7 +226,7 @@ class MainWindow(QMainWindow):
                 #populate_location_target_fields(communication_id)
                 #populate_description_fields(communication_id)
                 #DescriptionTableData().populate_description_fields(self.right_widget, communication_id)
-                communication_ui.set_fields_from_db(self.right_widget)
+                communication_ui.populate_fields_from_db()
 
         elif item == self.basic_config_item:
             self.load_basic_config_view()

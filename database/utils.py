@@ -667,7 +667,7 @@ def select_from_location(cursor, communication_id, locationType):
     FROM Location
     WHERE communication_id = ? AND locationType = ?
     """,
-    (communication_id,locationType))
+    (communication_id, locationType,))
     return cursor
 
 def update_location(cursor, row):
