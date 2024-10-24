@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
 
-from controllers.communication_table_data import save_communication_data
+from controllers.communication_table_data import populate_communication_table_fields, save_communication_data
 from controllers.description_table_data import DescriptionTableData
-from controllers.location_table_data import save_source_location_data, save_target_location_data, populate_location_source_fields
+from controllers.location_table_data import populate_location_target_fields, save_source_location_data, save_target_location_data, populate_location_source_fields
 
-from gui.communication_ui_components.overview_group import create_overview_group
+from gui.communication_ui_components.overview_group import OverviewGroup
 from gui.communication_ui_components.patterns_group import create_pattern_group
 from gui.communication_ui_components.post_command_group import create_post_command_group
 from gui.communication_ui_components.settings_group import create_settings_group
@@ -58,10 +58,10 @@ class CommunicationUI(QWidget):
 
     def set_fields_from_db(self, parent_widget):
         pass
-        #populate_communication_table_fields(self.communication_id)
-        #populate_location_target_fields(self.communication_id)
+        populate_communication_table_fields(self.communication_id)
+        populate_location_target_fields(self.communication_id)
         #populate_description_fields(self.communication_id)
-        #populate_location_source_fields(self.communication_id)
+        populate_location_source_fields(self.communication_id)
         self.descritpion_table_data.populate_description_fields(parent_widget, self.communication_id)
 
 
@@ -80,7 +80,7 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            create_overview_group(group_layout, communication_id)
+            OverviewGroup(group_layout, communication_id)
         elif group_name == "Locations":
             source_labels, source_inputs, source_checkboxes = [], [], []
             create_locations_group(group_layout, communication_id, toggle_inputs, source_labels, source_inputs,

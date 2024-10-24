@@ -3,60 +3,65 @@ from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayo
 
 from gui.communication_ui_components.descriptions import DescriptionForm
 
+class OverviewGroup:
+    def __init__(self, group_layout, communication_id):
+        self.group_layout = group_layout
+        self.communication_id = communication_id
+        self.description_form = DescriptionForm(communication_id)
+        self.setup_ui()
 
-def create_overview_group(group_layout, communication_id):
+    def setup_ui(self):
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.group_layout.addItem(spacer)
 
-    spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
-    group_layout.addItem(spacer)
+        hbox1 = QHBoxLayout()
+        self.polling_activate_checkbox = QCheckBox("Polling aktiviert")
+        self.polling_activate_checkbox.setObjectName("polling_activate_checkbox")
 
-    hbox1 = QHBoxLayout()
-    checkbox = QCheckBox("Polling aktiviert")
-    checkbox.setObjectName("polling_activate_checkbox")
+        description_label = QLabel("Description(s)")
+        description_label.setFixedWidth(100)
+        self.addButton = QPushButton("+")
+        self.addButton.setFixedSize(30, 30)
+        self.addButton.setObjectName("addButton")
 
-    description_label = QLabel("Description(s)")
-    description_label.setFixedWidth(100)
-    add_descriptions_button = QPushButton("+")
-    add_descriptions_button.setFixedSize(30, 30)
-    add_descriptions_button.setObjectName("addButton")
+        hbox1.addWidget(self.polling_activate_checkbox)
+        hbox1.addWidget(description_label)
+        hbox1.addWidget(self.addButton)
+        hbox1.addSpacerItem(QSpacerItem(510, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Spacer
 
-    hbox1.addWidget(checkbox)
-    hbox1.addWidget(description_label)
-    hbox1.addWidget(add_descriptions_button)
+        self.group_layout.addLayout(hbox1)
 
-    hbox1.addSpacerItem(QSpacerItem(510, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Spacer
+        hbox_columns = QHBoxLayout()
+        form_layout_left = QFormLayout()
 
-    group_layout.addLayout(hbox1)
+        name_label = QLabel("Name")
+        self.name_input = QLineEdit()
+        self.name_input.setFixedSize(450, 30)
+        self.name_input.setObjectName("name_input")
+        form_layout_left.addRow(name_label, self.name_input)
 
-    hbox_columns = QHBoxLayout()
+        alt_name_label = QLabel("Alternate Namelist")
+        self.alt_name_input = QLineEdit()
+        self.alt_name_input.setObjectName("alt_name_input")
+        self.alt_name_input.setFixedSize(400, 30)
 
-    form_layout_left = QFormLayout()
+        self.goButton = QPushButton("GO")
+        self.goButton.setObjectName("goButton")
+        self.goButton.setFixedSize(43, 30)
 
-    name_label = QLabel("Name")
-    name_input = QLineEdit()
-    name_input.setFixedSize(450, 30)
-    name_input.setObjectName("name_input")
-    form_layout_left.addRow(name_label, name_input)
+        hbox_alt_name = QHBoxLayout()
+        hbox_alt_name.addWidget(self.alt_name_input)
+        hbox_alt_name.addWidget(self.goButton)
+        form_layout_left.addRow(alt_name_label, hbox_alt_name)
 
-    alt_name_label = QLabel("Alternate Namelist")
-    alt_name_input = QLineEdit()
-    alt_name_input.setObjectName("alt_name_input")
-    alt_name_input.setFixedSize(400, 30)
+        hbox_columns.addLayout(form_layout_left)
+        hbox_columns.addStretch(1)
+        form_layout_right = self.description_form.get_form_layout()
+        hbox_columns.addLayout(form_layout_right)
 
-    go_button = QPushButton("GO")
-    go_button.setObjectName("goButton")
-    go_button.setFixedSize(43, 30)
+        self.group_layout.addLayout(hbox_columns)
 
-    hbox_alt_name = QHBoxLayout()
-    hbox_alt_name.addWidget(alt_name_input)
-    hbox_alt_name.addWidget(go_button)
-    form_layout_left.addRow(alt_name_label, hbox_alt_name)
+        self.addButton.clicked.connect(lambda: self.description_form.add_description_fields({'id': 'new', 'description': ''}))
 
-    hbox_columns.addLayout(form_layout_left)
-    hbox_columns.addStretch(1)
-    description_form = DescriptionForm(communication_id)
-    form_layout_right = description_form.get_form_layout()
-    hbox_columns.addLayout(form_layout_right)
-
-    group_layout.addLayout(hbox_columns)
-
-    add_descriptions_button.clicked.connect(lambda: description_form.add_description_fields({'id': 'new', 'description': ''}))
+    # Usage
+    # overview_group = OverviewGroup(group_layout, communication_id)
