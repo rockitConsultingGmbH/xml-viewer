@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QFormLayout, QSpacerItem, QSizePolicy, QFrame
 
-
 def create_pattern_group(group_layout):
     form_layout_left = QFormLayout()
     form_layout_right = QFormLayout()
@@ -10,6 +9,7 @@ def create_pattern_group(group_layout):
     hbox_left_column = QHBoxLayout()
     hbox_left_column.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
     hbox_left_column.addLayout(form_layout_left)
+    hbox_left_column.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))  # Spacer
 
     pattern_label1 = QLabel("findPattern")
     pattern_label1.setFixedWidth(100)
@@ -73,4 +73,3 @@ def create_pattern_group(group_layout):
     hbox_columns.addLayout(form_layout_right)
 
     group_layout.addLayout(hbox_columns)
-

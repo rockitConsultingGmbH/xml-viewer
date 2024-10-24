@@ -1,0 +1,90 @@
+QScrollBar:vertical {
+    border: none;
+    background-color: #F0F0F0;
+    width: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #B0B0B0;
+    min-height: 20px;
+    border-radius: 6px;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #A0A0A0;
+}
+
+QScrollBar::handle:vertical:pressed {
+    background-color: #888888;
+}
+
+QScrollBar:horizontal {
+    border: none;
+    background-color: #F0F0F0;
+    height: 12px;
+    margin: 0px 0px 0px 0px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #B0B0B0;
+    min-width: 20px;
+    border-radius: 6px;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    background: none;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #A0A0A0;
+}
+
+QScrollBar::handle:horizontal:pressed {
+    background-color: #888888;
+}
+
+#customTreeWidget {
+    border: none;
+    outline: none;
+    background-color: white;
+}
+
+#customTreeWidget::item {
+    font-size: 16px;
+    padding: 10px;
+}
+
+#customTreeWidget::item:hover {
+    background-color: lightgray;
+}
+
+#customTreeWidget::item:selected {
+    background-color: #83acf7;
+}
+
+#right_widget, #left_widget {
+    border: none;
+    border: 1px solid #A9A9A9;
+    background-color: white;
+}
+
+#basic_config_widget, #lzb_config_widget, #mq_config_widget, #namelists_widget {
+    font-weight: bold;
+    font-size: 15px;
+    border: none;
+}
+
+#basic_config_widget, #lzb_config_widget, #mq_config_widget, #namelists_widget QLabel {
+    font-weight: bold;
+}
+
+#basic_config_widget, #lzb_config_widget, #mq_config_widget, #namelists_widget QEdit {
+    font-weight: normal;
+}

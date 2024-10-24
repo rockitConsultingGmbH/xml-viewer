@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, 
-                             QLineEdit, QWidget, QGroupBox)
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
+                             QLineEdit, QWidget, QGroupBox, QSizePolicy, QSpacerItem)
 from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
@@ -8,12 +8,17 @@ from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import ButtonFactory
 import sqlite3
 
+from gui.common_components.stylesheet_loader import load_stylesheet
+
+
 class BasicConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.conn_manager = ConnectionManager.get_instance()
         self.popup_message = PopupMessage(self)
         self.setup_ui()
+
+        load_stylesheet(self, "css/right_widget_styling.qss")
 
     def setup_ui(self):
         basic_config_group = self.create_basic_config_group()
@@ -26,12 +31,18 @@ class BasicConfigurationWidget(QWidget):
 
     def create_basic_config_group(self):
         basic_config_group = QGroupBox("Basic Configuration")
+        basic_config_group.setObjectName("group-border")
         basic_config_group.setFont(QFont("Arial", 12, QFont.Bold))
-        basic_config_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
+        basic_config_group.setStyleSheet(
+            "QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         form_layout = QFormLayout()
 
         self.init_input_fields()
         self.set_fields_from_db()
+
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        form_layout.addItem(spacer)
+
         self.add_fields_to_form_layout(form_layout)
 
         basic_config_group.setLayout(form_layout)
