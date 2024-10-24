@@ -1,3 +1,4 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, \
     QSizePolicy
 
@@ -11,7 +12,8 @@ def create_overview_group(group_layout, communication_id):
 
     hbox1 = QHBoxLayout()
     checkbox = QCheckBox("Polling aktiviert")
-    checkbox.setObjectName("polling_activate_checkbox")
+    checkbox.setAttribute(Qt.WA_TransparentForMouseEvents)
+    checkbox.setObjectName("polling_aktiviert_checkbox")
 
     description_label = QLabel("Description(s)")
     description_label.setFixedWidth(100)
@@ -23,7 +25,7 @@ def create_overview_group(group_layout, communication_id):
     hbox1.addWidget(description_label)
     hbox1.addWidget(add_descriptions_button)
 
-    hbox1.addSpacerItem(QSpacerItem(510, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Spacer
+    hbox1.addSpacerItem(QSpacerItem(550, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Spacer
 
     group_layout.addLayout(hbox1)
 

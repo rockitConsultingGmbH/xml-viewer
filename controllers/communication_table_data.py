@@ -25,7 +25,8 @@ def populate_fields(result):
      mov_pattern, put_pattern, rcv_pattern, tmp_pattern, alternate_name_list) = result
 
     set_input_value("name_input", name)
-    set_checkbox_value("polling_activate_checkbox", is_to_poll)
+    set_checkbox_value("polling_aktiviert_checkbox", is_to_poll)
+    set_checkbox_value("polling_active_checkbox", is_to_poll)
     set_checkbox_value("poll_until_found_checkbox", poll_until_found)
     set_checkbox_value("no_transfer_checkbox", no_transfer)
     set_input_value("befoerderung_ab_input", befoerderung_ab)

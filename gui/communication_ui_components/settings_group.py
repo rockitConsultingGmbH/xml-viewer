@@ -15,6 +15,7 @@ def create_settings_group(group_layout, settings_labels, settings_inputs, other_
     hbox.addWidget(polling_label)
 
     polling_active_checkbox = QCheckBox("Polling active")
+    polling_active_checkbox.setObjectName("polling_active_checkbox")
     polling_active_checkbox.setFixedWidth(200)
 
     poll_until_found_checkbox = QCheckBox("Poll until found")
