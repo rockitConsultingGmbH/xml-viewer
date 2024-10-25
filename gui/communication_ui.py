@@ -74,9 +74,9 @@ class CommunicationUI(QWidget):
 
     def save_fields_to_db(self):
         try:
-            #self.communication_table_data.save_communication_data(self.communication_id)
-            #self.descritpion_table_data.save_description_data(self.communication_id)
-            #self.location_table_data.save_source_location_data(self.communication_id)
+            self.communication_table_data.save_communication_data(self.communication_id)
+            self.descritpion_table_data.save_description_data(self.communication_id)
+            self.location_table_data.save_source_location_data(self.communication_id)
             self.location_table_data.save_target_location_data(self.communication_id)
             #self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:

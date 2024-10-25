@@ -163,16 +163,16 @@ class LocationTableData:
     def create_target_location_row(self, location_data, communication_id, location_type, is_new=False):
         logging.info("Creating target location row for communication_id: %s, location_type: %s", communication_id, location_type)
         row = {
-            'location_id': get_input_value(self.parent_widget, f"location_id_target_{location_data['id']}_input"),
-            'location': get_input_value(self.parent_widget, f"target_{location_data['id']}_input"),
-            'userid': get_input_value(self.parent_widget, f"userid_target_{location_data['id']}_input"),
-            'password': get_input_value(self.parent_widget, f"password_target_{location_data['id']}_input"),
-            'useLocalFilename': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"use_local_filename_checkbox_target_{location_data['id']}")),
-            'usePathFromConfig': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"use_path_from_config_checkbox_target_{location_data['id']}")),
-            'targetMustBeArchived': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"target_must_be_archived_checkbox_{location_data['id']}")),
-            'targetHistoryDays': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"target_history_days_checkbox_{location_data['id']}")),
-            'renameExistingFile': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"rename_existing_file_checkbox_{location_data['id']}")),
-            'description': get_input_value(self.parent_widget, f"target_description_{location_data['id']}_input"),
+            'location_id': location_data['location_id'],
+            'location': location_data['location'],
+            'userid': location_data['userid'],
+            'password': location_data['password'],
+            'useLocalFilename': convert_checkbox_to_string(location_data['useLocalFilename']),
+            'usePathFromConfig': convert_checkbox_to_string(location_data['usePathFromConfig']),
+            'targetMustBeArchived': convert_checkbox_to_string(location_data['targetMustBeArchived']),
+            'targetHistoryDays': convert_checkbox_to_string(location_data['targetHistoryDays']),
+            'renameExistingFile': convert_checkbox_to_string(location_data['renameExistingFile']),
+            'description': location_data['description'],
             'locationType': location_type,
             'communication_id': communication_id,
         }
