@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
+from PyQt5.QtCore import Qt
 
-
-def get_input_value(parent_widget, widget_name):
-    widget = next((widget for widget in parent_widget if
+def get_input_value(widget_name):
+    widget = next((widget for widget in QApplication.allWidgets() if
                    isinstance(widget, QLineEdit) and widget.objectName() == widget_name), None)
     return widget.text() if widget else ""
 
@@ -22,8 +22,8 @@ def set_checkbox_value(widget_name, value):
         checkbox.setChecked(value in [1, '1', True, 'true'])
         checkbox.blockSignals(False)
 
-def get_checkbox_value(parent_widget, widget_name):
-    checkbox = next((widget for widget in parent_widget if
+def get_checkbox_value(widget_name):
+    checkbox = next((widget for widget in QApplication.allWidgets() if
                      isinstance(widget, QCheckBox) and widget.objectName() == widget_name), None)
     return checkbox.isChecked() if checkbox else False
 
@@ -45,14 +45,14 @@ def set_checkbox_field(parent_widget, field_name, value):
             checkbox.setChecked(value.lower() == 'true')
 
 def get_text_value(parent_widget, widget_name):
-    widget = parent_widget.findChild(QLineEdit, widget_name)
+    widget = parent_widget.findChild(QLineEdit, widget_name, Qt.FindChildrenRecursively)
     if widget:
         return widget.text()
     else:
         return ""
 
 def get_checkbox_value(parent_widget, widget_name):
-    widget = parent_widget.findChild(QCheckBox, widget_name)
+    widget = parent_widget.findChild(QCheckBox, widget_name, Qt.FindChildrenRecursively)
     if widget:
         return widget.isChecked()
     else:

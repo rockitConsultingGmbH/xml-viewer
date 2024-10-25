@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QCheckBox, QHBoxLayout, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QCheckBox, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QWidget
 
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_location
@@ -24,14 +24,28 @@ def create_target_location_form(communication_id):
 def add_target_location_fields(layout, targetLocation, toggle_inputs):
     target_labels, target_inputs, target_checkboxes = [], [], []
 
+    # Create a QWidget to contain the target box layout
+    target_box_widget = QWidget()
+    target_box_widget.setObjectName(f"target_box_{targetLocation['id']}")
+    target_box_widget.setProperty("target_id", targetLocation['id'])
+
+    # Main layout within the target_box_widget
+    target_box = QVBoxLayout(target_box_widget)
+
+    # Target label and input
     target_label = ClickableLabel("Target")
     target_label.setFixedWidth(90)
     target_input = QLineEdit()
     target_input.setFixedHeight(30)
     target_input.setObjectName(f"target_{targetLocation['id']}_input")
 
-    layout.addRow(target_label, target_input)
-    layout.addItem(QSpacerItem(0, 15, QSizePolicy.Minimum, QSizePolicy.Fixed))
+    # Add target label and input to form layout
+    upper_layout = QFormLayout()
+    upper_layout.addRow(target_label, target_input)
+    upper_layout.addItem(QSpacerItem(0, 15, QSizePolicy.Minimum, QSizePolicy.Fixed))
+
+    # Add the form layout to target_box
+    target_box.addLayout(upper_layout)
 
     hbox_columns = QHBoxLayout()
 
@@ -99,7 +113,9 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
     hbox_columns.addSpacing(50)
     hbox_columns.addLayout(right_column_layout)
 
-    layout.addRow(hbox_columns)
+    target_box.addLayout(hbox_columns)
+
+    layout.addRow(target_box_widget)
     layout.addItem(QSpacerItem(0, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
     target_labels.extend([userid_label, location_id_label, password_label, target_description_label])

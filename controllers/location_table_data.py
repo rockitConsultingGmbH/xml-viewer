@@ -1,25 +1,27 @@
 import logging
 from common.connection_manager import ConnectionManager
-from database.utils import update_location, select_from_location
+from database.utils import insert_into_location, update_location, select_from_location
 from controllers.utils.get_and_set_value import (get_input_value,
                                                  get_checkbox_value,
                                                  convert_checkbox_to_string, get_text_value, set_checkbox_field, set_text_field)
-from PyQt5.QtWidgets import QLineEdit, QCheckBox
+from PyQt5.QtWidgets import QWidget, QHBoxLayout
+from PyQt5.QtCore import QRegularExpression, Qt
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class LocationTableData:
     def __init__(self, parent_widget=None):
-        self.conn_manager = ConnectionManager().get_instance()
         self.parent_widget = parent_widget
+        self.conn_manager = ConnectionManager().get_instance()
         logging.info("LocationTableData initialized with parent_widget: %s", parent_widget)
 
     def set_parent_widget(self, parent_widget):
         self.parent_widget = parent_widget
         logging.info("Parent widget set to: %s", parent_widget)
 
-    def populate_location_source_fields(self, communication_id, parent_widget=None, location_type='sourceLocation'):
+    # Source Location
+    def populate_source_location_fields(self, communication_id, parent_widget=None, location_type='sourceLocation'):
         if parent_widget is None:
             parent_widget = self.parent_widget
 
@@ -36,7 +38,7 @@ class LocationTableData:
         logging.info("Source fields populated for communication_id: %s", communication_id)
 
     def populate_source_fields(self, source_location_row):
-        logging.info("Populating source fields with data: %s", source_location_row)
+        logging.info("Populating source fields with data....s")
         (id, communication_id, location, location_id, use_local_filename,
          use_path_from_config, target_must_be_archived, target_history_days,
          rename_existing_file, userid, password, description, location_type) = source_location_row
@@ -87,7 +89,8 @@ class LocationTableData:
             'communication_id': communication_id,
         }
 
-    def populate_location_target_fields(self, communication_id, parent_widget=None, location_type='targetLocation'):
+    # Target Location
+    def populate_target_location_fields(self, communication_id, parent_widget=None, location_type='targetLocation'):
         if parent_widget is None:
             parent_widget = self.parent_widget
 
@@ -100,6 +103,7 @@ class LocationTableData:
         target_locations = select_from_location(cursor, communication_id, location_type).fetchall()
         for target_location in target_locations:
             if target_location:
+                pass
                 self.populate_target_fields(target_location)
         conn.close()
         logging.info("Target fields populated for communication_id: %s", communication_id)
@@ -109,7 +113,8 @@ class LocationTableData:
         (id, communication_id, location, location_id, use_local_filename,
          use_path_from_config, target_must_be_archived, target_history_days,
          rename_existing_file, userid, password, description, location_type) = target_location_row
-
+        
+        self.parent_widget.setProperty("location_id", id)
         set_text_field(self.parent_widget, f"target_{id}_input", location)
         set_text_field(self.parent_widget, f"userid_target_{id}_input", userid)
         set_text_field(self.parent_widget, f"password_target_{id}_input", password)
@@ -125,35 +130,86 @@ class LocationTableData:
         logging.info("Saving target location data for communication_id: %s, location_type: %s", communication_id, location_type)
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
+        
+        # Fetch existing locations from the database for the communication_id
         cursor = select_from_location(cursor, communication_id, location_type)
-        target_locations = cursor.fetchall()
-        if target_locations:
-            for target_location in target_locations:
-                location_row = self.create_target_location_row(target_location, communication_id, location_type)
+        existing_locations = {location['id']: location for location in cursor.fetchall()}
+        logging.debug("Existing locations fetched: %s", existing_locations)
+
+        # Get the list of locations from the GUI
+        gui_locations = self.get_gui_target_locations() 
+        logging.debug("GUI locations fetched: %s", gui_locations)
+
+        for location_data in gui_locations:
+            location_id = location_data.get("id")
+            
+            # If location exists in the database, update it
+            if location_id in existing_locations:
+                location_row = self.create_target_location_row(location_data, communication_id, location_type)
                 update_location(cursor, location_row)
-            conn.commit()
+                logging.info("Updated location with ID: %s", location_id)
+            
+            # If it's a new location, insert it
+            else:
+                new_location_row = self.create_target_location_row(location_data, communication_id, location_type, is_new=True)
+                insert_into_location(cursor, new_location_row)
+                logging.info("Inserted new location for communication_id: %s", communication_id)
+
+        conn.commit()
         conn.close()
         logging.info("Target location data saved for communication_id: %s", communication_id)
 
-    def create_target_location_row(self, target_location, communication_id, location_type):
+    # Helper method to build a row dict for inserting or updating target locations
+    def create_target_location_row(self, location_data, communication_id, location_type, is_new=False):
         logging.info("Creating target location row for communication_id: %s, location_type: %s", communication_id, location_type)
-        return {
-            'id': target_location[0],
-            'location_id': get_input_value(self.parent_widget, f"location_id_target_{target_location[0]}_input"),
-            'location': get_input_value(self.parent_widget, f"target_{target_location[0]}_input"),
-            'userid': get_input_value(self.parent_widget, f"userid_target_{target_location[0]}_input"),
-            'password': get_input_value(self.parent_widget, f"password_target_{target_location[0]}_input"),
-            'useLocalFilename': convert_checkbox_to_string(
-                get_checkbox_value(self.parent_widget, f"use_local_filename_checkbox_target_{target_location[0]}")),
-            'usePathFromConfig': convert_checkbox_to_string(
-                get_checkbox_value(self.parent_widget, f"use_path_from_config_checkbox_target_{target_location[0]}")),
-            'targetMustBeArchived': convert_checkbox_to_string(
-                get_checkbox_value(self.parent_widget, f"target_must_be_archived_checkbox_{target_location[0]}")),
-            'targetHistoryDays': convert_checkbox_to_string(
-                get_checkbox_value(self.parent_widget, f"target_history_days_checkbox_{target_location[0]}")),
-            'renameExistingFile': convert_checkbox_to_string(
-                get_checkbox_value(self.parent_widget, f"rename_existing_file_checkbox_{target_location[0]}")),
-            'description': get_input_value(self.parent_widget, f"target_description_{target_location[0]}_input"),
+        row = {
+            'location_id': get_input_value(self.parent_widget, f"location_id_target_{location_data['id']}_input"),
+            'location': get_input_value(self.parent_widget, f"target_{location_data['id']}_input"),
+            'userid': get_input_value(self.parent_widget, f"userid_target_{location_data['id']}_input"),
+            'password': get_input_value(self.parent_widget, f"password_target_{location_data['id']}_input"),
+            'useLocalFilename': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"use_local_filename_checkbox_target_{location_data['id']}")),
+            'usePathFromConfig': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"use_path_from_config_checkbox_target_{location_data['id']}")),
+            'targetMustBeArchived': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"target_must_be_archived_checkbox_{location_data['id']}")),
+            'targetHistoryDays': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"target_history_days_checkbox_{location_data['id']}")),
+            'renameExistingFile': convert_checkbox_to_string(get_checkbox_value(self.parent_widget, f"rename_existing_file_checkbox_{location_data['id']}")),
+            'description': get_input_value(self.parent_widget, f"target_description_{location_data['id']}_input"),
             'locationType': location_type,
             'communication_id': communication_id,
         }
+
+        if not is_new:  # If updating, include the primary key ID
+            row['id'] = location_data['id']
+
+        logging.debug("Created row: %s", row)
+        return row
+
+    def get_gui_target_locations(self):
+        target_locations = []
+        # Find all target box widgets that match "target_box_" in their object names
+        target_boxes = [box for box in self.parent_widget.findChildren(QWidget) if box.objectName().startswith("target_box_")]
+        
+        for target_box in target_boxes:
+            location_data = {}
+
+            # Extract the target ID from the widget name
+            target_id = target_box.property("target_id")
+            location_data['id'] = target_id
+
+            # Now retrieve the values within each target box widget
+            location_data['location_id'] = get_text_value(target_box, f"location_id_target_{target_id}_input")
+            location_data['location'] = get_text_value(target_box, f"target_{target_id}_input")
+            location_data['userid'] = get_text_value(target_box, f"userid_target_{target_id}_input")
+            location_data['password'] = get_text_value(target_box, f"password_target_{target_id}_input")
+            
+            # Retrieve checkbox values
+            location_data['useLocalFilename'] = get_checkbox_value(target_box, f"use_local_filename_checkbox_target_{target_id}")
+            location_data['usePathFromConfig'] = get_checkbox_value(target_box, f"use_path_from_config_checkbox_target_{target_id}")
+            location_data['targetMustBeArchived'] = get_checkbox_value(target_box, f"target_must_be_archived_checkbox_{target_id}")
+            location_data['targetHistoryDays'] = get_checkbox_value(target_box, f"target_history_days_checkbox_{target_id}")
+            location_data['renameExistingFile'] = get_checkbox_value(target_box, f"rename_existing_file_checkbox_{target_id}")
+            location_data['description'] = get_text_value(target_box, f"target_description_{target_id}_input")
+
+            target_locations.append(location_data)
+
+        return target_locations
+

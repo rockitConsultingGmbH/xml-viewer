@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
 
-from controllers.communication_table_data import populate_communication_table_fields, save_communication_data
+from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
 from controllers.location_table_data import LocationTableData
 
@@ -22,6 +22,7 @@ class CommunicationUI(QWidget):
         self._communication_id = communication_id
 
         self.popup_message = PopupMessage(self)
+        self.communication_table_data = CommunicationTableData(self)
         self.descritpion_table_data = DescriptionTableData(self)
         self.location_table_data = LocationTableData(self)
         self.setup_ui()
@@ -63,23 +64,20 @@ class CommunicationUI(QWidget):
         self.setLayout(layout)
 
     def set_fields_from_db(self):
-        populate_communication_table_fields(self.communication_id)
-        self.descritpion_table_data.populate_description_fields(self.communication_id)
-        self.location_table_data.populate_location_source_fields(self.communication_id)
-        self.location_table_data.populate_location_target_fields(self.communication_id)
+        self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
-        populate_communication_table_fields(self.communication_id)
+        self.communication_table_data.populate_communication_table_fields(self.communication_id)
         self.descritpion_table_data.populate_description_fields(self.communication_id)
-        self.location_table_data.populate_location_source_fields(self.communication_id)
-        self.location_table_data.populate_location_target_fields(self.communication_id)
+        self.location_table_data.populate_source_location_fields(self.communication_id)
+        self.location_table_data.populate_target_location_fields(self.communication_id)
 
     def save_fields_to_db(self):
         try:
-            #save_communication_data(self.communication_id)
-            self.location_table_data.save_source_location_data(self.communication_id)
-            #self.location_table_data.save_target_location_data(self.communication_id)
-            self.descritpion_table_data.save_description_data(self.communication_id)
+            #self.communication_table_data.save_communication_data(self.communication_id)
+            #self.descritpion_table_data.save_description_data(self.communication_id)
+            #self.location_table_data.save_source_location_data(self.communication_id)
+            self.location_table_data.save_target_location_data(self.communication_id)
             #self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")

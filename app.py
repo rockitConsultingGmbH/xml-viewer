@@ -1,11 +1,9 @@
-import os
 import sqlite3
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog
 
-from controllers.description_table_data import DescriptionTableData
 from utils.empty_database import empty_database
 from gui.import_xml_dialog_window import FileDialog
 from gui.communication_ui import CommunicationUI
@@ -13,7 +11,6 @@ from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
 
-from controllers.communication_table_data import populate_communication_table_fields
 from common.connection_manager import ConnectionManager
 
 from gui.namelists_ui import NameListsWidget
@@ -221,11 +218,6 @@ class MainWindow(QMainWindow):
                 self.splitter.setSizes([250, 1000])
                 self.setCentralWidget(self.splitter)
 
-                #populate_communication_table_fields(communication_id)
-                #populate_location_source_fields(communication_id)
-                #populate_location_target_fields(communication_id)
-                #populate_description_fields(communication_id)
-                #DescriptionTableData().populate_description_fields(self.right_widget, communication_id)
                 communication_ui.populate_fields_from_db()
 
         elif item == self.basic_config_item:
