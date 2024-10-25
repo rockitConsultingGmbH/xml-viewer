@@ -47,6 +47,8 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([250, 1000])
         self.setCentralWidget(self.splitter)
 
+        load_stylesheet(self, "css/tree_widget_styling.qss")
+
         self.create_menu()
         self.open_xml()
 
@@ -81,13 +83,13 @@ class MainWindow(QMainWindow):
         file_menu.addAction(exit_action)
         exit_action.triggered.connect(self.exit_application)
 
-        communication_menu = menubar.addMenu('Communication')
+        selection_menu = menubar.addMenu('Selection')
 
         copy_action = QAction('Copy', self)
-        communication_menu.addAction(copy_action)
+        selection_menu.addAction(copy_action)
 
         delete_action = QAction('Delete', self)
-        communication_menu.addAction(delete_action)
+        selection_menu.addAction(delete_action)
 
 
     def open_xml(self):

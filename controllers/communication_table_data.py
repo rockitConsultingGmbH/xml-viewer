@@ -2,8 +2,8 @@ import logging
 from common.connection_manager import ConnectionManager
 from common import config_manager
 from database.utils import update_communication, select_from_communication
-from controllers.utils.get_and_set_value import (get_input_value, get_text_value, set_checkbox_field, set_input_value, get_checkbox_value,
-                                                 set_checkbox_value, convert_checkbox_to_string, set_text_field)
+from controllers.utils.get_and_set_value import (get_text_value, set_checkbox_field, get_checkbox_value,
+                                                convert_checkbox_to_string, set_text_field)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

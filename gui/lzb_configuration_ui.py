@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget, QGroupBox
+from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget, QGroupBox, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFont
 from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_lzbconfig, update_lzbconfig
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
+from gui.common_components.stylesheet_loader import load_stylesheet
+
 
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -12,6 +14,8 @@ class LZBConfigurationWidget(QWidget):
         self.conn_manager = ConnectionManager().get_instance()
         self.popup_message = PopupMessage(self)
         self.setup_ui()
+
+        load_stylesheet(self, "css/right_widget_styling.qss")
     
     def setup_ui(self):
         self.create_layouts()
@@ -21,6 +25,7 @@ class LZBConfigurationWidget(QWidget):
 
     def create_layouts(self):
         self.lzb_config_group = QGroupBox("LZB Configuration")
+        self.lzb_config_group.setObjectName("group-border")
         self.lzb_config_group.setFont(QFont("Arial", 12, QFont.Bold))
         self.lzb_config_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         self.layout = QVBoxLayout(self)
@@ -50,6 +55,9 @@ class LZBConfigurationWidget(QWidget):
             field.setFixedSize(500, 35)
 
     def add_fields_to_layout(self):
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.form_layout.addItem(spacer)
+
         self.form_layout.addRow("Encrypt:", self.encrypt_enabled_input)
         self.form_layout.addRow("Encrypt Key:", self.encrypt_key_input)
         self.form_layout.addRow("Keystore Path:", self.keystore_path_input)

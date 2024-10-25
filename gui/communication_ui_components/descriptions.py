@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel
-
+from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QHBoxLayout, QPushButton
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_description
+from gui.common_components.delete_elements import delete_field
 
 class DescriptionForm:
     def __init__(self, communication_id):
@@ -28,6 +28,20 @@ class DescriptionForm:
         object_name = f"description_{description['id']}_input"
         description_input.setObjectName(object_name)
         description_input.setFixedSize(550, 30)
+
+        delete_descriptions_button = QPushButton("-")
+        delete_descriptions_button.setObjectName("deleteButton")
+        delete_descriptions_button.setFixedSize(30, 30)
+
+        hbox_layout = QHBoxLayout()
+        hbox_layout.addWidget(description_input)
+        hbox_layout.addWidget(delete_descriptions_button)
+
+        self.form_layout_right.addRow(description_label, hbox_layout)
+
+        #input_names.append(object_name)
+
+        delete_descriptions_button.clicked.connect(lambda: delete_field(self.form_layout_right, description_label, hbox_layout))
 
         self.form_layout_right.addRow(description_label, description_input)
         #self.input_names.append(object_name)
