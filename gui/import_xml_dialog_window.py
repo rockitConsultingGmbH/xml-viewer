@@ -18,7 +18,7 @@ class FileDialog(QDialog):
         layout = QVBoxLayout()
 
         self.xml_label = QLabel("Choose XML File:")
-        self.xml_path = QLineEdit("C:/Users/MichalisPantazis/MPA/WORK/projects/bbk/acsft_client/test/acsfiletransfer.xml.e_export.xml")
+        self.xml_path = QLineEdit()
         self.xml_path.setReadOnly(True)
         self.xml_button = QPushButton()
         self.xml_button.setIcon(QIcon('gui/icon/folder.svg'))
@@ -91,7 +91,7 @@ class FileDialog(QDialog):
                 config_manager.config_id = insert_data_into_db(xml_tree, self.xml_path.text())
                 config_manager.config_filepath = self.xml_path.text()
 
-                #QMessageBox.information(self, "Success", "XML file was successfully imported.")
+                QMessageBox.information(self, "Success", "XML file was successfully imported.")
                 self.parent().setWindowTitle(f"XML Editor - {self.xml_path.text()}")
 
                 self.accept()

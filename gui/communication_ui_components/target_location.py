@@ -6,6 +6,7 @@ from database.utils import select_from_location
 from gui.common_components.clickable_label import ClickableLabel
 from gui.common_components.toggle_inputs import toggle_inputs
 from gui.common_components.delete_elements import delete_all_fields
+																   
 
 
 def create_target_location_form(communication_id):
@@ -35,29 +36,28 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
     target_box = QVBoxLayout(target_box_widget)
 
     # Target label and input
+    # Target label, input, and delete button
     target_label = ClickableLabel("Target")
     target_label.setFixedWidth(90)
     target_input = QLineEdit()
     target_input.setFixedHeight(30)
     target_input.setObjectName(f"target_{targetLocation['id']}_input")
-
+    
     target_delete_button = QPushButton("-")
     target_delete_button.setObjectName("deleteButton")
     target_delete_button.setFixedSize(30, 30)
-
-    target_layout = QHBoxLayout()
-    target_layout.addWidget(target_input)
-    target_layout.addItem(QSpacerItem(10, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
-    target_layout.addWidget(target_delete_button)
-
-    layout.addRow(target_label, target_layout)
-    layout.addItem(QSpacerItem(0, 15, QSizePolicy.Minimum, QSizePolicy.Fixed))
-
-    # Add target label and input to form layout
+    
+    # Create a horizontal layout to hold the label, input, and button
+    target_row_layout = QHBoxLayout()
+    target_row_layout.addWidget(target_label)
+    target_row_layout.addWidget(target_input)
+    target_row_layout.addWidget(target_delete_button)
+    
+    # Add the horizontal layout to the form layout
     upper_layout = QFormLayout()
-    upper_layout.addRow(target_label, target_input)
+    upper_layout.addRow(target_row_layout)
     upper_layout.addItem(QSpacerItem(0, 15, QSizePolicy.Minimum, QSizePolicy.Fixed))
-
+	
     # Add the form layout to target_box
     target_box.addLayout(upper_layout)
 
@@ -138,5 +138,5 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
                               rename_existing_file_checkbox, target_must_be_archived_checkbox])
 
     target_label.mousePressEvent = lambda event: toggle_inputs(target_labels, target_inputs, target_checkboxes)
-
-    target_delete_button.clicked.connect(lambda: delete_all_fields([target_layout, left_column_layout, right_column_layout, layout]))
+    #target_delete_button.clicked.connect(lambda: delete_all_fields([target_box, left_column_layout, right_column_layout, layout]))
+																																												 

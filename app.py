@@ -50,7 +50,6 @@ class MainWindow(QMainWindow):
         load_stylesheet(self, "css/tree_widget_styling.qss")
 
         self.create_menu()
-        self.open_xml()
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -317,16 +316,16 @@ class MainWindow(QMainWindow):
         self.close()
 
     def closeEvent(self, event):
-        #reply = QMessageBox.question(self, "Confirm Exit",
-        #                             "Are you sure you want to close the application?",
-        #                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(self, "Confirm Exit",
+                                     "Are you sure you want to close the application?",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        #if reply == QMessageBox.Yes:
-        self.perform_cleanup()
-        #    event.accept()
-        QApplication.quit()
-        #else:
-        #    event.ignore()
+        if reply == QMessageBox.Yes:
+            self.perform_cleanup()
+            event.accept()
+            QApplication.quit()
+        else:
+            event.ignore()
 
     def perform_cleanup(self):
         empty_database()
