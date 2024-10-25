@@ -77,7 +77,7 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
     target_description_label = QLabel("Description")
     target_description_label.setFixedWidth(100)
     target_description_input = QLineEdit()
-    target_description_input.setObjectName(f"description_target_{targetLocation['id']}_input")
+    target_description_input.setObjectName(f"target_description_{targetLocation['id']}_input")
     target_description_input.setFixedHeight(30)
 
     target_history_days_checkbox = QCheckBox("Target History Days")
