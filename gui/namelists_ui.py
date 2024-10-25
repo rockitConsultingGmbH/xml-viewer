@@ -6,7 +6,7 @@ from common.connection_manager import ConnectionManager
 from database.utils import (select_from_alternatename, select_from_namelist_with_communication, update_communication_column, 
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
 from gui.common_components.popup_message import PopupMessage
-from gui.common_components.buttons import ButtonFactory
+from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
 
 
@@ -28,7 +28,7 @@ class NameListsWidget(QWidget):
         layout.setSpacing(10)
 
         # Add Save and Reset buttons
-        layout.addLayout(ButtonFactory().create_button_layout(self))
+        layout.addLayout(Buttons().create_button_layout(self))
 
         # Add the Name List group box
         self.add_group_box(layout, "Name List", self.create_namelist_layout)

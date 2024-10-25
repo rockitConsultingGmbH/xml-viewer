@@ -5,7 +5,7 @@ from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_basicconfig, update_basicconfig
 from gui.common_components.popup_message import PopupMessage
-from gui.common_components.buttons import ButtonFactory
+from gui.common_components.buttons import Buttons
 import sqlite3
 
 from gui.common_components.stylesheet_loader import load_stylesheet
@@ -23,7 +23,7 @@ class BasicConfigurationWidget(QWidget):
     def setup_ui(self):
         basic_config_group = self.create_basic_config_group()
         layout = QVBoxLayout(self)
-        button_layout = ButtonFactory().create_button_layout(self)
+        button_layout = Buttons().create_button_layout(self)
 
         layout.addLayout(button_layout)
         layout.addWidget(basic_config_group)

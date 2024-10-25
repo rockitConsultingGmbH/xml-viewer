@@ -4,7 +4,7 @@ from common import config_manager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_lzbconfig, update_lzbconfig
 from gui.common_components.popup_message import PopupMessage
-from gui.common_components.buttons import ButtonFactory
+from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
 
 
@@ -30,7 +30,7 @@ class LZBConfigurationWidget(QWidget):
         self.lzb_config_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         self.layout = QVBoxLayout(self)
         self.form_layout = QFormLayout()
-        self.button_layout = ButtonFactory().create_button_layout(self)
+        self.button_layout = Buttons().create_button_layout(self)
         self.lzb_config_group.setLayout(self.form_layout)
         self.layout.addLayout(self.button_layout)
         self.layout.addWidget(self.lzb_config_group)

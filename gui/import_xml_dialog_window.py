@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit, QHBoxLayout, QFileDialog, QMessageBox, QCheckBox
 from PyQt5.QtGui import QIcon
 from lxml import etree
-from controllers.empty_database import empty_database
+from utils.empty_database import empty_database
 from utils.import_xml_to_db.xml_to_db import validate_xml, insert_data_into_db
 from common import config_manager
 

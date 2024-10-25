@@ -63,11 +63,11 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
     password_input.setObjectName("password_source_input")
     password_input.setFixedHeight(30)
 
-    description_source_label = QLabel("Description")
-    description_source_label.setFixedWidth(100)
-    description_source_input = QLineEdit()
-    description_source_input.setObjectName("description_source_input")
-    description_source_input.setFixedHeight(30)
+    source_description_label = QLabel("Description")
+    source_description_label.setFixedWidth(100)
+    source_description_input = QLineEdit()
+    source_description_input.setObjectName("source_description_input")
+    source_description_input.setFixedHeight(30)
 
     target_history_days_checkbox = QCheckBox("Target History Days")
     target_history_days_checkbox.setObjectName("target_history_days_checkbox")
@@ -79,7 +79,7 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
     target_must_be_archived_checkbox.setObjectName("target_must_be_archived_checkbox")
 
     right_column_layout.addRow(password_label, password_input)
-    right_column_layout.addRow(description_source_label, description_source_input)
+    right_column_layout.addRow(source_description_label, source_description_input)
     right_column_layout.addRow(target_history_days_checkbox)
     right_column_layout.addRow(rename_existing_file_checkbox)
     right_column_layout.addRow(target_must_be_archived_checkbox)
@@ -111,8 +111,8 @@ def create_locations_group(group_layout, communication_id, toggle_inputs, source
 
     group_layout.addLayout(form_layout)
 
-    source_labels.extend([userid_label, location_id_label, password_label, description_source_label])
-    source_inputs.extend([userid_input, location_id_input, password_input, description_source_input])
+    source_labels.extend([userid_label, location_id_label, password_label, source_description_label])
+    source_inputs.extend([userid_input, location_id_input, password_input, source_description_input])
     source_checkboxes.extend([use_local_filename_checkbox, use_path_from_config_checkbox, target_history_days_checkbox,
                               rename_existing_file_checkbox, target_must_be_archived_checkbox])
 
