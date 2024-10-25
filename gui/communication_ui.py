@@ -9,9 +9,9 @@ from gui.common_components.stylesheet_loader import load_stylesheet
 from gui.common_components.toggle_inputs import toggle_inputs
 from gui.communication_ui_components.overview_group import create_overview_group
 from gui.communication_ui_components.patterns_group import create_pattern_group
-from gui.communication_ui_components.post_command_group import create_post_command_group
 from gui.communication_ui_components.settings_group import create_settings_group
 from gui.communication_ui_components.source_location import create_locations_group
+from gui.communication_ui_components.commands import CommandsUI
 
 
 class CommunicationUI:
@@ -69,22 +69,37 @@ class CommunicationUI:
 
         if group_name == "Overview":
             create_overview_group(group_layout, communication_id)
+            line = self.create_horizontal_line()
+            group_layout.addWidget(line)
+
         elif group_name == "Locations":
             source_labels, source_inputs, source_checkboxes = [], [], []
             create_locations_group(group_layout, communication_id, toggle_inputs, source_labels, source_inputs,
                                    source_checkboxes)
+            line = self.create_horizontal_line()
+            group_layout.addWidget(line)
+
         elif group_name == "Settings":
             settings_labels, settings_inputs = [], []
             other_settings_labels, other_settings_inputs = [], []
             create_settings_group(group_layout, settings_labels, settings_inputs, other_settings_labels,
                                   other_settings_inputs, toggle_inputs)
+            line = self.create_horizontal_line()
+            group_layout.addWidget(line)
+
         elif group_name == "Pattern":
             create_pattern_group(group_layout)
-        elif group_name == "PostCommand(s)":
-            create_post_command_group(group_layout)
+            line = self.create_horizontal_line()
+            group_layout.addWidget(line)
 
-        line = self.create_horizontal_line()
-        group_layout.addWidget(line)
+        elif group_name == "PostCommand(s)":
+            commands_ui = CommandsUI()
+            commands_ui.generate_send_tks_a_satz()
+            # commands_ui.generate_tks_send()
+            # commands_ui.generate_mq_put()
+            # commands_ui.generate_execute()
+            # commands_ui.generate_change_dsn_output()
+            group_layout.addWidget(commands_ui)
 
         group_box.setLayout(group_layout)
         layout.addWidget(group_box)
