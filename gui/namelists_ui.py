@@ -7,7 +7,8 @@ from database.utils import (select_from_alternatename, select_from_namelist_with
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import ButtonFactory
-from common.config_manager import config_manager
+from gui.common_components.stylesheet_loader import load_stylesheet
+
 
 class NameListsWidget(QWidget):
     name_updated = pyqtSignal(int, str)
@@ -19,6 +20,8 @@ class NameListsWidget(QWidget):
         self.popup_message = PopupMessage(self)
         self.entries_to_delete = []  # Track entries marked for deletion
         self.setup_ui()
+
+        load_stylesheet(self, "css/right_widget_styling.qss")
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
@@ -40,6 +43,7 @@ class NameListsWidget(QWidget):
 
     def add_group_box(self, parent_layout, title, content_creator):
         group_box = QGroupBox(title)
+        group_box.setObjectName("group-border")
         group_box.setFont(QFont("Arial", 12, QFont.Bold))
         group_box.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
 
@@ -51,6 +55,9 @@ class NameListsWidget(QWidget):
         namelist_layout = QFormLayout()
         namelist_layout.setSpacing(10)
         self.init_namelist_input_fields()
+
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        namelist_layout.addItem(spacer)
 
         # Create clickable communication name label
         self.communication_label = QLabel("Communication")
@@ -67,6 +74,9 @@ class NameListsWidget(QWidget):
         parent_layout.addLayout(namelist_layout)
 
     def create_alternate_names_layout(self, parent_layout):
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        parent_layout.addItem(spacer)
+
         self.add_new_entry_section(parent_layout)
         self.create_name_entries_layout(parent_layout)
 
@@ -80,6 +90,7 @@ class NameListsWidget(QWidget):
         self.new_entry_input.setPlaceholderText("Enter new entry...")
 
         add_entry_button = QPushButton("+ Add Entry")
+        add_entry_button.setObjectName("addEntryButton")
         add_entry_button.setFixedWidth(100)
         add_entry_button.setFixedHeight(30)
         add_entry_button.clicked.connect(self.add_entry_from_input)
@@ -114,7 +125,8 @@ class NameListsWidget(QWidget):
         entry_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         entry_input.setProperty("entry_id", entry_id)
 
-        delete_button = QPushButton("x")
+        delete_button = QPushButton("-")
+        delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
         delete_button.clicked.connect(lambda: self.delete_entry(entry_layout, entry_input))
 

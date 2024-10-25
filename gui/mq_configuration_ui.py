@@ -5,6 +5,8 @@ from common.connection_manager import ConnectionManager
 from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import ButtonFactory
+from gui.common_components.stylesheet_loader import load_stylesheet
+
 
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -13,6 +15,8 @@ class MQConfigurationWidget(QWidget):
         self.popup_message = PopupMessage(self)
         self.ipqueue_fields = []  # Store references to the input fields for saving   
         self.setup_ui()
+
+        load_stylesheet(self, "css/right_widget_styling.qss")
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -27,24 +31,28 @@ class MQConfigurationWidget(QWidget):
         self.scroll_layout = QVBoxLayout(scroll_content)
 
         self.create_mqconfig_layout(self.scroll_layout)
-        self.add_spacing(self.scroll_layout)
+        self.add_groupbox_spacing(self.scroll_layout)
         self.create_mqtrigger_layout(self.scroll_layout)
-        self.add_spacing(self.scroll_layout)
+        self.add_groupbox_spacing(self.scroll_layout)
         self.create_ipqueue_layout(self.scroll_layout)
 
         self.scroll_area.setWidget(scroll_content)
         main_layout.addWidget(self.scroll_area)
         self.setLayout(main_layout)
 
-    def add_spacing(self, layout):
-        spacer = QSpacerItem(30, 100, QSizePolicy.Minimum, QSizePolicy.Expanding)
+    def add_groupbox_spacing(self, layout):
+        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Fixed)
         layout.addItem(spacer)
 
     def create_mqconfig_layout(self, parent_layout):
         mqconfig_group = QGroupBox("MQ Configuration")
+        mqconfig_group.setObjectName("group-border")
         mqconfig_group.setFont(QFont("Arial", 12, QFont.Bold))
         mqconfig_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         mqconfig_layout = QFormLayout()
+
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        mqconfig_layout.addItem(spacer)
 
         self.add_mqconfig_fields_to_form_layout(mqconfig_layout)
         self.populate_mqconfig_fields_from_db()
@@ -124,9 +132,13 @@ class MQConfigurationWidget(QWidget):
 
     def create_mqtrigger_layout(self, parent_layout):
         mqtrigger_group = QGroupBox("MQTrigger Settings")
+        mqtrigger_group.setObjectName("group-border")
         mqtrigger_group.setFont(QFont("Arial", 12, QFont.Bold))
         mqtrigger_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         mqtrigger_layout = QFormLayout()
+
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        mqtrigger_layout.addItem(spacer)
 
         self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)
         self.populate_mqtrigger_fields_from_db()
@@ -179,16 +191,24 @@ class MQConfigurationWidget(QWidget):
 
     def create_ipqueue_layout(self, parent_layout):
         ipqueue_group = QGroupBox("IPQueue Settings")
+        ipqueue_group.setObjectName("group-border")
         ipqueue_group.setFont(QFont("Arial", 12, QFont.Bold))
         ipqueue_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         ipqueue_main_layout = QVBoxLayout()
+
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        ipqueue_main_layout.addItem(spacer)
 
         ipqueue_entries = self.get_ipqueue_data()
 
         for entry in ipqueue_entries:
             individual_ipqueue_group = QGroupBox(f"IPQueue")
+            individual_ipqueue_group.setObjectName("group-border")
             individual_ipqueue_group.setFont(QFont("Arial", 10, QFont.Bold, italic=True))
             individual_ipqueue_layout = QFormLayout()
+
+            spacer = QSpacerItem(5, 5, QSizePolicy.Minimum, QSizePolicy.Fixed)
+            individual_ipqueue_layout.addItem(spacer)
 
             individual_ipqueue_layout = self.add_ipqueue_fields_to_form_layout(individual_ipqueue_layout, entry)
             self.populate_ipqueue_fields_from_db()
@@ -332,9 +352,9 @@ class MQConfigurationWidget(QWidget):
     def refresh_page(self):
         self.clear_layout(self.scroll_layout)
         self.create_mqconfig_layout(self.scroll_layout)
-        self.add_spacing(self.scroll_layout)
+        self.add_groupbox_spacing(self.scroll_layout)
         self.create_mqtrigger_layout(self.scroll_layout)
-        self.add_spacing(self.scroll_layout)
+        self.add_groupbox_spacing(self.scroll_layout)
         self.create_ipqueue_layout(self.scroll_layout)
         self.repaint()
 

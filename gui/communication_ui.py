@@ -1,20 +1,18 @@
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QSpacerItem, QSizePolicy
 
 from controllers.communication_table_data import save_communication_data, populate_communication_table_fields
 from controllers.description_table_data import save_description_data, populate_description_fields
 from controllers.location_table_data import save_source_location_data, save_target_location_data, \
     populate_location_target_fields, populate_location_source_fields
-
+from gui.common_components.buttons import ButtonFactory
+from gui.common_components.stylesheet_loader import load_stylesheet
+from gui.common_components.toggle_inputs import toggle_inputs
 from gui.communication_ui_components.overview_group import create_overview_group
 from gui.communication_ui_components.patterns_group import create_pattern_group
 from gui.communication_ui_components.post_command_group import create_post_command_group
 from gui.communication_ui_components.settings_group import create_settings_group
 from gui.communication_ui_components.source_location import create_locations_group
 
-from gui.common_components.buttons import ButtonFactory
-from gui.common_components.toggle_inputs import toggle_inputs
-
-from gui.common_components.stylesheet_loader import load_stylesheet
 
 class CommunicationUI:
     def __init__(self, right_widget, communication_id):
@@ -31,23 +29,22 @@ class CommunicationUI:
         scroll_layout = QVBoxLayout(scroll_content)
 
         button_layout = ButtonFactory().create_button_layout(self)
-        communication_label_group = QGroupBox("Communication")
-        communication_label_group.setFixedWidth(200)
-        communication_label_group.setObjectName("communication-label-group")
 
-        # Create a horizontal layout to place communication label group and buttons on the same level
-        top_layout = QHBoxLayout()
-        top_layout.addWidget(communication_label_group)
-        top_layout.addLayout(button_layout)
+        main_group_box = QGroupBox("Communications")
+        main_group_box.setObjectName("group-border")
+        main_group_layout = QVBoxLayout(main_group_box)
 
-        scroll_layout.addLayout(top_layout)
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        main_group_layout.addItem(spacer)
 
-        self.create_group("Overview", scroll_layout, self.communication_id)
-        self.create_group("Locations", scroll_layout, self.communication_id)
-        self.create_group("Settings", scroll_layout)
-        self.create_group("Pattern", scroll_layout)
-        self.create_group("PostCommand(s)", scroll_layout)
+        self.create_group("Overview", main_group_layout, self.communication_id)
+        self.create_group("Locations", main_group_layout, self.communication_id)
+        self.create_group("Settings", main_group_layout)
+        self.create_group("Pattern", main_group_layout)
+        self.create_group("PostCommand(s)", main_group_layout)
 
+        scroll_layout.addLayout(button_layout)
+        scroll_layout.addWidget(main_group_box)
         scroll_area.setWidget(scroll_content)
 
         right_layout = QVBoxLayout(self.right_widget)
