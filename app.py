@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidg
     QTreeWidgetItem, QMessageBox, QFileDialog
 
 from controllers.description_table_data import DescriptionTableData
-from controllers.empty_database import empty_database
+from utils.empty_database import empty_database
 from gui.import_xml_dialog_window import FileDialog
 from gui.communication_ui import CommunicationUI
 from gui.basic_configuration_ui import BasicConfigurationWidget
