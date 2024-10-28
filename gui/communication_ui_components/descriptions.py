@@ -1,13 +1,12 @@
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QHBoxLayout, QPushButton
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_description
+from database.utils import select_from_description, delete_from_description
 from gui.common_components.delete_elements import delete_field
 
 class DescriptionForm:
     def __init__(self, communication_id):
         self.communication_id = communication_id
         self.form_layout_right = QFormLayout()
-        #self.input_names = []
         self.create_description_form()
 
     def create_description_form(self):
@@ -39,12 +38,17 @@ class DescriptionForm:
 
         self.form_layout_right.addRow(description_label, hbox_layout)
 
-        #input_names.append(object_name)
+        delete_descriptions_button.clicked.connect(
+            lambda: self.delete_description_fields(description['id'], description_label, hbox_layout))
 
-        delete_descriptions_button.clicked.connect(lambda: delete_field(self.form_layout_right, description_label, hbox_layout))
-
-        self.form_layout_right.addRow(description_label, description_input)
-        #self.input_names.append(object_name)
+    def delete_description_fields(self, description_id, description_label, hbox_layout):
+        conn_manager = ConnectionManager().get_instance()
+        conn = conn_manager.get_db_connection()
+        cursor = conn.cursor()
+        delete_from_description(cursor, description_id)
+        conn.commit()
+        conn.close()
+        delete_field(self.form_layout_right, description_label, hbox_layout)
 
     def get_form_layout(self):
         return self.form_layout_right
