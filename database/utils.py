@@ -705,7 +705,7 @@ def delete_from_location(cursor, communication_id):
     return cursor
 
 # Command
-def InsertIntoCommand(cursor, row):
+def insert_into_command(cursor, row):
     cursor.execute("""
     INSERT INTO Command (
         communication_id,
@@ -726,7 +726,7 @@ def InsertIntoCommand(cursor, row):
     ))
     return cursor
 
-def UpdateCommand(cursor, row):
+def update_command(cursor, row):
     cursor.execute("""
     UPDATE Command
     SET className = ?,
@@ -745,25 +745,29 @@ def UpdateCommand(cursor, row):
     ))
     return cursor
 
-def DeleteFromCommand(cursor, communication_id):
+def delete_from_command(cursor, communication_id):
     cursor.execute("DELETE FROM Command WHERE communication_id = ?", (communication_id,))
     return cursor
 
 # CommandParam
-def InsertIntoCommandParam(cursor, row):
+def insert_into_commandparam(cursor, row):
     cursor.execute("""
     INSERT INTO CommandParam (
         command_id,
-        param
+        param,
+        paramName,
+        paramOrder
     )
-    VALUES (?, ?)
+    VALUES (?, ?, ?, ?)
     """, (
         row['command_id'],
-        row['param']
+        row['param'],
+        row['paramName'],
+        row['paramOrder']
     ))
     return cursor
 
-def UpdateCommandParam(cursor, row):
+def update_commandparam(cursor, row):
     cursor.execute("""
     UPDATE CommandParam
     SET param = ?
@@ -774,7 +778,7 @@ def UpdateCommandParam(cursor, row):
     ))
     return cursor
 
-def DeleteFromCommandParam(cursor, command_id):
+def delete_from_commandparam(cursor, command_id):
     cursor.execute("DELETE FROM CommandParam WHERE command_id = ?", (command_id,))
     return cursor
 
