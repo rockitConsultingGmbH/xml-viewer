@@ -41,10 +41,12 @@ class MainWindow(QMainWindow):
         self.left_widget.setObjectName("left_widget")
         self.right_widget.setObjectName("right_widget")
 
+        self.left_widget.setFixedWidth(400)
+
         self.splitter = QSplitter(Qt.Horizontal)
         self.splitter.addWidget(self.left_widget)
         self.splitter.addWidget(self.right_widget)
-        self.splitter.setSizes([250, 1000])
+        self.splitter.setSizes([400, 1000])
         self.setCentralWidget(self.splitter)
 
         load_stylesheet(self, "css/tree_widget_styling.qss")

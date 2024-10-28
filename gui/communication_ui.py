@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout, QSizePolicy, QSpacerItem
 
 from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
@@ -31,7 +31,7 @@ class CommunicationUI(QWidget):
 
     @property
     def communication_id(self):
-            return self._communication_id
+        return self._communication_id
 
     def setup_ui(self):
         scroll_area = QScrollArea()
@@ -39,27 +39,24 @@ class CommunicationUI(QWidget):
         scroll_content = QWidget()
         scroll_layout = QVBoxLayout(scroll_content)
 
-        button_layout = Buttons().create_button_layout(self)
-        communication_label_group = QGroupBox("Communication")
-        communication_label_group.setFixedWidth(200)
-        communication_label_group.setObjectName("communication-label-group")
+        communications_box = QGroupBox("Communications")
+        communications_box.setObjectName("group-border")
+        communications_box_layout = QVBoxLayout()
 
-        # Create a horizontal layout to place communication label group and buttons on the same level
-        top_layout = QHBoxLayout()
-        top_layout.addWidget(communication_label_group)
-        top_layout.addLayout(button_layout)
+        self.create_group("Overview", communications_box_layout, self.communication_id)
+        self.create_group("Locations", communications_box_layout, self.communication_id)
+        self.create_group("Settings", communications_box_layout)
+        self.create_group("Pattern", communications_box_layout)
+        self.create_group("PostCommand(s)", communications_box_layout)
 
-        scroll_layout.addLayout(top_layout)
-
-        self.create_group("Overview", scroll_layout, self.communication_id)
-        self.create_group("Locations", scroll_layout, self.communication_id)
-        self.create_group("Settings", scroll_layout)
-        self.create_group("Pattern", scroll_layout)
-        self.create_group("PostCommand(s)", scroll_layout)
+        communications_box.setLayout(communications_box_layout)
+        scroll_layout.addWidget(communications_box)
 
         scroll_area.setWidget(scroll_content)
 
         layout = QVBoxLayout(self)
+        button_layout = Buttons().create_button_layout(self)
+        layout.addLayout(button_layout)
         layout.addWidget(scroll_area)
         self.setLayout(layout)
 
@@ -87,6 +84,8 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
+            spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+            layout.addItem(spacer)
             OverviewGroup(group_layout, communication_id)
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
