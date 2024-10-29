@@ -1,8 +1,11 @@
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout, QSizePolicy, QSpacerItem
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
 
 from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
 from controllers.location_table_data import LocationTableData
+from gui.common_components.communication_popup_warnings import show_save_error
+from gui.communication_ui_components.descriptions import DescriptionForm
 
 from gui.communication_ui_components.overview_group import OverviewGroup
 from gui.communication_ui_components.patterns_group import create_pattern_group
@@ -17,9 +20,12 @@ from gui.common_components.toggle_inputs import toggle_inputs
 from gui.common_components.stylesheet_loader import load_stylesheet
 
 class CommunicationUI(QWidget):
-    def __init__(self, communication_id, parent=None):
+    name_updated = pyqtSignal(int, str)
+
+    def __init__(self, communication_id=None, parent=None):
         super().__init__(parent)
         self._communication_id = communication_id
+        self.name_input = None
 
         self.popup_message = PopupMessage(self)
         self.communication_table_data = CommunicationTableData(self)
@@ -39,43 +45,58 @@ class CommunicationUI(QWidget):
         scroll_content = QWidget()
         scroll_layout = QVBoxLayout(scroll_content)
 
-        communications_box = QGroupBox("Communications")
-        communications_box.setObjectName("group-border")
-        communications_box_layout = QVBoxLayout()
+        button_layout = Buttons().create_button_layout(self)
+        communication_label_group = QGroupBox("Communication")
+        communication_label_group.setFixedWidth(200)
+        communication_label_group.setObjectName("communication-label-group")
 
-        self.create_group("Overview", communications_box_layout, self.communication_id)
-        self.create_group("Locations", communications_box_layout, self.communication_id)
-        self.create_group("Settings", communications_box_layout)
-        self.create_group("Pattern", communications_box_layout)
-        self.create_group("PostCommand(s)", communications_box_layout)
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(communication_label_group)
+        top_layout.addLayout(button_layout)
 
-        communications_box.setLayout(communications_box_layout)
-        scroll_layout.addWidget(communications_box)
+        scroll_layout.addLayout(top_layout)
+
+        self.create_group("Overview", scroll_layout, self.communication_id)
+        self.create_group("Locations", scroll_layout, self.communication_id)
+        self.create_group("Settings", scroll_layout)
+        self.create_group("Pattern", scroll_layout)
+        self.create_group("PostCommand(s)", scroll_layout)
 
         scroll_area.setWidget(scroll_content)
 
         layout = QVBoxLayout(self)
-        button_layout = Buttons().create_button_layout(self)
-        layout.addLayout(button_layout)
         layout.addWidget(scroll_area)
         self.setLayout(layout)
 
+
     def set_fields_from_db(self):
-        self.populate_fields_from_db()
+        if self.communication_id is not None:
+            self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
-        self.communication_table_data.populate_communication_table_fields(self.communication_id)
-        self.descritpion_table_data.populate_description_fields(self.communication_id)
-        self.location_table_data.populate_source_location_fields(self.communication_id)
-        self.location_table_data.populate_target_location_fields(self.communication_id)
+        if self.communication_id is not None:
+            self.communication_table_data.populate_communication_table_fields(self.communication_id)
+            self.descritpion_table_data.populate_description_fields(self.communication_id)
+            self.location_table_data.populate_source_location_fields(self.communication_id)
+            self.location_table_data.populate_target_location_fields(self.communication_id)
 
     def save_fields_to_db(self):
         try:
+            if not self.name_input.text().strip():
+                show_save_error(self)  # Replace later with popup_message.py
+                return
             self.communication_table_data.save_communication_data(self.communication_id)
+            new_name = self.communication_table_data.get_communication_name(self.communication_id)
+            self.name_updated.emit(self.communication_id, new_name)
+
             self.descritpion_table_data.save_description_data(self.communication_id)
             self.location_table_data.save_source_location_data(self.communication_id)
             self.location_table_data.save_target_location_data(self.communication_id)
-            #self.popup_message.show_message("Changes have been successfully saved.")
+
+            # description_form = DescriptionForm(self.communication_id)
+            # description_ids_to_delete = description_form.get_description_ids_to_delete()
+            # self.communication_table_data.delete_description_fields_from_db(description_ids_to_delete)
+
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
 
@@ -84,9 +105,8 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
-            layout.addItem(spacer)
-            OverviewGroup(group_layout, communication_id)
+            overview_group_instance = OverviewGroup(group_layout, communication_id)
+            self.name_input = overview_group_instance.get_name_input()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
         elif group_name == "Locations":
@@ -112,10 +132,6 @@ class CommunicationUI(QWidget):
         elif group_name == "PostCommand(s)":
             commands_ui = CommandsUI()
             commands_ui.generate_send_tks_a_satz()
-            # commands_ui.generate_tks_send()
-            # commands_ui.generate_mq_put()
-            # commands_ui.generate_execute()
-            # commands_ui.generate_change_dsn_output()
             group_layout.addWidget(commands_ui)
 
         group_box.setLayout(group_layout)

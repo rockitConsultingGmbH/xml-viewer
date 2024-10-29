@@ -524,6 +524,13 @@ def select_from_communication(cursor, communication_id, basicConfig_id):
     (communication_id, basicConfig_id))
     return cursor
 
+def get_communication_names(cursor, communication_id, basicConfig_id):
+    cursor.execute("""
+    SELECT name FROM Communication WHERE id = ? AND basicConfig_id = ?
+    """,
+    (communication_id, basicConfig_id))
+    return cursor
+
 def update_communication(cursor, row):
     cursor.execute("""
     UPDATE Communication

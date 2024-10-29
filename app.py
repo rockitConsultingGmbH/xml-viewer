@@ -4,6 +4,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog
 
+from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
+from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
+    delete_new_communication
 from utils.empty_database import empty_database
 from gui.import_xml_dialog_window import FileDialog
 from gui.communication_ui import CommunicationUI
@@ -27,6 +30,7 @@ class MainWindow(QMainWindow):
         self.recent_files = []
         self.basic_config_item = None
         self.conn_manager = ConnectionManager().get_instance()
+        self.config_manager = config_manager  # Initialize config_manager
 
         self.resize(1800, 900)
         self.setWindowTitle("XML Editor")
@@ -92,6 +96,17 @@ class MainWindow(QMainWindow):
         delete_action = QAction('Delete', self)
         selection_menu.addAction(delete_action)
 
+        selection_menu.addSeparator()
+
+        create_communication_action = QAction('New Communication', self)
+        selection_menu.addAction(create_communication_action)
+        create_communication_action.triggered.connect(lambda: create_new_communication(self))
+
+    def on_name_changed(self):
+        on_name_changed(self)
+
+    def delete_new_communication(self):
+        delete_new_communication(self)
 
     def open_xml(self):
         dialog = FileDialog(self)
@@ -208,31 +223,55 @@ class MainWindow(QMainWindow):
         layout.addWidget(tree_widget)
         self.left_widget.setLayout(layout)
 
+    def update_communication_in_tree(self, communication_id, new_name):
+        for i in range(self.communication_config_item.childCount()):
+            child_item = self.communication_config_item.child(i)
+            if child_item.data(0, Qt.UserRole) == communication_id:
+                child_item.setText(0, new_name)
+                break
+
     def on_item_clicked(self, item):
-        if item.parent() == self.communication_config_item:
+        try:
             communication_id = item.data(0, Qt.UserRole)
-            if communication_id is not None:
-                print(f"Communication ID: {communication_id}")
-                self.right_widget.setParent(None)
-                communication_ui = CommunicationUI(communication_id)
-                self.right_widget = communication_ui
-                self.right_widget.setObjectName("communications_widget")
-                self.splitter.addWidget(self.right_widget)
-                self.splitter.setSizes([250, 1000])
-                self.setCentralWidget(self.splitter)
+            if hasattr(self,
+                       'unsaved_changes') and self.unsaved_changes and not self.name_changed and communication_id != self.current_communication_id:
+                reply = show_unsaved_changes_warning(self)
+                if reply == QMessageBox.No:
+                    tree_widget = self.left_widget.layout().itemAt(0).widget()
+                    new_comm_items = tree_widget.findItems("New Communication", Qt.MatchExactly | Qt.MatchRecursive)
+                    if new_comm_items:
+                        tree_widget.setCurrentItem(new_comm_items[0])
+                    return
+                elif reply == QMessageBox.Yes:
+                    self.delete_new_communication()
 
-                communication_ui.populate_fields_from_db()
+            if item.parent() == self.communication_config_item:
+                if communication_id is not None:
+                    print(f"Communication ID: {communication_id}")
+                    self.right_widget.setParent(None)
+                    communication_ui = CommunicationUI(communication_id)
+                    communication_ui.name_updated.connect(self.update_communication_in_tree)
+                    self.right_widget = communication_ui
+                    self.right_widget.setObjectName("communications_widget")
+                    self.splitter.addWidget(self.right_widget)
+                    self.splitter.setSizes([250, 1000])
+                    self.setCentralWidget(self.splitter)
+                    communication_ui.populate_fields_from_db()
+                    self.unsaved_changes = False
+                    self.current_communication_id = communication_id
 
-        elif item == self.basic_config_item:
-            self.load_basic_config_view()
-        elif item == self.lzb_config_item:
-            self.load_lzb_config_view()
-        elif item == self.mq_config_item:
-            self.load_mq_config_view()
-        elif item.parent() == self.namelist_item:
-            namelist_id = item.data(0, Qt.UserRole)
-            print(f"NameList ID: {namelist_id}")
-            self.load_namelists_view(namelist_id)
+            elif item == self.basic_config_item:
+                self.load_basic_config_view()
+            elif item == self.lzb_config_item:
+                self.load_lzb_config_view()
+            elif item == self.mq_config_item:
+                self.load_mq_config_view()
+            elif item.parent() == self.namelist_item:
+                namelist_id = item.data(0, Qt.UserRole)
+                print(f"NameList ID: {namelist_id}")
+                self.load_namelists_view(namelist_id)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
 
     def load_basic_config_view(self):
         self.right_widget.setParent(None)
