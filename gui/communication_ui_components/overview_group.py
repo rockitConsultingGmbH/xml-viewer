@@ -65,3 +65,6 @@ class OverviewGroup:
         self.group_layout.addLayout(hbox_columns)
 
         self.addButton.clicked.connect(lambda: self.description_form.add_description_fields({'id': 'new', 'description': ''}))
+
+    def get_name_input(self):
+        return self.name_input
