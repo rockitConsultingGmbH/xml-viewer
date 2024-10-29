@@ -70,20 +70,22 @@ class CommunicationUI(QWidget):
         self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
-        self.communication_table_data.populate_communication_table_fields(self.communication_id)
-        self.descritpion_table_data.populate_description_fields(self.communication_id)
-        self.location_table_data.populate_source_location_fields(self.communication_id)
-        self.location_table_data.populate_target_location_fields(self.communication_id)
+        pass
+        #self.communication_table_data.populate_communication_table_fields(self.communication_id)
+        #self.descritpion_table_data.populate_description_fields(self.communication_id)
+        #self.location_table_data.populate_source_location_fields(self.communication_id)
+        #self.location_table_data.populate_target_location_fields(self.communication_id)
         #self.location_table_data.populate_command_fields(self.communication_id)
 
 
     def save_fields_to_db(self):
         try:
-            self.communication_table_data.save_communication_data(self.communication_id)
-            self.descritpion_table_data.save_description_data(self.communication_id)
-            self.location_table_data.save_source_location_data(self.communication_id)
-            self.location_table_data.save_target_location_data(self.communication_id)
-            self.commands_ui.save_commands(self.communication_id)
+            #self.communication_table_data.save_communication_data(self.communication_id)
+            #self.descritpion_table_data.save_description_data(self.communication_id)
+            #self.location_table_data.save_source_location_data(self.communication_id)
+            #self.location_table_data.save_target_location_data(self.communication_id)
+            print("Saving command data")
+            self.commands_ui.save_commands()
             #self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
