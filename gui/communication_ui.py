@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
 
+from controllers.command_table_data import CommandParamTableData
 from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
 from controllers.location_table_data import LocationTableData
@@ -25,6 +26,7 @@ class CommunicationUI(QWidget):
         self.communication_table_data = CommunicationTableData(self)
         self.descritpion_table_data = DescriptionTableData(self)
         self.location_table_data = LocationTableData(self)
+        self.commandparam_table_data = CommandParamTableData(self)
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
@@ -80,7 +82,7 @@ class CommunicationUI(QWidget):
             self.descritpion_table_data.save_description_data(self.communication_id)
             self.location_table_data.save_source_location_data(self.communication_id)
             self.location_table_data.save_target_location_data(self.communication_id)
-            #self.location_table_data.save_command_data(self.communication_id)
+            self.commandparam_table_data.save_command_params(self.communication_id)
             #self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -116,11 +118,6 @@ class CommunicationUI(QWidget):
         elif group_name == "Commands":
             commands_ui = CommandsUI(self.communication_id)
             commands_ui.generate_command_ui()
-            #commands_ui.generate_send_tks_a_satz()
-            # commands_ui.generate_tks_send()
-            # commands_ui.generate_mq_put()
-            # commands_ui.generate_execute()
-            # commands_ui.generate_change_dsn_output()
             group_layout.addWidget(commands_ui)
 
         group_box.setLayout(group_layout)

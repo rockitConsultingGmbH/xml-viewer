@@ -122,10 +122,11 @@ def insert_data_into_db(xml_tree, config_file_path):
                     rows_created += cursor.rowcount
 
                     for paramOrder, commandparam in enumerate(communicationElement.findall('param'), start=1):
-                        param = commandparam.text if commandparam.text is not None else ''
-                        if param:
-                            insert_command_param(cursor, command_id, param, paramOrder, className)
-                            rows_created += cursor.rowcount
+                        param = commandparam.text.strip() if commandparam.text and commandparam.text.strip() else ''
+                        if commandparam.text is None:
+                            param = ''
+                        insert_command_param(cursor, command_id, param, paramOrder, className)
+                        rows_created += cursor.rowcount
                 elif communicationElement.tag == 'alternateNameList' and communicationElement.text:
                     namelist = acsfiletransfer.find(f".//nameList[@name='{communicationElement.text}']")
                     if namelist:

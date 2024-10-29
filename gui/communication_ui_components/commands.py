@@ -5,8 +5,18 @@ from PyQt5.QtCore import Qt
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_command, select_from_commandparam
 
+params = {
+    "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandSendTksASatz": ["queue", "queue"],
+    "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend": ["stage", "anwIdSender", "blzIdSender", "anwIdEmpfaenger", "blzIdEmpfaenger", "dienstId",
+                                                                                      "format", "satzLaenge", "blockLaenge", "alloc", "compress", "convert", "codepage", "Zahlungsformat", "ExterneReferenz"],
+    "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandMQPUT": ["queue", "gFormat", "AnwIdSender", "BlzIdSender", "AnwIdEmpfaenger", "BlzIdEmpfaenger", "DienstId", "GFormat", "GCode", "Dateiformat", 
+                                                                                    "Satzlaenge", "Blocklaenge", "Alloc", "Komprimierung", "Konvertiere", "CodePage", "Zahlungsformat", "DsnMvsInput", "DsnMvsOutput", "ExtReferenz"],
+    "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandExecute": ["user", "password", "fingerprints", "soTimeout"],
+    "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandChangeDsnOutput": ["rcvaPattern"]
+}
+
 class CommandsUI(QWidget):
-    def __init__(self, communication_id = None):
+    def __init__(self, communication_id=None):
         super().__init__()
         self.communication_id = communication_id
         self.conn_manager = ConnectionManager()
@@ -30,7 +40,7 @@ class CommandsUI(QWidget):
         h_layout.addWidget(input_field)
         h_layout.setAlignment(Qt.AlignLeft)
         return h_layout
-    
+
     def generate_command_ui(self):
         try:
             conn = self.conn_manager.get_db_connection()
@@ -52,9 +62,10 @@ class CommandsUI(QWidget):
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
             rows = select_from_commandparam(cursor, command_id).fetchall()
-            return rows
+            return {param['paramName']: param['param'] for param in rows}
         except Exception as e:
             print(f"An error occurred: {e}")
+            return {}
         finally:
             cursor.close()
             conn.close()
@@ -63,7 +74,8 @@ class CommandsUI(QWidget):
         command_classname_input = QLineEdit(className)
         bold_font = QFont()
         bold_font.setBold(True)
-        command_classname_input.setObjectName("command_classname")
+        #command_classname_input.setFont(bold_font)
+        command_classname_input.setReadOnly(True)
 
         h_layout = self.create_horizontal_layout("Classname", command_classname_input, is_classname=True)
         return h_layout
@@ -75,28 +87,30 @@ class CommandsUI(QWidget):
         command_box = QVBoxLayout(command_widget)
         command_box.setObjectName(f"command_box_{command_id}")
         return command_widget, command_box
-    
-    def generate_command_params_dict(self, command_id):
-        command_params = self.get_command_params(command_id)
-        params_dict = {param['paramName']: param['param'] for param in command_params}
-        return params_dict
 
     def generate_command_params(self, className, command_id):
+
         command_widget, command_box = self.generate_command_widget(command_id)
+        
+        # Retrieve parameters for the given command_id
         command_params = self.get_command_params(command_id)
         
+        # Get expected parameters from the params dictionary using className
+        command_params_list = params.get(className, [])
+        
+        # Display class name as a label
         box_label = QLabel(className.split('.')[-1])
         box_label.setAlignment(Qt.AlignLeft)
         box_label.setStyleSheet("font-weight: bold; font-style: italic;")
         command_box.addWidget(box_label)
         command_box.addLayout(self.generate_command_classname(className))
 
-        param_widgets = {}
-        for param in command_params:
-            param_name = param['paramName']
-            param_input = QLineEdit(param['param'])
+        # Create fields for each parameter in command_params_list and populate with command_params values
+        for param_name in command_params_list:
+            param_value = command_params.get(param_name, '')
+            param_input = QLineEdit(param_value)
             param_input.setObjectName(f"{param_name}_{command_id}")
-            param_widgets[param_name] = param_input
             command_box.addLayout(self.create_horizontal_layout(param_name, param_input))
-        self.vertical_layout.addWidget(command_widget)
 
+        # Add the command widget with parameters to the main layout
+        self.vertical_layout.addWidget(command_widget)
