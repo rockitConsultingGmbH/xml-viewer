@@ -1,11 +1,8 @@
 import logging
 from common.connection_manager import ConnectionManager
 from database.utils import insert_into_location, update_location, select_from_location
-from controllers.utils.get_and_set_value import (get_input_value,
-                                                 get_checkbox_value,
-                                                 convert_checkbox_to_string, get_text_value, set_checkbox_field, set_text_field)
-from PyQt5.QtWidgets import QWidget, QHBoxLayout
-from PyQt5.QtCore import QRegularExpression, Qt
+from controllers.utils.get_and_set_value import (get_checkbox_value, convert_checkbox_to_string, get_text_value, set_checkbox_field, set_text_field)
+from PyQt5.QtWidgets import QWidget
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
