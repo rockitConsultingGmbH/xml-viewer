@@ -27,6 +27,7 @@ class CommunicationUI(QWidget):
         self.descritpion_table_data = DescriptionTableData(self)
         self.location_table_data = LocationTableData(self)
         self.commandparam_table_data = CommandParamTableData(self)
+        self.commands_ui = CommandsUI(self.communication_id)
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
@@ -82,7 +83,7 @@ class CommunicationUI(QWidget):
             self.descritpion_table_data.save_description_data(self.communication_id)
             self.location_table_data.save_source_location_data(self.communication_id)
             self.location_table_data.save_target_location_data(self.communication_id)
-            self.commandparam_table_data.save_command_params(self.communication_id)
+            self.commands_ui.save_commands(self.communication_id)
             #self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -116,9 +117,8 @@ class CommunicationUI(QWidget):
             group_layout.addWidget(line)
 
         elif group_name == "Commands":
-            commands_ui = CommandsUI(self.communication_id)
-            commands_ui.generate_command_ui()
-            group_layout.addWidget(commands_ui)
+            self.commands_ui.init_commands_ui()
+            group_layout.addWidget(self.commands_ui)
 
         group_box.setLayout(group_layout)
         layout.addWidget(group_box)
