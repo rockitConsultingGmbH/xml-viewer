@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QHBoxLayout, QFormLayout
+from PyQt5.QtWidgets import QLabel, QHBoxLayout, QWidget
 
 def delete_field(form_layout, label_should_be_deleted: QLabel, hbox_layout: QHBoxLayout):
     form_layout.removeWidget(label_should_be_deleted)
@@ -12,15 +12,9 @@ def delete_field(form_layout, label_should_be_deleted: QLabel, hbox_layout: QHBo
 
     hbox_layout.deleteLater()
 
-def delete_all_fields(form_layouts: list):
-    for layout in form_layouts:
-        for i in reversed(range(layout.count())):
-            item = layout.itemAt(i)
-            if item.widget():
-                widget = item.widget()
-                widget.deleteLater()
-            else:
-                layout.removeItem(item)
-
+def delete_all_fields(widget: QWidget):
+    parent_layout = widget.parentWidget().layout()
+    parent_layout.removeWidget(widget)
+    widget.deleteLater()
 
 

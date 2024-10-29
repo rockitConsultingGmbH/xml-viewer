@@ -138,5 +138,5 @@ def add_target_location_fields(layout, targetLocation, toggle_inputs):
                               rename_existing_file_checkbox, target_must_be_archived_checkbox])
 
     target_label.mousePressEvent = lambda event: toggle_inputs(target_labels, target_inputs, target_checkboxes)
-    #target_delete_button.clicked.connect(lambda: delete_all_fields([target_box, left_column_layout, right_column_layout, layout]))
+    target_delete_button.clicked.connect(lambda: delete_all_fields(target_box_widget))
 																																												 
