@@ -8,8 +8,8 @@ from controllers.location_table_data import LocationTableData
 from gui.common_components.communication_popup_warnings import show_save_error
 
 from gui.communication_ui_components.overview_group import OverviewGroup
-from gui.communication_ui_components.patterns_group import create_pattern_group
-from gui.communication_ui_components.settings_group import create_settings_group
+from gui.communication_ui_components.patterns_group import PatternGroup
+from gui.communication_ui_components.settings_group import SettingsGroup
 from gui.communication_ui_components.location_group import LocationsGroup
 from gui.communication_ui_components.commands import CommandsUI
 
@@ -112,27 +112,26 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            self.overview_group_instance = OverviewGroup(group_layout, communication_id)
+            self.overview_group_instance = OverviewGroup(group_layout, self._communication_id)
             self.name_input = self.overview_group_instance.get_name_input()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Locations":
-            self.location_group =  LocationsGroup(group_layout, communication_id, toggle_inputs)
-            self.location_group.create_group()
+            self.location_group = LocationsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.location_group.create_location_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Settings":
-            settings_labels, settings_inputs = [], []
-            other_settings_labels, other_settings_inputs = [], []
-            create_settings_group(group_layout, settings_labels, settings_inputs, other_settings_labels,
-                                  other_settings_inputs, toggle_inputs)
+            self.settings_group = SettingsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.settings_group.create_settings_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Pattern":
-            create_pattern_group(group_layout)
+            self.pattern_group = PatternGroup(group_layout, self._communication_id)
+            self.pattern_group.create_pattern_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 

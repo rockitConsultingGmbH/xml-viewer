@@ -12,7 +12,7 @@ class LocationsGroup(QWidget):
         self.source_inputs = []
         self.source_checkboxes = []
 
-    def create_group(self):
+    def create_location_group(self):
         #group_layout = QVBoxLayout(self)
         form_layout = QFormLayout()
         form_layout.setHorizontalSpacing(20)
