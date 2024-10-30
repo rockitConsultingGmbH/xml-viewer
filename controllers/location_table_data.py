@@ -1,11 +1,10 @@
 import logging
 from common.connection_manager import ConnectionManager
-from database.utils import insert_into_location, update_location, select_from_location
-from controllers.utils.get_and_set_value import (get_input_value,
+from database.utils import delete_from_location, insert_into_location, update_location, select_from_location
+from controllers.utils.get_and_set_value import (
                                                  get_checkbox_value,
                                                  convert_checkbox_to_string, get_text_value, set_checkbox_field, set_text_field)
-from PyQt5.QtWidgets import QWidget, QHBoxLayout
-from PyQt5.QtCore import QRegularExpression, Qt
+from PyQt5.QtWidgets import QWidget
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -140,9 +139,11 @@ class LocationTableData:
         gui_locations = self.get_gui_target_locations() 
         logging.debug("GUI locations fetched: %s", gui_locations)
 
+        #target_location_ids_to_delete =  get_target_location_ids_to_delete()
+        #logging.debug("target_location_ids_to_delete", target_location_ids_to_delete)
         for location_data in gui_locations:
             location_id = location_data.get("id")
-            
+
             # If location exists in the database, update it
             if location_id in existing_locations:
                 location_row = self.create_target_location_row(location_data, communication_id, location_type)
@@ -212,4 +213,20 @@ class LocationTableData:
             target_locations.append(location_data)
 
         return target_locations
+    
+    def delete_location_data(self, location_ids_to_delete):
+        try:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+
+            for location_id in location_ids_to_delete:
+                logging.debug(f"Deleting location with ID: {location_id}")
+                delete_from_location(cursor, location_id)
+
+            conn.commit()
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
 

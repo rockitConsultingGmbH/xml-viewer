@@ -91,7 +91,7 @@ class DescriptionTableData:
         finally:
             conn.close()
 
-    def delete_description_fields_from_db(self, description_ids_to_delete):
+    def delete_description_data(self, description_ids_to_delete):
         try:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
