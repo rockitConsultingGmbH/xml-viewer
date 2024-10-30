@@ -150,39 +150,41 @@ class MainWindow(QMainWindow):
         self.display_db_tables()
 
     def delete_communication(self, communication_id):
-        if hasattr(self, 'unsaved_changes') and self.unsaved_changes:
-            reply = show_unsaved_changes_warning(self)
-            if reply == QMessageBox.No:
-                return
-            elif reply == QMessageBox.Yes:
-                self.delete_new_communication()
+        reply = QMessageBox.question(
+            self,
+            "Confirm Deletion",
+            "Are you sure you want to delete this communication?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
 
-        conn = self.conn_manager.get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM Communication WHERE id = ?", (communication_id,))
-        conn.commit()
-        conn.close()
+        if reply == QMessageBox.Yes:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM Communication WHERE id = ?", (communication_id,))
+            conn.commit()
+            conn.close()
 
-        next_item = None
-        for i in range(self.communication_config_item.childCount()):
-            child_item = self.communication_config_item.child(i)
-            if child_item.data(0, Qt.UserRole) == communication_id:
-                index = self.communication_config_item.indexOfChild(child_item)
-                self.communication_config_item.removeChild(child_item)
-                if self.communication_config_item.childCount() > 0:
-                    next_item = self.communication_config_item.child(0)
-                break
+            next_item = None
+            for i in range(self.communication_config_item.childCount()):
+                child_item = self.communication_config_item.child(i)
+                if child_item.data(0, Qt.UserRole) == communication_id:
+                    index = self.communication_config_item.indexOfChild(child_item)
+                    self.communication_config_item.removeChild(child_item)
+                    if self.communication_config_item.childCount() > 0:
+                        next_item = self.communication_config_item.child(0)
+                    break
 
-        if next_item:
-            self.on_item_clicked(next_item)
-            tree_widget = self.left_widget.layout().itemAt(0).widget()
-            tree_widget.setCurrentItem(next_item)
-        else:
-            self.right_widget.setParent(None)
-            self.right_widget = QWidget()
-            self.splitter.addWidget(self.right_widget)
+            if next_item:
+                self.on_item_clicked(next_item)
+                tree_widget = self.left_widget.layout().itemAt(0).widget()
+                tree_widget.setCurrentItem(next_item)
+            else:
+                self.right_widget.setParent(None)
+                self.right_widget = QWidget()
+                self.splitter.addWidget(self.right_widget)
 
-        QMessageBox.information(self, "Deleted", "Communication deleted successfully.")
+            QMessageBox.information(self, "Deleted", "Communication deleted successfully.")
 
     def display_db_tables(self):
         if self.left_widget.layout() is not None:
