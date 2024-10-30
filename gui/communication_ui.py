@@ -1,3 +1,4 @@
+import logging
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
 
@@ -5,12 +6,11 @@ from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
 from controllers.location_table_data import LocationTableData
 from gui.common_components.communication_popup_warnings import show_save_error
-from gui.communication_ui_components.descriptions import DescriptionForm
 
 from gui.communication_ui_components.overview_group import OverviewGroup
 from gui.communication_ui_components.patterns_group import create_pattern_group
 from gui.communication_ui_components.settings_group import create_settings_group
-from gui.communication_ui_components.source_location import create_locations_group
+from gui.communication_ui_components.location_group import LocationsGroup
 from gui.communication_ui_components.commands import CommandsUI
 
 from gui.common_components.popup_message import PopupMessage
@@ -18,6 +18,9 @@ from gui.common_components.buttons import Buttons
 from gui.common_components.toggle_inputs import toggle_inputs
 
 from gui.common_components.stylesheet_loader import load_stylesheet
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 class CommunicationUI(QWidget):
     name_updated = pyqtSignal(int, str)
@@ -83,7 +86,7 @@ class CommunicationUI(QWidget):
     def save_fields_to_db(self):
         try:
             if not self.name_input.text().strip():
-                show_save_error(self)  # Replace later with popup_message.py
+                show_save_error(self)  #TODO: Replace later with popup_message.py
                 return
             self.communication_table_data.save_communication_data(self.communication_id)
             new_name = self.communication_table_data.get_communication_name(self.communication_id)
@@ -93,9 +96,13 @@ class CommunicationUI(QWidget):
             self.location_table_data.save_source_location_data(self.communication_id)
             self.location_table_data.save_target_location_data(self.communication_id)
 
-            # description_form = DescriptionForm(self.communication_id)
-            # description_ids_to_delete = description_form.get_description_ids_to_delete()
-            # self.communication_table_data.delete_description_fields_from_db(description_ids_to_delete)
+            description_ids_to_delete = self.overview_group_instance.description_form.get_description_ids_to_delete()
+            if description_ids_to_delete:
+                self.descritpion_table_data.delete_description_data(description_ids_to_delete)
+
+            target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
+            if target_location_ids_to_delete:
+                self.location_table_data.delete_location_data(target_location_ids_to_delete)
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -105,14 +112,14 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            overview_group_instance = OverviewGroup(group_layout, communication_id)
-            self.name_input = overview_group_instance.get_name_input()
+            self.overview_group_instance = OverviewGroup(group_layout, communication_id)
+            self.name_input = self.overview_group_instance.get_name_input()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
+
         elif group_name == "Locations":
-            source_labels, source_inputs, source_checkboxes = [], [], []
-            create_locations_group(group_layout, communication_id, toggle_inputs, source_labels, source_inputs,
-                                   source_checkboxes)
+            self.location_group =  LocationsGroup(group_layout, communication_id, toggle_inputs)
+            self.location_group.create_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 

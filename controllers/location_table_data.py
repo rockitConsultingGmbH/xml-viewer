@@ -1,8 +1,13 @@
 from common.connection_manager import ConnectionManager
 from database.utils import insert_into_location, update_location, select_from_location
-from controllers.utils.get_and_set_value import (get_checkbox_value, convert_checkbox_to_string, get_text_value,
-                                                 set_checkbox_field, set_text_field)
+from controllers.utils.get_and_set_value import (
+                                                 get_checkbox_value,
+                                                 convert_checkbox_to_string, get_text_value, set_checkbox_field, set_text_field)
 from PyQt5.QtWidgets import QWidget
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class LocationTableData:
     def __init__(self, parent_widget=None):
@@ -125,6 +130,8 @@ class LocationTableData:
 
         gui_locations = self.get_gui_target_locations()
 
+        #target_location_ids_to_delete =  get_target_location_ids_to_delete()
+        #logging.debug("target_location_ids_to_delete", target_location_ids_to_delete)
         for location_data in gui_locations:
             location_id = location_data.get("id")
 
@@ -184,3 +191,20 @@ class LocationTableData:
             target_locations.append(location_data)
 
         return target_locations
+    
+    def delete_location_data(self, location_ids_to_delete):
+        try:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+
+            for location_id in location_ids_to_delete:
+                logging.debug(f"Deleting location with ID: {location_id}")
+                delete_from_location(cursor, location_id)
+
+            conn.commit()
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
+

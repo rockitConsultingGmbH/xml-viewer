@@ -8,7 +8,7 @@ class OverviewGroup:
     def __init__(self, group_layout, communication_id):
         self.group_layout = group_layout
         self.communication_id = communication_id
-        self.description_form = DescriptionForm(communication_id)
+        self.description_form = DescriptionForm(self.communication_id)
         self.setup_ui()
 
     def setup_ui(self):
