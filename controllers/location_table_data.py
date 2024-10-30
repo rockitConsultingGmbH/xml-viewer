@@ -1,5 +1,5 @@
 from common.connection_manager import ConnectionManager
-from database.utils import insert_into_location, update_location, select_from_location
+from database.utils import delete_from_location, insert_into_location, update_location, select_from_location
 from controllers.utils.get_and_set_value import (
                                                  get_checkbox_value,
                                                  convert_checkbox_to_string, get_text_value, set_checkbox_field, set_text_field)
