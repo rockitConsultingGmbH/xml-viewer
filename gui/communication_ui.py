@@ -31,6 +31,7 @@ class CommunicationUI(QWidget):
         self.communication_table_data = CommunicationTableData(self)
         self.descritpion_table_data = DescriptionTableData(self)
         self.location_table_data = LocationTableData(self)
+        self.description_form = DescriptionForm(self.communication_id)
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
@@ -93,9 +94,8 @@ class CommunicationUI(QWidget):
             self.location_table_data.save_source_location_data(self.communication_id)
             self.location_table_data.save_target_location_data(self.communication_id)
 
-            # description_form = DescriptionForm(self.communication_id)
-            # description_ids_to_delete = description_form.get_description_ids_to_delete()
-            # self.communication_table_data.delete_description_fields_from_db(description_ids_to_delete)
+            description_ids_to_delete = self.overview_group_instance.description_form.get_description_ids_to_delete()
+            self.descritpion_table_data.delete_description_fields_from_db(description_ids_to_delete)
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -105,8 +105,8 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            overview_group_instance = OverviewGroup(group_layout, communication_id)
-            self.name_input = overview_group_instance.get_name_input()
+            self.overview_group_instance = OverviewGroup(group_layout, communication_id)
+            self.name_input = self.overview_group_instance.get_name_input()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
         elif group_name == "Locations":
