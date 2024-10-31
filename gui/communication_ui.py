@@ -1,14 +1,17 @@
+import logging
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
 
 from controllers.command_table_data import CommandParamTableData
 from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
 from controllers.location_table_data import LocationTableData
+from gui.common_components.communication_popup_warnings import show_save_error
 
 from gui.communication_ui_components.overview_group import OverviewGroup
-from gui.communication_ui_components.patterns_group import create_pattern_group
-from gui.communication_ui_components.settings_group import create_settings_group
-from gui.communication_ui_components.source_location import create_locations_group
+from gui.communication_ui_components.patterns_group import PatternGroup
+from gui.communication_ui_components.settings_group import SettingsGroup
+from gui.communication_ui_components.location_group import LocationsGroup
 from gui.communication_ui_components.commands import CommandsUI
 
 from gui.common_components.popup_message import PopupMessage
@@ -17,10 +20,16 @@ from gui.common_components.toggle_inputs import toggle_inputs
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+
 class CommunicationUI(QWidget):
-    def __init__(self, communication_id, parent=None):
+    name_updated = pyqtSignal(int, str)
+
+    def __init__(self, communication_id=None, parent=None):
         super().__init__(parent)
         self._communication_id = communication_id
+        self.name_input = None
 
         self.popup_message = PopupMessage(self)
         self.communication_table_data = CommunicationTableData(self)
@@ -34,7 +43,7 @@ class CommunicationUI(QWidget):
 
     @property
     def communication_id(self):
-            return self._communication_id
+        return self._communication_id
 
     def setup_ui(self):
         scroll_area = QScrollArea()
@@ -47,7 +56,6 @@ class CommunicationUI(QWidget):
         communication_label_group.setFixedWidth(200)
         communication_label_group.setObjectName("communication-label-group")
 
-        # Create a horizontal layout to place communication label group and buttons on the same level
         top_layout = QHBoxLayout()
         top_layout.addWidget(communication_label_group)
         top_layout.addLayout(button_layout)
@@ -66,27 +74,39 @@ class CommunicationUI(QWidget):
         layout.addWidget(scroll_area)
         self.setLayout(layout)
 
+
     def set_fields_from_db(self):
-        self.populate_fields_from_db()
+        if self.communication_id is not None:
+            self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
-        pass
-        #self.communication_table_data.populate_communication_table_fields(self.communication_id)
-        #self.descritpion_table_data.populate_description_fields(self.communication_id)
-        #self.location_table_data.populate_source_location_fields(self.communication_id)
-        #self.location_table_data.populate_target_location_fields(self.communication_id)
-        #self.location_table_data.populate_command_fields(self.communication_id)
-
+        if self.communication_id is not None:
+            self.communication_table_data.populate_communication_table_fields(self.communication_id)
+            self.descritpion_table_data.populate_description_fields(self.communication_id)
+            self.location_table_data.populate_source_location_fields(self.communication_id)
+            self.location_table_data.populate_target_location_fields(self.communication_id)
 
     def save_fields_to_db(self):
         try:
-            #self.communication_table_data.save_communication_data(self.communication_id)
-            #self.descritpion_table_data.save_description_data(self.communication_id)
-            #self.location_table_data.save_source_location_data(self.communication_id)
-            #self.location_table_data.save_target_location_data(self.communication_id)
-            print("Saving command data")
-            self.commands_ui.save_commands()
-            #self.popup_message.show_message("Changes have been successfully saved.")
+            if not self.name_input.text().strip():
+                show_save_error(self)  #TODO: Replace later with popup_message.py
+                return
+            self.communication_table_data.save_communication_data(self.communication_id)
+            new_name = self.communication_table_data.get_communication_name(self.communication_id)
+            self.name_updated.emit(self.communication_id, new_name)
+
+            self.descritpion_table_data.save_description_data(self.communication_id)
+            self.location_table_data.save_source_location_data(self.communication_id)
+            self.location_table_data.save_target_location_data(self.communication_id)
+
+            description_ids_to_delete = self.overview_group_instance.description_form.get_description_ids_to_delete()
+            if description_ids_to_delete:
+                self.descritpion_table_data.delete_description_data(description_ids_to_delete)
+
+            target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
+            if target_location_ids_to_delete:
+                self.location_table_data.delete_location_data(target_location_ids_to_delete)
+
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
 
@@ -95,26 +115,26 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            OverviewGroup(group_layout, communication_id)
+            self.overview_group_instance = OverviewGroup(group_layout, self._communication_id)
+            self.name_input = self.overview_group_instance.get_name_input()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
+
         elif group_name == "Locations":
-            source_labels, source_inputs, source_checkboxes = [], [], []
-            create_locations_group(group_layout, communication_id, toggle_inputs, source_labels, source_inputs,
-                                   source_checkboxes)
+            self.location_group = LocationsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.location_group.create_location_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Settings":
-            settings_labels, settings_inputs = [], []
-            other_settings_labels, other_settings_inputs = [], []
-            create_settings_group(group_layout, settings_labels, settings_inputs, other_settings_labels,
-                                  other_settings_inputs, toggle_inputs)
+            self.settings_group = SettingsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.settings_group.create_settings_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Pattern":
-            create_pattern_group(group_layout)
+            self.pattern_group = PatternGroup(group_layout, self._communication_id)
+            self.pattern_group.create_pattern_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 

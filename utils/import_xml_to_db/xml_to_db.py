@@ -58,8 +58,8 @@ def insert_location(cursor, communication_id, location, locationType):
 def insert_command(cursor, communication_id, command, commandType):
     return utils.insert_into_command(cursor, dictionaries.createCommandDict(communication_id, command, commandType))
 
-def insert_command_param(cursor, command_id, param, paramOrder, className):
-    return utils.insert_into_commandparam(cursor, dictionaries.createCommandParamDict(command_id, param, paramOrder, className))
+def insert_command_param(cursor, command_id, param):
+    return utils.insert_into_commandparam(cursor, dictionaries.createCommandParamDict(command_id, param))
 
 def insert_name_list(cursor, basicConfig_id, communication_id, listName):
     return utils.insert_into_namelist(cursor, dictionaries.createNameListDict(basicConfig_id, communication_id, listName))
