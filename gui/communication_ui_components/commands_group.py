@@ -9,7 +9,7 @@ from database.utils import select_from_command, select_from_commandparam
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 params = {
-    "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandSendTksASatz": ["queue", "queue"],
+    "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandSendTksASatz": ["queue1", "queue2"],
     "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend": ["stage", "anwIdSender", "blzIdSender", "anwIdEmpfaenger", "blzIdEmpfaenger", "dienstId",
                                                                               "format", "satzLaenge", "blockLaenge", "alloc", "compress", "convert", "codepage", "Zahlungsformat", "ExterneReferenz"],
     "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandMQPUT": ["queue", "gFormat", "AnwIdSender", "BlzIdSender", "AnwIdEmpfaenger", "BlzIdEmpfaenger", "DienstId", "GFormat", "GCode",
@@ -18,7 +18,7 @@ params = {
     "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandChangeDsnOutput": ["rcvaPattern"]
 }
 
-class CommandsUI(QWidget):
+class CommandsGroup(QWidget):
     def __init__(self, communication_id=None):
         super().__init__()
         self.communication_id = communication_id
@@ -26,9 +26,7 @@ class CommandsUI(QWidget):
         self.vertical_layout = QVBoxLayout()
         self.setLayout(self.vertical_layout)
 
-        #self.init_commands_ui()
-
-    def init_commands_ui(self):
+    def create_commands_group(self):
         logging.debug("Initializing commands UI")
         self.dropdown = QComboBox()
         self.param_widgets = {}
@@ -57,14 +55,13 @@ class CommandsUI(QWidget):
         selected_classname = self.dropdown.currentText()
         logging.debug(f"Adding new command: {selected_classname}")
         if selected_classname:
-            self.display_fields_for_classname(selected_classname)
+            self.generate_command_params(selected_classname, 'new')
 
     def display_fields_for_classname(self, className):
         logging.debug(f"Displaying fields for class: {className}")
         self.clear_command_fields()
 
-        self.command_group = QGroupBox()
-        command_layout = QVBoxLayout()
+        command_group, command_layout = self.generate_command_widget(None, className)
         
         command_label = QLabel(f"<b>New Command: {className.split('.')[-1]}</b>")
         command_label.setAlignment(Qt.AlignLeft)
@@ -78,8 +75,8 @@ class CommandsUI(QWidget):
             self.param_widgets[param_name] = param_input
             command_layout.addLayout(self.create_horizontal_layout(param_name, param_input))
 
-        self.command_group.setLayout(command_layout)
-        self.vertical_layout.insertWidget(1, self.command_group)
+        command_group.setLayout(command_layout)
+        self.vertical_layout.insertWidget(1, command_group)
 
     def create_horizontal_layout(self, label_text, input_field, is_classname=False):
         label = QLabel(label_text)
@@ -145,31 +142,98 @@ class CommandsUI(QWidget):
         command_group.setObjectName(className)
         return command_group, command_layout
 
+    def delete_command(self, command_widget):
+        """Remove the command from the UI and delete from database if it exists."""
+        command_id = getattr(command_widget, "command_id", None)
+        
+        # If command_id is None or 'new', it's a newly created command not saved in DB
+        if command_id and command_id != 'new':
+            try:
+                conn = self.conn_manager.get_db_connection()
+                cursor = conn.cursor()
+
+                # Delete from CommandParam table first
+                cursor.execute("DELETE FROM CommandParam WHERE command_id = ?", (command_id,))
+                # Then delete from Command table
+                cursor.execute("DELETE FROM Command WHERE id = ?", (command_id,))
+                
+                conn.commit()
+                logging.info(f"Deleted command ID: {command_id} from the database")
+
+            except Exception as e:
+                conn.rollback()
+                logging.error(f"Failed to delete command ID: {command_id} - {e}")
+            finally:
+                cursor.close()
+                conn.close()
+
+        # Remove the command widget from the layout and delete it
+        command_widget.setParent(None)
+        command_widget.deleteLater()
+
     def generate_command_params(self, className, command_id):
         logging.debug(f"Generating command parameters for class: {className}, command ID: {command_id}")
+
+        # Create a group for the command with layout
         command_group, command_layout = self.generate_command_widget(command_id, className)
         
-        command_params = self.get_command_params(command_id)
+        # Check if this is a new command
+        is_new_command = (command_id == 'new')
+        command_params = self.get_command_params(command_id) if not is_new_command else {}
         command_params_list = params.get(className, [])
+        
+        # Add delete button for the command
+        delete_button = QPushButton("-")
+        delete_button.setFixedSize(20, 20)
+        delete_button.clicked.connect(lambda: self.delete_command(command_group))
 
-        command_label = QLabel(f"<b>{className.split('.')[-1]}</b>")
+        command_label = QLabel(f"<b>{'New Command: ' if is_new_command else ''}{className.split('.')[-1]}</b>")
         command_label.setTextFormat(Qt.RichText)
         command_label.setAlignment(Qt.AlignLeft)
-        command_layout.addWidget(command_label)
 
-        #command_classname_input = QLineEdit(className)
-        #command_classname_input.setReadOnly(True)
-        #command_layout.addWidget(command_classname_input)
+        # Horizontal layout for the command title and delete button
+        title_layout = QHBoxLayout()
+        title_layout.addWidget(command_label)  # Add command label first
+        title_layout.addWidget(delete_button)  # Add delete button to the right of the label
+        title_layout.setAlignment(Qt.AlignLeft)  # Align entire layout to the left
+        
+        command_layout.addLayout(title_layout)
+
+        # Add classname as a read-only input field
         command_layout.addLayout(self.generate_command_classname(className))
 
+        # Create input fields for each parameter and add to layout
         for param_name in command_params_list:
-            param_value = command_params.get(param_name, '')
+            param_value = command_params.get(param_name, '') if not is_new_command else ''
             param_input = QLineEdit(param_value)
-            param_input.setObjectName(f"{param_name}_{command_id}")    ## SET HERE
+            self.param_widgets[(className, param_name)] = param_input
             command_layout.addLayout(self.create_horizontal_layout(param_name, param_input))
-        
+
         command_group.setLayout(command_layout)
-        self.vertical_layout.addWidget(command_group)
+        self.vertical_layout.insertWidget(1, command_group)
+
+    def insert_command(self, cursor, command_id, class_name, command_widget):
+        logging.debug(f"Inserting new command for class: {class_name}")
+
+        # Insert the new command and retrieve its ID
+        cursor.execute("""
+            INSERT INTO Command (communication_id, className, commandType)
+            VALUES (?, ?, ?)
+        """, (self.communication_id, class_name, 'postCommand'))
+        command_id = cursor.lastrowid
+        logging.debug(f"New command ID: {command_id}")
+
+        # Insert each parameter into CommandParam table
+        for order, param_name in enumerate(params.get(class_name, []), start=1):
+            # Fetch parameter value from the param_widgets dictionary
+            param_widget = self.param_widgets.get((class_name, param_name))
+            if param_widget:
+                param_value = param_widget.text()
+                logging.debug(f"Inserting parameter - Name: {param_name}, Value: {param_value}, Order: {order}")
+                cursor.execute("""
+                    INSERT INTO CommandParam (command_id, param, paramName, paramOrder)
+                    VALUES (?, ?, ?, ?)
+                """, (command_id, param_value, param_name, order))
 
     def save_commands(self):
         logging.info("Saving commands to database")
@@ -177,17 +241,17 @@ class CommandsUI(QWidget):
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
 
+            # Process each command widget, determining if it should be inserted or updated
             for command_widget in self.findChildren(QGroupBox):
-                print("Command widget:", command_widget)
-                if isinstance(command_widget, QGroupBox):
-                    command_id = getattr(command_widget, "command_id", None)
-                    class_name = command_widget.objectName()
-                    print("Command ID:", command_id, "Class Name:", class_name)
-                    
-                    if command_id:
-                        self.update_command(cursor, command_id, class_name, command_widget)
-                    else:
-                        self.insert_command(cursor, class_name, command_widget)
+                command_id = getattr(command_widget, "command_id", None)
+                class_name = command_widget.objectName()
+                
+                if command_id and command_id != 'new':
+                    # Update existing command
+                    self.update_command(cursor, command_id, class_name, command_widget)
+                else:
+                    # Insert new command
+                    self.insert_command(cursor, command_id, class_name, command_widget)
 
             conn.commit()
             logging.info("Commands and parameters saved successfully")
@@ -201,37 +265,13 @@ class CommandsUI(QWidget):
     def update_command(self, cursor, command_id, class_name, command_widget):
         logging.debug(f"Updating command ID: {command_id}, class: {class_name}")
         for param_name in params.get(class_name, []):
-            param_widget = command_widget.findChild(QLineEdit, f"{param_name}_{command_id}")   ## SET HERE
+            # Access the QLineEdit widget directly using the param_widgets dictionary
+            param_widget = self.param_widgets.get((class_name, param_name))
             if param_widget:
                 param_value = param_widget.text()
-                logging.debug(f"Param Name: {param_name}, Param Value: {param_value}")
+                logging.debug(f"Updating parameter - Name: {param_name}, Value: {param_value}")
                 cursor.execute("""
-                UPDATE CommandParam
-                SET param = ?
-                WHERE command_id = ? and paramName = ?
-                """, (
-                    param_value,
-                    command_id,
-                    param_name
-                ))
-
-    def insert_command(self, cursor, class_name, command_widget):
-        logging.debug(f"Inserting new command for class: {class_name}")
-        for param_name in params.get(class_name, []):
-            param_widget = command_widget.findChild(QLineEdit, f"{param_name}_{command_id}")   ## SET HERE
-            if param_widget:
-                param_value = param_widget.text()
-                logging.debug(f"Param Name: {param_name}, Param Value: {param_value}")
-                cursor.execute("""
-                    INSERT INTO Command (communication_id, className, commandType)
-                    VALUES (?, ?, ?)
-                """, (self.communication_id, class_name, 'postCommand'))
-                
-                command_id = cursor.lastrowid
-
-        for order, param_name in enumerate(params.get(class_name, []), start=1):
-            param_value = self.param_widgets[param_name].text()
-            cursor.execute("""
-                INSERT INTO CommandParam (command_id, param, paramName, paramOrder)
-                VALUES (?, ?, ?, ?)
-            """, (command_id, param_value, param_name, order))
+                    UPDATE CommandParam
+                    SET param = ?
+                    WHERE command_id = ? AND paramName = ?
+                """, (param_value, command_id, param_name))

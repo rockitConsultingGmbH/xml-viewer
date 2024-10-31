@@ -12,7 +12,7 @@ from gui.communication_ui_components.overview_group import OverviewGroup
 from gui.communication_ui_components.patterns_group import PatternGroup
 from gui.communication_ui_components.settings_group import SettingsGroup
 from gui.communication_ui_components.location_group import LocationsGroup
-from gui.communication_ui_components.commands import CommandsUI
+from gui.communication_ui_components.commands_group import CommandsGroup
 
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
@@ -36,7 +36,6 @@ class CommunicationUI(QWidget):
         self.descritpion_table_data = DescriptionTableData(self)
         self.location_table_data = LocationTableData(self)
         self.commandparam_table_data = CommandParamTableData(self)
-        self.commands_ui = CommandsUI(self.communication_id)
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
@@ -91,13 +90,15 @@ class CommunicationUI(QWidget):
             if not self.name_input.text().strip():
                 show_save_error(self)  #TODO: Replace later with popup_message.py
                 return
-            self.communication_table_data.save_communication_data(self.communication_id)
-            new_name = self.communication_table_data.get_communication_name(self.communication_id)
-            self.name_updated.emit(self.communication_id, new_name)
+            #self.communication_table_data.save_communication_data(self.communication_id)
+            #new_name = self.communication_table_data.get_communication_name(self.communication_id)
+            #self.name_updated.emit(self.communication_id, new_name)
 
-            self.descritpion_table_data.save_description_data(self.communication_id)
-            self.location_table_data.save_source_location_data(self.communication_id)
-            self.location_table_data.save_target_location_data(self.communication_id)
+            #self.descritpion_table_data.save_description_data(self.communication_id)
+            #self.location_table_data.save_source_location_data(self.communication_id)
+            #self.location_table_data.save_target_location_data(self.communication_id)
+
+            self.commands_ui.save_commands()
 
             description_ids_to_delete = self.overview_group_instance.description_form.get_description_ids_to_delete()
             if description_ids_to_delete:
@@ -139,7 +140,8 @@ class CommunicationUI(QWidget):
             group_layout.addWidget(line)
 
         elif group_name == "Commands":
-            self.commands_ui.init_commands_ui()
+            self.commands_ui = CommandsGroup(self.communication_id)
+            self.commands_ui.create_commands_group()
             group_layout.addWidget(self.commands_ui)
 
         group_box.setLayout(group_layout)
