@@ -25,6 +25,9 @@ class LocationsGroup(QWidget):
         source_location_label.setObjectName("label_parent")
         self.group_layout.addWidget(source_location_label)
 
+        bottom_spacer = QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.group_layout.addItem(bottom_spacer)
+
         source_label = ClickableLabel("Source")
         source_label.setFixedWidth(70)
         source_input = QLineEdit()

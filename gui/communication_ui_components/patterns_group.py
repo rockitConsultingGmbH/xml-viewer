@@ -13,21 +13,21 @@ class PatternGroup:
         hbox_left_column = QHBoxLayout()
         hbox_left_column.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
         hbox_left_column.addLayout(self.form_layout_left)
-        hbox_left_column.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))  # Spacer
 
         self.add_pattern(self.form_layout_left, "findPattern", "find_pattern_input", 100)
         self.add_pattern(self.form_layout_left, "quitPattern", "quit_pattern_input", 100)
         self.add_pattern(self.form_layout_left, "ackPattern", "ack_pattern_input", 100)
         self.add_pattern(self.form_layout_left, "zipPattern", "zip_pattern_input", 100)
+
+        hbox_columns = QHBoxLayout()
+        hbox_columns.addLayout(hbox_left_column)
+        hbox_columns.addStretch(1)
+        hbox_columns.addLayout(self.form_layout_right)
+
         self.add_pattern(self.form_layout_right, "movPattern", "mov_pattern_input", 120)
         self.add_pattern(self.form_layout_right, "putPattern", "put_pattern_input", 120)
         self.add_pattern(self.form_layout_right, "rcvPattern", "rcv_pattern_input", 120)
         self.add_pattern(self.form_layout_right, "tmpPattern", "tmp_pattern_input", 120)
-
-        hbox_columns = QHBoxLayout()
-        hbox_columns.addLayout(hbox_left_column)
-        hbox_columns.addStretch()
-        hbox_columns.addLayout(self.form_layout_right)
 
         self.group_layout.addLayout(hbox_columns)
 
