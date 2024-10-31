@@ -41,7 +41,7 @@ class CommandsGroup(QWidget):
         self.dropdown.setFixedSize(550, 30)
 
         plus_button = QPushButton("+")
-        plus_button.setFixedSize(20, 20)
+        plus_button.setFixedSize(30, 30)
         plus_button.clicked.connect(self.add_new_command)
 
         button_layout = QHBoxLayout()
@@ -176,58 +176,78 @@ class CommandsGroup(QWidget):
         command_params = self.get_command_params(command_id) if not is_new_command else {}
         command_params_list = params.get(className, [])
         
-        # Add delete button for the command
-        delete_button = QPushButton("-")
-        delete_button.setFixedSize(60, 30)
-        delete_button.clicked.connect(lambda: self.delete_command(command_group))
-
+        # Command label at the top
         command_label = QLabel(f"<b>{'New Command: ' if is_new_command else ''}{className.split('.')[-1]}</b>")
         command_label.setTextFormat(Qt.RichText)
         command_label.setAlignment(Qt.AlignLeft)
 
         # Horizontal layout for the command title and delete button
+        delete_button = QPushButton("-")
+        delete_button.setFixedSize(30, 30)
+        delete_button.clicked.connect(lambda: self.delete_command(command_group))
+        
         title_layout = QHBoxLayout()
         title_layout.addWidget(command_label)
         title_layout.addWidget(delete_button)
         title_layout.setAlignment(Qt.AlignLeft)
-        
         command_layout.addLayout(title_layout)
 
+        # Add classname as a read-only input field below the label
         command_layout.addLayout(self.generate_command_classname(className))
 
+        # Add a dropdown to select `commandType` (for both new and existing commands)
+        self.command_type_dropdown = QComboBox()
+        self.command_type_dropdown.addItems(["postCommand", "preCommand"])
+        self.command_type_dropdown.setFixedSize(350, 30)
+
+        # Set current value for existing commands
         if not is_new_command:
             try:
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT userid, password, validForTargetLocations 
-                    FROM Command 
-                    WHERE id = ?
-                """, (command_id,))
-                additional_fields = cursor.fetchone()
-
-                if additional_fields:
-                    # Display `userid`, `password`, and `validForTargetLocations` as editable fields
-                    # Only make them editable for `AcsFiletransferPostCommandTksSend`
-                    editable = className == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend"
-
-                    self.userid_field = QLineEdit(additional_fields['userid'] or "")
-                    self.userid_field.setReadOnly(not editable)
-                    command_layout.addLayout(self.create_horizontal_layout("userid", self.userid_field))
-
-                    self.password_field = QLineEdit(additional_fields['password'] or "")
-                    self.password_field.setReadOnly(not editable)
-                    command_layout.addLayout(self.create_horizontal_layout("password", self.password_field))
-
-                    self.valid_for_target_field = QLineEdit(additional_fields['validForTargetLocations'] or "")
-                    self.valid_for_target_field.setReadOnly(not editable)
-                    command_layout.addLayout(self.create_horizontal_layout("validForTargetLocations", self.valid_for_target_field))
-
+                cursor.execute("SELECT commandType FROM Command WHERE id = ?", (command_id,))
+                result = cursor.fetchone()
+                if result and result['commandType'] in ["postCommand", "preCommand"]:
+                    self.command_type_dropdown.setCurrentText(result['commandType'])
             except Exception as e:
-                logging.error(f"Failed to fetch additional fields: {e}")
+                logging.error(f"Failed to fetch command type: {e}")
             finally:
                 cursor.close()
                 conn.close()
+
+        command_layout.addLayout(self.create_horizontal_layout("Command Type", self.command_type_dropdown))
+
+        # Display `userID`, `password`, and `validForTargetLocations` fields only if the class is `AcsFiletransferPostCommandTksSend`
+        if className == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend":
+            self.userid_field = QLineEdit("")
+            self.password_field = QLineEdit("")
+            self.valid_for_target_field = QLineEdit("")
+
+            if not is_new_command:
+                try:
+                    conn = self.conn_manager.get_db_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        SELECT userid, password, validForTargetLocations 
+                        FROM Command 
+                        WHERE id = ?
+                    """, (command_id,))
+                    additional_fields = cursor.fetchone()
+                    
+                    if additional_fields:
+                        self.userid_field.setText(additional_fields['userid'] or "")
+                        self.password_field.setText(additional_fields['password'] or "")
+                        self.valid_for_target_field.setText(additional_fields['validForTargetLocations'] or "")
+                except Exception as e:
+                    logging.error(f"Failed to fetch additional fields: {e}")
+                finally:
+                    cursor.close()
+                    conn.close()
+
+            # Add `userID`, `password`, and `validForTargetLocations` as editable fields
+            command_layout.addLayout(self.create_horizontal_layout("UserID", self.userid_field))
+            command_layout.addLayout(self.create_horizontal_layout("Password", self.password_field))
+            command_layout.addLayout(self.create_horizontal_layout("Valid For Target Locations", self.valid_for_target_field))
 
         # Create input fields for each parameter and add to layout
         for param_name in command_params_list:
@@ -239,14 +259,55 @@ class CommandsGroup(QWidget):
         command_group.setLayout(command_layout)
         self.vertical_layout.insertWidget(1, command_group)
 
-    def insert_command(self, cursor, command_id, class_name, command_widget):
+    def save_commands(self):
+        logging.info("Saving commands to database")
+        try:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+
+            # Process each command widget, determining if it should be inserted or updated
+            for command_widget in self.findChildren(QGroupBox):
+                command_id = getattr(command_widget, "command_id", None)
+                class_name = command_widget.objectName()
+                command_type = self.command_type_dropdown.currentText()
+                if command_id and command_id != 'new':
+                    # Update existing command
+                    self.update_command(cursor, command_id, class_name, command_type)
+                else:
+                    # Insert new command
+                    self.insert_command(cursor, command_id, class_name, command_type)
+
+                # Save additional fields if this is `AcsFiletransferPostCommandTksSend`
+                if class_name == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend" and command_id:
+                    cursor.execute("""
+                        UPDATE Command 
+                        SET userid = ?, password = ?, validForTargetLocations = ?, commandType = ?
+                        WHERE id = ?
+                    """, (
+                        self.userid_field.text(),
+                        self.password_field.text(),
+                        self.valid_for_target_field.text(),
+                        self.command_type_dropdown.currentText(),
+                        command_id
+                    ))
+
+            conn.commit()
+            logging.info("Commands and parameters saved successfully")
+        except Exception as e:
+            conn.rollback()
+            logging.error(f"Failed to save commands: {e}")
+        finally:
+            cursor.close()
+            conn.close()
+
+    def insert_command(self, cursor, command_id, class_name, command_type):
         logging.debug(f"Inserting new command for class: {class_name}")
 
         # Insert the new command and retrieve its ID
         cursor.execute("""
             INSERT INTO Command (communication_id, className, commandType)
             VALUES (?, ?, ?)
-        """, (self.communication_id, class_name, 'postCommand'))
+        """, (self.communication_id, class_name, command_type))
         command_id = cursor.lastrowid
         logging.debug(f"New command ID: {command_id}")
 
@@ -262,48 +323,18 @@ class CommandsGroup(QWidget):
                     VALUES (?, ?, ?, ?)
                 """, (command_id, param_value, param_name, order))
 
-    def save_commands(self):
-        logging.info("Saving commands to database")
-        try:
-            conn = self.conn_manager.get_db_connection()
-            cursor = conn.cursor()
-
-            # Process each command widget, determining if it should be inserted or updated
-            for command_widget in self.findChildren(QGroupBox):
-                command_id = getattr(command_widget, "command_id", None)
-                class_name = command_widget.objectName()
-                
-                if command_id and command_id != 'new':
-                    # Update existing command
-                    self.update_command(cursor, command_id, class_name, command_widget)
-                else:
-                    # Insert new command
-                    self.insert_command(cursor, command_id, class_name, command_widget)
-
-                # Save additional fields if available
-                if class_name == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend" and command_id and command_id != 'new':
-                    cursor.execute("""
-                        UPDATE Command 
-                        SET userid = ?, password = ?, validForTargetLocations = ?
-                        WHERE id = ?
-                    """, (
-                        self.userid_field.text(),
-                        self.password_field.text(),
-                        self.valid_for_target_field.text(),
-                        command_id
-                    ))
-
-            conn.commit()
-            logging.info("Commands and parameters saved successfully")
-        except Exception as e:
-            conn.rollback()
-            logging.error(f"Failed to save commands: {e}")
-        finally:
-            cursor.close()
-            conn.close()
-
-    def update_command(self, cursor, command_id, class_name, command_widget):
+    def update_command(self,  cursor, command_id, class_name, command_type):
         logging.debug(f"Updating command ID: {command_id}, class: {class_name}")
+
+        cursor.execute("""
+            UPDATE Command 
+            SET commandType = ?
+            WHERE id = ?
+            """, (
+            command_type,
+            command_id
+            ))
+
         for param_name in params.get(class_name, []):
             # Access the QLineEdit widget directly using the param_widgets dictionary
             param_widget = self.param_widgets.get((class_name, param_name))
