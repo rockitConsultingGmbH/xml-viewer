@@ -23,10 +23,6 @@ class SettingsGroup:
         polling_label.setObjectName("label_parent")
         hbox.addWidget(polling_label)
 
-        polling_active_checkbox = QCheckBox("Polling active")
-        polling_active_checkbox.setObjectName("polling_active_checkbox")
-        polling_active_checkbox.setFixedWidth(200)
-
         poll_until_found_checkbox = QCheckBox("Poll until found")
         poll_until_found_checkbox.setObjectName("poll_until_found_checkbox")
         poll_until_found_checkbox.setFixedWidth(200)
@@ -34,7 +30,6 @@ class SettingsGroup:
         no_transfer_checkbox = QCheckBox("No transfer")
         no_transfer_checkbox.setObjectName("no_transfer_checkbox")
 
-        hbox.addWidget(polling_active_checkbox)
         hbox.addWidget(poll_until_found_checkbox)
         hbox.addWidget(no_transfer_checkbox)
 
