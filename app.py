@@ -2,7 +2,7 @@ import sqlite3
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
-    QTreeWidgetItem, QMessageBox, QFileDialog, QMenu
+    QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit
 
 from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
 from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
@@ -60,8 +60,9 @@ class MainWindow(QMainWindow):
 
     def create_menu(self):
         menubar = self.menuBar()
-        file_menu = menubar.addMenu('File')
 
+        # File menu
+        file_menu = menubar.addMenu('File')
         open_xml_action = QAction('Open', self)
         open_xml_action.setShortcut('Ctrl+O')
         open_xml_action.setStatusTip('Ctrl+O')
@@ -89,23 +90,52 @@ class MainWindow(QMainWindow):
         file_menu.addAction(exit_action)
         exit_action.triggered.connect(self.exit_application)
 
-        selection_menu = menubar.addMenu('Selection')
-
-        create_communication_action = QAction('New Communication', self)
-        selection_menu.addAction(create_communication_action)
+        communication_menu = menubar.addMenu('Communication')
+        create_communication_action = QAction('Create new', self)
+        communication_menu.addAction(create_communication_action)
         create_communication_action.triggered.connect(lambda: create_new_communication(self))
 
-        delete_communication_action = QAction('Delete Communication', self)
-        selection_menu.addAction(delete_communication_action)
+        delete_communication_action = QAction('Delete', self)
+        communication_menu.addAction(delete_communication_action)
         delete_communication_action.triggered.connect(self.delete_selected_communication)
 
-        selection_menu.addSeparator()
-
+        selection_menu = menubar.addMenu('Selection')
         copy_action = QAction('Copy', self)
+        copy_action.setShortcut('Ctrl+C')
+        copy_action.setStatusTip('Ctrl+C')
         selection_menu.addAction(copy_action)
+        copy_action.triggered.connect(self.copy_text)
 
         delete_action = QAction('Delete', self)
+        delete_action.setShortcut('Ctrl+D')
+        delete_action.setStatusTip('Ctrl+D')
         selection_menu.addAction(delete_action)
+        delete_action.triggered.connect(self.delete_text)
+
+        select_all_action = QAction('Select all', self)
+        select_all_action.setShortcut('Ctrl+A')
+        select_all_action.setStatusTip('Ctrl+A')
+        selection_menu.addAction(select_all_action)
+        select_all_action.triggered.connect(self.select_all_text)
+
+    def copy_text(self):
+        widget = self.focusWidget()
+        if isinstance(widget, QLineEdit):
+            widget.copy()
+
+    def delete_text(self):
+        widget = self.focusWidget()
+        if isinstance(widget, QLineEdit):
+            cursor = widget.cursorPosition()
+            if widget.hasSelectedText():
+                widget.del_()
+            else:
+                widget.backspace()
+
+    def select_all_text(self):
+        widget = self.focusWidget()
+        if isinstance(widget, QLineEdit):
+            widget.selectAll()
 
     def delete_selected_communication(self):
         tree_widget = self.left_widget.layout().itemAt(0).widget()
@@ -268,6 +298,10 @@ class MainWindow(QMainWindow):
             communication_id = item.data(0, Qt.UserRole)
 
             menu = QMenu()
+            create_new_action = QAction("Create New", self)
+            create_new_action.triggered.connect(lambda: create_new_communication(self))
+            menu.addAction(create_new_action)
+
             delete_action = QAction("Delete", self)
             delete_action.triggered.connect(lambda: self.delete_communication(communication_id))
             menu.addAction(delete_action)

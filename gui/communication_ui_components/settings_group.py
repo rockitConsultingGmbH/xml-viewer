@@ -23,10 +23,6 @@ class SettingsGroup:
         polling_label.setObjectName("label_parent")
         hbox.addWidget(polling_label)
 
-        polling_active_checkbox = QCheckBox("Polling active")
-        polling_active_checkbox.setObjectName("polling_active_checkbox")
-        polling_active_checkbox.setFixedWidth(200)
-
         poll_until_found_checkbox = QCheckBox("Poll until found")
         poll_until_found_checkbox.setObjectName("poll_until_found_checkbox")
         poll_until_found_checkbox.setFixedWidth(200)
@@ -34,7 +30,6 @@ class SettingsGroup:
         no_transfer_checkbox = QCheckBox("No transfer")
         no_transfer_checkbox.setObjectName("no_transfer_checkbox")
 
-        hbox.addWidget(polling_active_checkbox)
         hbox.addWidget(poll_until_found_checkbox)
         hbox.addWidget(no_transfer_checkbox)
 
@@ -43,6 +38,17 @@ class SettingsGroup:
         self.group_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         form_layout_left = QVBoxLayout()
+
+        hbox_gueltig_ab = QHBoxLayout()
+        hbox_gueltig_ab.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        gueltig_ab_label = QLabel("Gültig ab")
+        gueltig_ab_label.setFixedWidth(100)
+        gueltig_ab_input = QLineEdit()
+        gueltig_ab_input.setObjectName("gueltig_ab_input")
+        gueltig_ab_input.setFixedSize(450, 30)
+        hbox_gueltig_ab.addWidget(gueltig_ab_label)
+        hbox_gueltig_ab.addWidget(gueltig_ab_input)
+        form_layout_left.addLayout(hbox_gueltig_ab)
 
         hbox_input1 = QHBoxLayout()
         hbox_input1.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
@@ -55,8 +61,8 @@ class SettingsGroup:
         hbox_input1.addWidget(input1)
         form_layout_left.addLayout(hbox_input1)
 
-        self.settings_labels.append(input1_label)
-        self.settings_inputs.append(input1)
+        self.settings_labels.extend([gueltig_ab_label, input1_label])
+        self.settings_inputs.extend([gueltig_ab_input, input1])
 
         hbox_input2 = QHBoxLayout()
         hbox_input2.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
@@ -74,6 +80,16 @@ class SettingsGroup:
 
         form_layout_right = QVBoxLayout()
 
+        hbox_gueltig_bis = QHBoxLayout()
+        gueltig_bis_label = QLabel("Gültig bis")
+        gueltig_bis_label.setFixedWidth(120)
+        gueltig_bis_input = QLineEdit()
+        gueltig_bis_input.setObjectName("gueltig_bis_input")
+        gueltig_bis_input.setFixedSize(450, 30)
+        hbox_gueltig_bis.addWidget(gueltig_bis_label)
+        hbox_gueltig_bis.addWidget(gueltig_bis_input)
+        form_layout_right.addLayout(hbox_gueltig_bis)
+
         hbox_input3 = QHBoxLayout()
         input3_label = QLabel("Beförderung bis")
         input3_label.setFixedWidth(120)
@@ -84,8 +100,8 @@ class SettingsGroup:
         hbox_input3.addWidget(input3)
         form_layout_right.addLayout(hbox_input3)
 
-        self.settings_labels.append(input3_label)
-        self.settings_inputs.append(input3)
+        self.settings_labels.extend([gueltig_bis_label, input3_label])
+        self.settings_inputs.extend([gueltig_bis_input, input3])
 
         hbox_input4 = QHBoxLayout()
         input4_label = QLabel("Escalation timeout")
@@ -131,7 +147,7 @@ class SettingsGroup:
         self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         hbox_additional_settings = QHBoxLayout()
-        additional_label = ClickableLabel("Other Settings")
+        additional_label = QLabel("Other Settings")
         additional_label.setObjectName("label_parent")
         additional_label.setFixedWidth(120)
         hbox_additional_settings.addWidget(additional_label)
@@ -143,42 +159,3 @@ class SettingsGroup:
         self.group_layout.addLayout(hbox_additional_settings)
 
         self.group_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
-
-        hbox_new_inputs = QHBoxLayout()
-
-        vbox_left = QVBoxLayout()
-        hbox_new_input1 = QHBoxLayout()
-        new_input_label1 = QLabel("Gültig ab")
-        hbox_new_input1.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
-        new_input_label1.setFixedWidth(100)
-        new_input1 = QLineEdit()
-        new_input1.setObjectName("gueltig_ab_input")
-        new_input1.setFixedSize(450, 30)
-        hbox_new_input1.addWidget(new_input_label1)
-        hbox_new_input1.addWidget(new_input1)
-        vbox_left.addLayout(hbox_new_input1)
-
-        self.other_settings_labels.append(new_input_label1)
-        self.other_settings_inputs.append(new_input1)
-
-        vbox_right = QVBoxLayout()
-        hbox_new_input2 = QHBoxLayout()
-        new_input_label2 = QLabel("Gültig bis")
-        new_input_label2.setFixedWidth(120)
-        new_input2 = QLineEdit()
-        new_input2.setObjectName("gueltig_bis_input")
-        new_input2.setFixedSize(450, 30)
-        hbox_new_input2.addWidget(new_input_label2)
-        hbox_new_input2.addWidget(new_input2)
-        vbox_right.addLayout(hbox_new_input2)
-
-        self.other_settings_labels.append(new_input_label2)
-        self.other_settings_inputs.append(new_input2)
-
-        hbox_new_inputs.addLayout(vbox_left)
-        hbox_new_inputs.addStretch()
-        hbox_new_inputs.addLayout(vbox_right)
-
-        self.group_layout.addLayout(hbox_new_inputs)
-
-        additional_label.mousePressEvent = lambda event: self.toggle_inputs(self.other_settings_labels, self.other_settings_inputs)

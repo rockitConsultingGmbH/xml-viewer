@@ -1,6 +1,6 @@
 import logging
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QSpacerItem, QSizePolicy
 
 from controllers.command_table_data import CommandParamTableData
 from controllers.communication_table_data import CommunicationTableData
@@ -25,11 +25,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 class CommunicationUI(QWidget):
     name_updated = pyqtSignal(int, str)
-
-    def __init__(self, communication_id=None, parent=None):
+    def __init__(self, communication_id, parent=None):
         super().__init__(parent)
         self._communication_id = communication_id
-        self.name_input = None
 
         self.popup_message = PopupMessage(self)
         self.communication_table_data = CommunicationTableData(self)
@@ -50,26 +48,28 @@ class CommunicationUI(QWidget):
         scroll_content = QWidget()
         scroll_layout = QVBoxLayout(scroll_content)
 
-        button_layout = Buttons().create_button_layout(self)
-        communication_label_group = QGroupBox("Communication")
-        communication_label_group.setFixedWidth(200)
-        communication_label_group.setObjectName("communication-label-group")
+        communications_box = QGroupBox("Communications")
+        communications_box.setObjectName("group-border")
+        communications_box_layout = QVBoxLayout()
 
-        top_layout = QHBoxLayout()
-        top_layout.addWidget(communication_label_group)
-        top_layout.addLayout(button_layout)
+        # Add spacer item
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        communications_box_layout.addItem(spacer)
 
-        scroll_layout.addLayout(top_layout)
+        self.create_group("Overview", communications_box_layout, self.communication_id)
+        self.create_group("Locations", communications_box_layout, self.communication_id)
+        self.create_group("Settings", communications_box_layout)
+        self.create_group("Pattern", communications_box_layout)
+        self.create_group("PostCommand(s)", communications_box_layout)
 
-        self.create_group("Overview", scroll_layout, self.communication_id)
-        self.create_group("Locations", scroll_layout, self.communication_id)
-        self.create_group("Settings", scroll_layout)
-        self.create_group("Pattern", scroll_layout)
-        self.create_group("Commands", scroll_layout)
+        communications_box.setLayout(communications_box_layout)
+        scroll_layout.addWidget(communications_box)
 
         scroll_area.setWidget(scroll_content)
 
         layout = QVBoxLayout(self)
+        button_layout = Buttons().create_button_layout(self)
+        layout.addLayout(button_layout)
         layout.addWidget(scroll_area)
         self.setLayout(layout)
 
@@ -90,14 +90,13 @@ class CommunicationUI(QWidget):
             if not self.name_input.text().strip():
                 show_save_error(self)  #TODO: Replace later with popup_message.py
                 return
-            #self.communication_table_data.save_communication_data(self.communication_id)
-            #new_name = self.communication_table_data.get_communication_name(self.communication_id)
-            #self.name_updated.emit(self.communication_id, new_name)
+            self.communication_table_data.save_communication_data(self.communication_id)
+            new_name = self.communication_table_data.get_communication_name(self.communication_id)
+            self.name_updated.emit(self.communication_id, new_name)
 
-            #self.descritpion_table_data.save_description_data(self.communication_id)
-            #self.location_table_data.save_source_location_data(self.communication_id)
-            #self.location_table_data.save_target_location_data(self.communication_id)
-
+            self.descritpion_table_data.save_description_data(self.communication_id)
+            self.location_table_data.save_source_location_data(self.communication_id)
+            self.location_table_data.save_target_location_data(self.communication_id)
             self.commands_ui.save_commands()
 
             description_ids_to_delete = self.overview_group_instance.description_form.get_description_ids_to_delete()

@@ -38,7 +38,7 @@ class TargetLocationForm:
 
         # Target label and input
         target_label = ClickableLabel("Target")
-        target_label.setFixedWidth(90)
+        target_label.setFixedWidth(80)
         target_input = QLineEdit()
         target_input.setFixedHeight(30)
         target_input.setObjectName(f"target_{targetLocation['id']}_input")
@@ -67,12 +67,13 @@ class TargetLocationForm:
         left_column_layout.setVerticalSpacing(15)
 
         userid_label = QLabel("User ID")
+        userid_label.setFixedWidth(95)
         userid_input = QLineEdit()
         userid_input.setObjectName(f"userid_target_{targetLocation['id']}_input")
         userid_input.setFixedHeight(30)
 
         location_id_label = QLabel("Location ID")
-        location_id_label.setFixedWidth(100)
+        location_id_label.setFixedWidth(95)
         location_id_input = QLineEdit()
         location_id_input.setObjectName(f"location_id_target_{targetLocation['id']}_input")
         location_id_input.setFixedHeight(30)
@@ -97,13 +98,13 @@ class TargetLocationForm:
         right_column_layout.setVerticalSpacing(15)
 
         password_label = QLabel("Password")
-        password_label.setFixedWidth(80)
+        password_label.setFixedWidth(75)
         password_input = QLineEdit()
         password_input.setObjectName(f"password_target_{targetLocation['id']}_input")
         password_input.setFixedHeight(30)
 
         target_description_label = QLabel("Description")
-        target_description_label.setFixedWidth(100)
+        target_description_label.setFixedWidth(95)
         target_description_input = QLineEdit()
         target_description_input.setObjectName(f"target_description_{targetLocation['id']}_input")
         target_description_input.setFixedHeight(30)
