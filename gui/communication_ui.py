@@ -60,7 +60,7 @@ class CommunicationUI(QWidget):
         self.create_group("Locations", communications_box_layout, self.communication_id)
         self.create_group("Settings", communications_box_layout)
         self.create_group("Pattern", communications_box_layout)
-        self.create_group("PostCommand(s)", communications_box_layout)
+        self.create_group("Commands", communications_box_layout)
 
         communications_box.setLayout(communications_box_layout)
         scroll_layout.addWidget(communications_box)
