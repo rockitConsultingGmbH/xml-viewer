@@ -17,8 +17,7 @@ class OverviewGroup:
 
         hbox1 = QHBoxLayout()
         self.polling_activate_checkbox = QCheckBox("Polling aktiviert")
-        self.polling_activate_checkbox.setAttribute(Qt.WA_TransparentForMouseEvents)
-        self.polling_activate_checkbox.setObjectName("polling_activate_checkbox")
+        self.polling_activate_checkbox.setObjectName("polling_activiert_checkbox")
 
         description_label = QLabel("Description(s)")
         description_label.setFixedWidth(100)

@@ -62,8 +62,7 @@ class CommunicationTableData:
          mov_pattern, put_pattern, rcv_pattern, tmp_pattern, alternate_name_list) = result
 
         set_text_field(self.parent_widget, "name_input", name)
-        set_checkbox_field(self.parent_widget,"polling_activate_checkbox", is_to_poll)
-        set_checkbox_field(self.parent_widget, "polling_active_checkbox", is_to_poll)
+        set_checkbox_field(self.parent_widget,"polling_activiert_checkbox", is_to_poll)
         set_checkbox_field(self.parent_widget,"poll_until_found_checkbox", poll_until_found)
         set_checkbox_field(self.parent_widget,"no_transfer_checkbox", no_transfer)
         set_text_field(self.parent_widget, "befoerderung_ab_input", befoerderung_ab)
@@ -109,7 +108,7 @@ class CommunicationTableData:
             'name': get_text_value(self.parent_widget,"name_input"),
             'alternateNameList': get_text_value(self.parent_widget,"alt_name_input"),
             'watcherEscalationTimeout': get_text_value(self.parent_widget,"escalation_timeout_input"),
-            'isToPoll': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"polling_active_checkbox")),
+            'isToPoll': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"polling_activiert_checkbox")),
             'pollUntilFound': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"poll_until_found_checkbox")),
             'noTransfer': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"no_transfer_checkbox")),
             'targetMustBeArchived': '',
@@ -137,21 +136,5 @@ class CommunicationTableData:
             'communication_id': communication_id,
             'basicConfig_id': config_manager.config_id
         }
-
-
-    # def delete_description_fields_from_db(self, description_ids):
-    #     if not description_ids:
-    #         logging.warning("No description IDs to delete.")
-    #         return
-    #
-    #     logging.debug(f"Deleting description IDs: {description_ids}")
-    #     conn_manager = ConnectionManager().get_instance()
-    #     conn = conn_manager.get_db_connection()
-    #     cursor = conn.cursor()
-    #     for description_id in description_ids:
-    #         delete_from_description(cursor, description_id)
-    #     conn.commit()
-    #     conn.close()
-    #     logging.info(f"Deleted description IDs: {description_ids}")
 
 
