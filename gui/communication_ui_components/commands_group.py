@@ -143,18 +143,13 @@ class CommandsGroup(QWidget):
         return command_group, command_layout
 
     def delete_command(self, command_widget):
-        """Remove the command from the UI and delete from database if it exists."""
         command_id = getattr(command_widget, "command_id", None)
         
-        # If command_id is None or 'new', it's a newly created command not saved in DB
         if command_id and command_id != 'new':
             try:
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
-
-                # Delete from CommandParam table first
                 cursor.execute("DELETE FROM CommandParam WHERE command_id = ?", (command_id,))
-                # Then delete from Command table
                 cursor.execute("DELETE FROM Command WHERE id = ?", (command_id,))
                 
                 conn.commit()
@@ -167,7 +162,6 @@ class CommandsGroup(QWidget):
                 cursor.close()
                 conn.close()
 
-        # Remove the command widget from the layout and delete it
         command_widget.setParent(None)
         command_widget.deleteLater()
 
@@ -184,7 +178,7 @@ class CommandsGroup(QWidget):
         
         # Add delete button for the command
         delete_button = QPushButton("-")
-        delete_button.setFixedSize(20, 20)
+        delete_button.setFixedSize(60, 30)
         delete_button.clicked.connect(lambda: self.delete_command(command_group))
 
         command_label = QLabel(f"<b>{'New Command: ' if is_new_command else ''}{className.split('.')[-1]}</b>")
@@ -193,14 +187,47 @@ class CommandsGroup(QWidget):
 
         # Horizontal layout for the command title and delete button
         title_layout = QHBoxLayout()
-        title_layout.addWidget(command_label)  # Add command label first
-        title_layout.addWidget(delete_button)  # Add delete button to the right of the label
-        title_layout.setAlignment(Qt.AlignLeft)  # Align entire layout to the left
+        title_layout.addWidget(command_label)
+        title_layout.addWidget(delete_button)
+        title_layout.setAlignment(Qt.AlignLeft)
         
         command_layout.addLayout(title_layout)
 
-        # Add classname as a read-only input field
         command_layout.addLayout(self.generate_command_classname(className))
+
+        if not is_new_command:
+            try:
+                conn = self.conn_manager.get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT userid, password, validForTargetLocations 
+                    FROM Command 
+                    WHERE id = ?
+                """, (command_id,))
+                additional_fields = cursor.fetchone()
+
+                if additional_fields:
+                    # Display `userid`, `password`, and `validForTargetLocations` as editable fields
+                    # Only make them editable for `AcsFiletransferPostCommandTksSend`
+                    editable = className == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend"
+
+                    self.userid_field = QLineEdit(additional_fields['userid'] or "")
+                    self.userid_field.setReadOnly(not editable)
+                    command_layout.addLayout(self.create_horizontal_layout("userid", self.userid_field))
+
+                    self.password_field = QLineEdit(additional_fields['password'] or "")
+                    self.password_field.setReadOnly(not editable)
+                    command_layout.addLayout(self.create_horizontal_layout("password", self.password_field))
+
+                    self.valid_for_target_field = QLineEdit(additional_fields['validForTargetLocations'] or "")
+                    self.valid_for_target_field.setReadOnly(not editable)
+                    command_layout.addLayout(self.create_horizontal_layout("validForTargetLocations", self.valid_for_target_field))
+
+            except Exception as e:
+                logging.error(f"Failed to fetch additional fields: {e}")
+            finally:
+                cursor.close()
+                conn.close()
 
         # Create input fields for each parameter and add to layout
         for param_name in command_params_list:
@@ -252,6 +279,19 @@ class CommandsGroup(QWidget):
                 else:
                     # Insert new command
                     self.insert_command(cursor, command_id, class_name, command_widget)
+
+                # Save additional fields if available
+                if class_name == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend" and command_id and command_id != 'new':
+                    cursor.execute("""
+                        UPDATE Command 
+                        SET userid = ?, password = ?, validForTargetLocations = ?
+                        WHERE id = ?
+                    """, (
+                        self.userid_field.text(),
+                        self.password_field.text(),
+                        self.valid_for_target_field.text(),
+                        command_id
+                    ))
 
             conn.commit()
             logging.info("Commands and parameters saved successfully")
