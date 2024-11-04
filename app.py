@@ -60,7 +60,6 @@ class MainWindow(QMainWindow):
     def create_menu(self):
         menubar = self.menuBar()
 
-        # File menu
         file_menu = menubar.addMenu('File')
         open_xml_action = QAction('Open', self)
         open_xml_action.setShortcut('Ctrl+O')
@@ -89,7 +88,30 @@ class MainWindow(QMainWindow):
         file_menu.addAction(exit_action)
         exit_action.triggered.connect(self.exit_application)
 
-        communication_menu = menubar.addMenu('Communication')
+        edit_menu = menubar.addMenu('Edit')
+
+        copy_action = QAction('Copy', self)
+        copy_action.setShortcut('Ctrl+C')
+        copy_action.setStatusTip('Ctrl+C')
+        edit_menu.addAction(copy_action)
+        copy_action.triggered.connect(self.copy_text)
+
+        delete_action = QAction('Delete', self)
+        delete_action.setShortcut('Ctrl+D')
+        delete_action.setStatusTip('Ctrl+D')
+        edit_menu.addAction(delete_action)
+        delete_action.triggered.connect(self.delete_text)
+
+        select_all_action = QAction('Select all', self)
+        select_all_action.setShortcut('Ctrl+A')
+        select_all_action.setStatusTip('Ctrl+A')
+        edit_menu.addAction(select_all_action)
+        select_all_action.triggered.connect(self.select_all_text)
+
+        edit_menu.addSeparator()
+
+        communication_menu = edit_menu.addMenu('Communication')
+
         create_communication_action = QAction('Create new', self)
         communication_menu.addAction(create_communication_action)
         create_communication_action.triggered.connect(lambda: create_new_communication(self))
@@ -97,25 +119,6 @@ class MainWindow(QMainWindow):
         delete_communication_action = QAction('Delete', self)
         communication_menu.addAction(delete_communication_action)
         delete_communication_action.triggered.connect(self.delete_selected_communication)
-
-        selection_menu = menubar.addMenu('Selection')
-        copy_action = QAction('Copy', self)
-        copy_action.setShortcut('Ctrl+C')
-        copy_action.setStatusTip('Ctrl+C')
-        selection_menu.addAction(copy_action)
-        copy_action.triggered.connect(self.copy_text)
-
-        delete_action = QAction('Delete', self)
-        delete_action.setShortcut('Ctrl+D')
-        delete_action.setStatusTip('Ctrl+D')
-        selection_menu.addAction(delete_action)
-        delete_action.triggered.connect(self.delete_text)
-
-        select_all_action = QAction('Select all', self)
-        select_all_action.setShortcut('Ctrl+A')
-        select_all_action.setStatusTip('Ctrl+A')
-        selection_menu.addAction(select_all_action)
-        select_all_action.triggered.connect(self.select_all_text)
 
     def copy_text(self):
         widget = self.focusWidget()
