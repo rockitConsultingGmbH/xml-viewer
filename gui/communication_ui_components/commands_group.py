@@ -250,9 +250,9 @@ class CommandsGroup(QWidget):
             command_group.password_field = password_field
             command_group.valid_for_target_field = valid_for_target_field
 
-            command_layout.addLayout(self.create_horizontal_layout("UserID", userid_field))
-            command_layout.addLayout(self.create_horizontal_layout("Password", password_field))
-            command_layout.addLayout(self.create_horizontal_layout("Valid For Target Locations", valid_for_target_field))
+            command_layout.addLayout(self.create_horizontal_layout("userid", userid_field))
+            command_layout.addLayout(self.create_horizontal_layout("password", password_field))
+            command_layout.addLayout(self.create_horizontal_layout("validForTargetLocations", valid_for_target_field))
 
         # Create input fields for each parameter and add to the command_group's param_widgets
         for param_name in command_params_list:
