@@ -6,7 +6,6 @@ from controllers.command_table_data import CommandParamTableData
 from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
 from controllers.location_table_data import LocationTableData
-from gui.common_components.communication_popup_warnings import show_save_error
 
 from gui.communication_ui_components.overview_group import OverviewGroup
 from gui.communication_ui_components.patterns_group import PatternGroup
