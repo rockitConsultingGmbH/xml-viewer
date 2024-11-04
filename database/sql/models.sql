@@ -175,13 +175,14 @@ CREATE TABLE CommandParam (
     paramName VARCHAR(255),
     paramOrder INT,
     FOREIGN KEY (command_id) REFERENCES Command(id) ON DELETE CASCADE
+    --UNIQUE (command_id, paramName)
 );
 
 -- Create NameList table with reference to Communication
 CREATE TABLE NameList (
     id INTEGER PRIMARY KEY,
     basicConfig_id INT NOT NULL,
-    communication_id INT NOT NULL,
+    communication_id INT, --NOT NULL,
     listName VARCHAR(255) NOT NULL,
     FOREIGN KEY (basicConfig_id) REFERENCES BasicConfig(id) ON DELETE CASCADE
     FOREIGN KEY (communication_id) REFERENCES Communication(id) ON DELETE CASCADE

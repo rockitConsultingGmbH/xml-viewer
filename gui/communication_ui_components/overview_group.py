@@ -50,6 +50,8 @@ class OverviewGroup:
         self.goButton = QPushButton("GO")
         self.goButton.setObjectName("goButton")
         self.goButton.setFixedSize(43, 30)
+        self.goButton.setToolTip("Go to Alternate NameList...")
+        self.goButton.setEnabled(False)  # Deactivate the button, for the moment...
 
         hbox_alt_name = QHBoxLayout()
         hbox_alt_name.addWidget(self.alt_name_input)

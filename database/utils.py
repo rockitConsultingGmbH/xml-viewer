@@ -733,6 +733,21 @@ def insert_into_command(cursor, row):
     ))
     return cursor
 
+def select_from_command(cursor, communication_id):
+    cursor.execute("""
+    SELECT
+        id,
+        className,
+        validForTargetLocations,
+        userid,
+        password,
+        commandType
+    FROM Command
+    WHERE communication_id = ?
+    """,
+    (communication_id, ))
+    return cursor
+
 def update_command(cursor, row):
     cursor.execute("""
     UPDATE Command
@@ -741,19 +756,19 @@ def update_command(cursor, row):
         userid = ?,
         password = ?,
         commandType = ?
-    WHERE communication_id = ?
+    WHERE id = ?
     """, (
         row['className'],
         row['validForTargetLocations'],
         row['userid'],
         row['password'],
         row['commandType'],
-        row['communication_id']
+        row['command_id']
     ))
     return cursor
 
-def delete_from_command(cursor, communication_id):
-    cursor.execute("DELETE FROM Command WHERE communication_id = ?", (communication_id,))
+def delete_from_command(cursor, command_id):
+    cursor.execute("DELETE FROM Command WHERE id = ?", (command_id,))
     return cursor
 
 # CommandParam
@@ -761,23 +776,41 @@ def insert_into_commandparam(cursor, row):
     cursor.execute("""
     INSERT INTO CommandParam (
         command_id,
-        param
+        param,
+        paramName,
+        paramOrder
     )
-    VALUES (?, ?)
+    VALUES (?, ?, ?, ?)
     """, (
         row['command_id'],
-        row['param']
+        row['param'],
+        row['paramName'],
+        row['paramOrder']
     ))
+    return cursor
+
+def select_from_commandparam(cursor, command_id):
+    cursor.execute("""
+    SELECT
+        id,
+        param,
+        paramName,
+        paramOrder
+    FROM CommandParam
+    WHERE command_id = ?
+    """,
+    (command_id, ))
     return cursor
 
 def update_commandparam(cursor, row):
     cursor.execute("""
     UPDATE CommandParam
     SET param = ?
-    WHERE command_id = ?
+    WHERE command_id = ? AND paramName = ?
     """, (
         row['param'],
-        row['command_id']
+        row['command_id'],
+        row['paramName']
     ))
     return cursor
 

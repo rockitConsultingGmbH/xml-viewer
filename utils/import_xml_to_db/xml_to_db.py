@@ -58,8 +58,8 @@ def insert_location(cursor, communication_id, location, locationType):
 def insert_command(cursor, communication_id, command, commandType):
     return utils.insert_into_command(cursor, dictionaries.createCommandDict(communication_id, command, commandType))
 
-def insert_command_param(cursor, command_id, param):
-    return utils.insert_into_commandparam(cursor, dictionaries.createCommandParamDict(command_id, param))
+def insert_command_param(cursor, command_id, param, paramOrder, className):
+    return utils.insert_into_commandparam(cursor, dictionaries.createCommandParamDict(command_id, param, paramOrder, className))
 
 def insert_name_list(cursor, basicConfig_id, communication_id, listName):
     return utils.insert_into_namelist(cursor, dictionaries.createNameListDict(basicConfig_id, communication_id, listName))
@@ -118,13 +118,15 @@ def insert_data_into_db(xml_tree, config_file_path):
                     rows_created += cursor.rowcount
                 elif communicationElement.tag in ['preCommand', 'postCommand']:
                     command_id = insert_command(cursor, communication_id, communicationElement, communicationElement.tag).lastrowid
+                    className = communicationElement.find('className').text if communicationElement.find('className') is not None else None
                     rows_created += cursor.rowcount
 
-                    for commandparam in communicationElement.findall('param'):
-                        param = commandparam.text if commandparam.text is not None else ''
-                        if param:
-                            insert_command_param(cursor, command_id, param)
-                            rows_created += cursor.rowcount
+                    for paramOrder, commandparam in enumerate(communicationElement.findall('param'), start=1):
+                        param = commandparam.text.strip() if commandparam.text and commandparam.text.strip() else ''
+                        if commandparam.text is None:
+                            param = ''
+                        insert_command_param(cursor, command_id, param, paramOrder, className)
+                        rows_created += cursor.rowcount
                 elif communicationElement.tag == 'alternateNameList' and communicationElement.text:
                     namelist = acsfiletransfer.find(f".//nameList[@name='{communicationElement.text}']")
                     if namelist:

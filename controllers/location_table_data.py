@@ -130,8 +130,6 @@ class LocationTableData:
 
         gui_locations = self.get_gui_target_locations()
 
-        #target_location_ids_to_delete =  get_target_location_ids_to_delete()
-        #logging.debug("target_location_ids_to_delete", target_location_ids_to_delete)
         for location_data in gui_locations:
             location_id = location_data.get("id")
 
