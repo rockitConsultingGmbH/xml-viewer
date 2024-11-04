@@ -41,6 +41,7 @@ class CommandsGroup(QWidget):
         self.dropdown.setFixedSize(550, 30)
 
         plus_button = QPushButton("+")
+        plus_button.setObjectName("addButton")
         plus_button.setFixedSize(30, 30)
         plus_button.clicked.connect(self.add_new_command)
 
@@ -183,6 +184,7 @@ class CommandsGroup(QWidget):
 
         # Horizontal layout for the command title and delete button
         delete_button = QPushButton("-")
+        delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
         delete_button.clicked.connect(lambda: self.delete_command(command_group))
         
