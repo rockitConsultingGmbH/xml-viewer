@@ -1,8 +1,8 @@
 import sqlite3
 import sys
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
-    QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit
+    QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit, QHBoxLayout
 
 from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
 from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
@@ -22,6 +22,41 @@ from common import config_manager
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
+class SearchResultsWindow(QWidget):
+    communication_selected = pyqtSignal(int)
+
+    def __init__(self, results, search_query):
+        super().__init__()
+        self.setWindowTitle("Search Results")
+        self.setGeometry(100, 100, 800, 400)  # Increased width
+        layout = QVBoxLayout()
+        self.results_tree = QTreeWidget()
+        self.results_tree.setHeaderLabels(["Found", "Name", "Source"])
+        self.results_tree.setColumnWidth(0, 250)
+        self.results_tree.setColumnWidth(1, 200)
+        self.results_tree.setColumnWidth(2, 200)
+        layout.addWidget(self.results_tree)
+        self.setLayout(layout)
+        self.populate_results(results, search_query)
+        self.center_window()
+        self.results_tree.itemClicked.connect(self.on_item_clicked)
+
+    def populate_results(self, results, search_query):
+        for result in results:
+            item = QTreeWidgetItem([search_query, result['name'], result['source']])
+            item.setData(0, Qt.UserRole, result['id'])
+            self.results_tree.addTopLevelItem(item)
+
+    def center_window(self):
+        screen_geometry = QApplication.primaryScreen().availableGeometry()
+        window_geometry = self.frameGeometry()
+        center_point = screen_geometry.center()
+        window_geometry.moveCenter(center_point)
+        self.move(window_geometry.topLeft())
+
+    def on_item_clicked(self, item):
+        communication_id = item.data(0, Qt.UserRole)
+        self.communication_selected.emit(communication_id)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -55,7 +90,61 @@ class MainWindow(QMainWindow):
 
         load_stylesheet(self, "css/tree_widget_styling.qss")
 
+        self.search_field = QLineEdit(self)
+        self.search_field.setPlaceholderText("Search...")
+        self.search_field.setFixedWidth(300)
+        self.search_field.returnPressed.connect(self.show_search_results)
+
         self.create_menu()
+
+    def show_search_results(self):
+        text = self.search_field.text()
+        results = self.filter_communications(text)
+        if not results:
+            QMessageBox.information(self, "No Results", "No search results found.")
+        else:
+            self.results_window = SearchResultsWindow(results, text)
+            self.results_window.communication_selected.connect(self.navigate_to_communication)
+            self.results_window.show()
+
+    def filter_communications(self, text):
+        conn = self.conn_manager.get_db_connection()
+        cursor = conn.cursor()
+        query = f"""
+        SELECT id, name, 
+        CASE 
+            WHEN name LIKE ? THEN 'name'
+            WHEN alternateNameList LIKE ? THEN 'alternateNameList'
+            WHEN findPattern LIKE ? THEN 'findPattern'
+            WHEN movPattern LIKE ? THEN 'movPattern'
+            WHEN quitPattern LIKE ? THEN 'quitPattern'
+            WHEN putPattern LIKE ? THEN 'putPattern'
+            WHEN ackPattern LIKE ? THEN 'ackPattern'
+            WHEN rcvPattern LIKE ? THEN 'rcvPattern'
+            WHEN zipPattern LIKE ? THEN 'zipPattern'
+            WHEN tmpPattern LIKE ? THEN 'tmpPattern'
+        END as source
+        FROM Communication
+        WHERE basicConfig_id = {self.config_manager.config_id}
+        AND (name LIKE ? OR alternateNameList LIKE ? OR findPattern LIKE ?
+        OR movPattern LIKE ? OR quitPattern LIKE ? OR putPattern LIKE ?
+        OR ackPattern LIKE ? OR rcvPattern LIKE ? OR zipPattern LIKE ?
+        OR tmpPattern LIKE ?)
+        """
+        cursor.execute(query, [f'%{text}%'] * 10 + [f'%{text}%'] * 10)
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
+
+    def navigate_to_communication(self, communication_id):
+        for i in range(self.communication_config_item.childCount()):
+            child_item = self.communication_config_item.child(i)
+            if child_item.data(0, Qt.UserRole) == communication_id:
+                self.on_item_clicked(child_item)
+                tree_widget = self.left_widget.layout().itemAt(0).widget()
+                tree_widget.setCurrentItem(child_item)
+                self.results_window.close()
+                break
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -119,6 +208,14 @@ class MainWindow(QMainWindow):
         delete_communication_action = QAction('Delete', self)
         communication_menu.addAction(delete_communication_action)
         delete_communication_action.triggered.connect(self.delete_selected_communication)
+
+        search_widget = QWidget(self)
+        search_layout = QHBoxLayout(search_widget)
+        search_layout.addStretch()
+        search_layout.addWidget(self.search_field)
+        search_layout.setContentsMargins(0, 0, 5, 0)
+
+        menubar.setCornerWidget(search_widget, Qt.TopRightCorner)
 
     def copy_text(self):
         widget = self.focusWidget()
