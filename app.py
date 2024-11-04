@@ -120,6 +120,36 @@ class MainWindow(QMainWindow):
         communication_menu.addAction(delete_communication_action)
         delete_communication_action.triggered.connect(self.delete_selected_communication)
 
+        add_namelist_action = QAction('Add New Namelist', self)
+        edit_menu.addAction(add_namelist_action)
+        add_namelist_action.triggered.connect(self.create_new_namelist)
+
+    def create_new_namelist(self):
+        try:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO NameList (listName, basicConfig_id) VALUES (?, ?)",
+                           ("New Namelist", self.config_manager.config_id))
+            conn.commit()
+            new_namelist_id = cursor.lastrowid
+            conn.close()
+
+            self.right_widget.setParent(None)
+            self.right_widget = NameListsWidget()
+            self.right_widget.name_updated.connect(self.update_namelist_in_tree)
+            self.right_widget.setObjectName("namelists_widget")
+            self.splitter.addWidget(self.right_widget)
+            self.splitter.setSizes([250, 1000])
+
+            new_namelist_item = QTreeWidgetItem(["New Namelist"])
+            new_namelist_item.setData(0, Qt.UserRole, new_namelist_id)
+            self.namelist_item.addChild(new_namelist_item)
+            tree_widget = self.left_widget.layout().itemAt(0).widget()
+            tree_widget.setCurrentItem(new_namelist_item)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
+
     def copy_text(self):
         widget = self.focusWidget()
         if isinstance(widget, QLineEdit):
