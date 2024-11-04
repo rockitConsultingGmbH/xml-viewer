@@ -13,7 +13,7 @@ class MQConfigurationWidget(QWidget):
         super().__init__(parent)
         self.conn_manager = ConnectionManager().get_instance()
         self.popup_message = PopupMessage(self)
-        self.ipqueue_fields = []  # Store references to the input fields for saving   
+        self.ipqueue_fields = []
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")

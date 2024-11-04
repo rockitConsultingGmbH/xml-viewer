@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QFormLayout, QSpacerItem, QSizePolicy, QFrame
+from PyQt5.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QFormLayout, QSpacerItem, QSizePolicy
 
 class PatternGroup:
     def __init__(self, group_layout, communication_id):

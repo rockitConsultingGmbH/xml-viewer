@@ -4,7 +4,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 def load_stylesheet(widget, filepath):
-    """Load the stylesheet from a file and apply it to the given widget."""
     try:
         with open(filepath, 'r') as file:
             stylesheet = file.read()

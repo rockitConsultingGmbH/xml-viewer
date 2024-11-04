@@ -1,5 +1,4 @@
 from lxml import etree
-import sqlite3
 import os
 from common.connection_manager import ConnectionManager
 import database.utils as utils
@@ -9,13 +8,6 @@ import utils.import_xml_to_db.dictionaries as dictionaries
 db_path = os.path.join(os.path.dirname(__file__), 'database.db')
 
 def validate_xml(xml_path, xsd_path):
-    """
-    Validate the XML file against the XSD schema.
-
-    :param xml_path: Path to the XML file
-    :param xsd_path: Path to the XSD schema file
-    :return: Parsed XML tree if valid, raises exception if invalid
-    """
     if not os.path.exists(xsd_path):
         raise FileNotFoundError(f"The specified XSD file was not found: {xsd_path}")
 
@@ -71,12 +63,6 @@ def insert_description(cursor, communication_id, description, descriptionType):
     return utils.insert_into_description(cursor, dictionaries.createDescriptionDict(communication_id, description, descriptionType))
 
 def insert_data_into_db(xml_tree, config_file_path):
-    """
-    Insert data from the parsed XML tree into the SQLite database.
-
-    :param xml_tree: Parsed XML tree
-    :param config_file_path: Path of the configuration file
-    """
     conn_manager = ConnectionManager().get_instance()
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
