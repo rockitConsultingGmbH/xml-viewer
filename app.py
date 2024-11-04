@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidg
     QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit
 
 from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
-from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
-    delete_new_communication
+from gui.common_components.create_new_communication import create_new_communication, on_name_changed, delete_new_communication, delete_communication
+from gui.common_components.create_new_namelist import create_new_namelist, on_name_changed, delete_selected_namelist
 from utils.empty_database import empty_database
 from gui.import_xml_dialog_window import FileDialog
 from gui.communication_ui import CommunicationUI
@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
         self.config_manager = config_manager
 
         self.resize(1800, 900)
-        self.setWindowTitle("XML Editor")
+        self.setWindowTitle("ACSFT-Configuration Editor")
 
         screen = QApplication.primaryScreen().availableGeometry()
         x = (screen.width() - self.width()) // 2
@@ -111,44 +111,23 @@ class MainWindow(QMainWindow):
         edit_menu.addSeparator()
 
         communication_menu = edit_menu.addMenu('Communication')
-
-        create_communication_action = QAction('Create new', self)
+        create_communication_action = QAction('New...', self)
         communication_menu.addAction(create_communication_action)
         create_communication_action.triggered.connect(lambda: create_new_communication(self))
 
-        delete_communication_action = QAction('Delete', self)
+        delete_communication_action = QAction('Delete selected', self)
         communication_menu.addAction(delete_communication_action)
         delete_communication_action.triggered.connect(self.delete_selected_communication)
 
-        add_namelist_action = QAction('Add New Namelist', self)
-        edit_menu.addAction(add_namelist_action)
-        add_namelist_action.triggered.connect(self.create_new_namelist)
 
-    def create_new_namelist(self):
-        try:
-            conn = self.conn_manager.get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("INSERT INTO NameList (listName, basicConfig_id) VALUES (?, ?)",
-                           ("New Namelist", self.config_manager.config_id))
-            conn.commit()
-            new_namelist_id = cursor.lastrowid
-            conn.close()
+        namelist_menu = edit_menu.addMenu('NameList')
+        create_namelist_action = QAction('New...', self)
+        namelist_menu.addAction(create_namelist_action)
+        create_namelist_action.triggered.connect(lambda: create_new_namelist(self))
 
-            self.right_widget.setParent(None)
-            self.right_widget = NameListsWidget()
-            self.right_widget.name_updated.connect(self.update_namelist_in_tree)
-            self.right_widget.setObjectName("namelists_widget")
-            self.splitter.addWidget(self.right_widget)
-            self.splitter.setSizes([250, 1000])
-
-            new_namelist_item = QTreeWidgetItem(["New Namelist"])
-            new_namelist_item.setData(0, Qt.UserRole, new_namelist_id)
-            self.namelist_item.addChild(new_namelist_item)
-            tree_widget = self.left_widget.layout().itemAt(0).widget()
-            tree_widget.setCurrentItem(new_namelist_item)
-
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
+        delete_namelist_action = QAction('Delete selected', self)
+        namelist_menu.addAction(delete_namelist_action)
+        delete_namelist_action.triggered.connect(self.delete_selected_namelist)
 
     def copy_text(self):
         widget = self.focusWidget()
@@ -169,18 +148,8 @@ class MainWindow(QMainWindow):
         if isinstance(widget, QLineEdit):
             widget.selectAll()
 
-    def delete_selected_communication(self):
-        tree_widget = self.left_widget.layout().itemAt(0).widget()
-        current_item = tree_widget.currentItem()
-        if current_item and current_item.parent() == self.communication_config_item:
-            communication_id = current_item.data(0, Qt.UserRole)
-            self.delete_communication(communication_id)
-
     def on_name_changed(self):
         on_name_changed(self)
-
-    def delete_new_communication(self):
-        delete_new_communication(self)
 
     def open_xml(self):
         dialog = FileDialog(self)
@@ -213,43 +182,6 @@ class MainWindow(QMainWindow):
         self.splitter.insertWidget(0, self.left_widget)
 
         self.display_db_tables()
-
-    def delete_communication(self, communication_id):
-        reply = QMessageBox.question(
-            self,
-            "Confirm Deletion",
-            "Are you sure you want to delete this communication?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-
-        if reply == QMessageBox.Yes:
-            conn = self.conn_manager.get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM Communication WHERE id = ?", (communication_id,))
-            conn.commit()
-            conn.close()
-
-            next_item = None
-            for i in range(self.communication_config_item.childCount()):
-                child_item = self.communication_config_item.child(i)
-                if child_item.data(0, Qt.UserRole) == communication_id:
-                    index = self.communication_config_item.indexOfChild(child_item)
-                    self.communication_config_item.removeChild(child_item)
-                    if self.communication_config_item.childCount() > 0:
-                        next_item = self.communication_config_item.child(0)
-                    break
-
-            if next_item:
-                self.on_item_clicked(next_item)
-                tree_widget = self.left_widget.layout().itemAt(0).widget()
-                tree_widget.setCurrentItem(next_item)
-            else:
-                self.right_widget.setParent(None)
-                self.right_widget = QWidget()
-                self.splitter.addWidget(self.right_widget)
-
-            QMessageBox.information(self, "Deleted", "Communication deleted successfully.")
 
     def display_db_tables(self):
         if self.left_widget.layout() is not None:
@@ -316,13 +248,6 @@ class MainWindow(QMainWindow):
         layout.addWidget(tree_widget)
         self.left_widget.setLayout(layout)
 
-    def update_communication_in_tree(self, communication_id, new_name):
-        for i in range(self.communication_config_item.childCount()):
-            child_item = self.communication_config_item.child(i)
-            if child_item.data(0, Qt.UserRole) == communication_id:
-                child_item.setText(0, new_name)
-                break
-
     def open_context_menu(self, position):
         item = self.left_widget.layout().itemAt(0).widget().itemAt(position)
 
@@ -330,15 +255,60 @@ class MainWindow(QMainWindow):
             communication_id = item.data(0, Qt.UserRole)
 
             menu = QMenu()
-            create_new_action = QAction("Create New", self)
+            create_new_action = QAction("New Communication", self)
             create_new_action.triggered.connect(lambda: create_new_communication(self))
             menu.addAction(create_new_action)
 
-            delete_action = QAction("Delete", self)
-            delete_action.triggered.connect(lambda: self.delete_communication(communication_id))
+            delete_action = QAction("Delete selected", self)
+            delete_action.triggered.connect(lambda: delete_communication(self, communication_id))
             menu.addAction(delete_action)
 
             menu.exec_(self.left_widget.layout().itemAt(0).widget().mapToGlobal(position))
+
+        if item and item.parent() == self.namelist_item:
+            nameList_id = item.data(0, Qt.UserRole)
+
+            menu = QMenu()
+            create_new_action = QAction("New NameList", self)
+            create_new_action.triggered.connect(lambda: create_new_namelist(main_window))
+            menu.addAction(create_new_action)
+
+            delete_action = QAction("Delete selected", self)
+            delete_action.triggered.connect(lambda: delete_selected_namelist(self, nameList_id))
+            menu.addAction(delete_action)
+
+            menu.exec_(self.left_widget.layout().itemAt(0).widget().mapToGlobal(position))
+
+    def update_communication_in_tree(self, communication_id, new_name):
+        for i in range(self.communication_config_item.childCount()):
+            child_item = self.communication_config_item.child(i)
+            if child_item.data(0, Qt.UserRole) == communication_id:
+                child_item.setText(0, new_name)
+                break
+
+    def delete_new_communication(self):
+        delete_new_communication(self)
+
+    def delete_selected_communication(self):
+        tree_widget = self.left_widget.layout().itemAt(0).widget()
+        current_item = tree_widget.currentItem()
+        if current_item and current_item.parent() == self.communication_config_item:
+            communication_id = current_item.data(0, Qt.UserRole)
+            delete_communication(communication_id)
+
+    def delete_selected_namelist(self):
+        tree_widget = self.left_widget.layout().itemAt(0).widget()
+        current_item = tree_widget.currentItem()
+        if current_item and current_item.parent() == self.namelist_item:
+            nameList_id = current_item.data(0, Qt.UserRole)
+            delete_selected_namelist(self, nameList_id)
+
+    def update_namelist_in_tree(self, nameList_id, new_name):
+        for i in range(self.namelist_item.childCount()):
+            child_item = self.namelist_item.child(i)
+            if child_item.data(0, Qt.UserRole) == nameList_id:
+                child_item.setText(0, new_name)
+                break
 
     def on_item_clicked(self, item):
         try:
@@ -380,7 +350,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
 
-
     def load_basic_config_view(self):
         self.right_widget.setParent(None)
         self.right_widget = BasicConfigurationWidget(self)
@@ -414,13 +383,6 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.right_widget)
         self.splitter.setSizes([250, 1000])
 
-    def update_namelist_in_tree(self, nameList_id, new_name):
-        for i in range(self.namelist_item.childCount()):
-            child_item = self.namelist_item.child(i)
-            if child_item.data(0, Qt.UserRole) == nameList_id:
-                child_item.setText(0, new_name)
-                break
-
     def save_config(self):
         file_path = config_manager.config_filepath
         self._export_to_file(file_path)
@@ -452,7 +414,7 @@ class MainWindow(QMainWindow):
 
     def update_window_title(self, file_path):
         #file_name = os.path.basename(file_path)
-        self.setWindowTitle(f"XML Editor - {file_path}")
+        self.setWindowTitle(f"ACSFT-Configuration Editor - {file_path}")
 
     def exit_application(self):
         self.close()
