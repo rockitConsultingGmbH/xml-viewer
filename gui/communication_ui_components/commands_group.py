@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_command, select_from_commandparam
+from database.utils import delete_from_command, delete_from_commandparam, insert_into_command, insert_into_commandparam, select_from_command, select_from_commandparam, update_commandparam
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,6 +25,11 @@ class CommandsGroup(QWidget):
         self.conn_manager = ConnectionManager()
         self.vertical_layout = QVBoxLayout()
         self.setLayout(self.vertical_layout)
+
+    def refresh_commands_ui(self):
+        logging.debug("Refreshing commands UI")
+        self.clear_command_fields()
+        self.generate_command_ui()
 
     def create_commands_group(self):
         logging.debug("Initializing commands UI")
@@ -92,11 +97,17 @@ class CommandsGroup(QWidget):
 
     def clear_command_fields(self):
         logging.debug("Clearing command fields")
-        if self.command_group:
-            self.command_group.setParent(None)
-            self.command_group.deleteLater()
-            self.command_group = None
+        # Iterate over each widget in the layout and remove it
+        for i in reversed(range(self.vertical_layout.count())):
+            widget_item = self.vertical_layout.itemAt(i)
+            widget = widget_item.widget()
+            if widget and isinstance(widget, QGroupBox):
+                widget.setParent(None)  # Remove widget from the layout
+                widget.deleteLater()    # Mark it for deletion
+
+        # Clear any references to parameter widgets and command groups
         self.param_widgets.clear()
+        self.command_group = None
 
     def generate_command_ui(self):
         logging.debug("Generating command UI from database")
@@ -150,9 +161,9 @@ class CommandsGroup(QWidget):
             try:
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
-                cursor.execute("DELETE FROM CommandParam WHERE command_id = ?", (command_id,))
-                cursor.execute("DELETE FROM Command WHERE id = ?", (command_id,))
-                
+                delete_from_commandparam(cursor, command_id)
+                delete_from_command(cursor, command_id)
+
                 conn.commit()
                 logging.info(f"Deleted command ID: {command_id} from the database")
 
@@ -300,6 +311,7 @@ class CommandsGroup(QWidget):
                     ))
 
             conn.commit()
+            self.refresh_commands_ui()
             logging.info("Commands and parameters saved successfully")
         except Exception as e:
             conn.rollback()
@@ -316,20 +328,28 @@ class CommandsGroup(QWidget):
         password = getattr(command_widget, "password_field", QLineEdit("")).text()
         valid_for_target_locations = getattr(command_widget, "valid_for_target_field", QLineEdit("")).text()
 
-        cursor.execute("""
-            INSERT INTO Command (communication_id, className, commandType, userid, password, validForTargetLocations)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (self.communication_id, class_name, command_type, userid, password, valid_for_target_locations))
+        row = {
+            "communication_id": self.communication_id,
+            "className": class_name,
+            "commandType": command_type,
+            "userid": userid,
+            "password": password,
+            "validForTargetLocations": valid_for_target_locations
+        }
+        insert_into_command(cursor, row)
         command_id = cursor.lastrowid
         logging.debug(f"New command ID: {command_id}")
 
         for order, (param_name, param_widget) in enumerate(command_widget.param_widgets.items(), start=1):
             param_value = param_widget.text()
             logging.debug(f"Inserting parameter - Name: {param_name}, Value: {param_value}, Order: {order}")
-            cursor.execute("""
-                INSERT INTO CommandParam (command_id, param, paramName, paramOrder)
-                VALUES (?, ?, ?, ?)
-            """, (command_id, param_value, param_name, order))
+            row = {
+                "command_id": command_id,
+                "param": param_value,
+                "paramName": param_name,
+                "paramOrder": order
+            }
+            insert_into_commandparam(cursor, row)
         
         return command_id
 
@@ -366,10 +386,14 @@ class CommandsGroup(QWidget):
         for param_name, param_widget in command_widget.param_widgets.items():
             param_value = param_widget.text()
             logging.debug(f"Updating parameter - Name: {param_name}, Value: {param_value}")
-            cursor.execute("""
-                UPDATE CommandParam
-                SET param = ?
-                WHERE command_id = ? AND paramName = ?
-            """, (param_value, command_id, param_name))
 
+            row = {
+                "command_id": command_id,
+                "param": param_value,
+                "paramName": param_name
+            }
+            update_commandparam(cursor, row)
 
+    def set_fields_from_db(self):
+        logging.info("Resetting fields to original state from the database")
+        self.refresh_commands_ui()

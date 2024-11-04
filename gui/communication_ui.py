@@ -84,6 +84,7 @@ class CommunicationUI(QWidget):
             self.descritpion_table_data.populate_description_fields(self.communication_id)
             self.location_table_data.populate_source_location_fields(self.communication_id)
             self.location_table_data.populate_target_location_fields(self.communication_id)
+            self.commands_ui.refresh_commands_ui()
 
     def save_fields_to_db(self):
         try:
