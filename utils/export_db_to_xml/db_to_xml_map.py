@@ -188,7 +188,7 @@ def create_xml_from_alternatename(root, row):
 
 # Description
 def create_xml_from_description(root, row):
-    #xml_element = add_row_element_if_not_empty(root, 'description',          row['description'])
-    xml_element = add_row_element_if_not_empty(root, row['descriptionType'],          row['description'])
+    xml_element = add_row_element_if_not_empty(root, 'description',          row['description'])
+    #xml_element = add_row_element_if_not_empty(root, row['descriptionType'],          row['description'])
     return etree, xml_element
 

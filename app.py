@@ -229,7 +229,7 @@ class MainWindow(QMainWindow):
         tree_widget = QTreeWidget()
         tree_widget.setObjectName("customTreeWidget")
         tree_widget.setStyleSheet("border: none;")
-        tree_widget.setIndentation(0)
+        tree_widget.setIndentation(12)
         tree_widget.setHeaderHidden(True)
 
         tables = [('Basic Configuration',), ('LZB Configuration',), ('MQ Configuration',), ('Communications',),
@@ -428,6 +428,7 @@ class MainWindow(QMainWindow):
         self.close()
 
     def closeEvent(self, event):
+        QApplication.quit()
         reply = QMessageBox.question(self, "Confirm Exit",
                                      "Are you sure you want to close the application?",
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -437,7 +438,7 @@ class MainWindow(QMainWindow):
             event.accept()
             QApplication.quit()
         else:
-            event.ignore()
+           event.ignore()
 
     def perform_cleanup(self):
         empty_database()

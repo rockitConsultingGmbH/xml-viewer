@@ -733,6 +733,21 @@ def insert_into_command(cursor, row):
     ))
     return cursor
 
+def select_from_command(cursor, communication_id):
+    cursor.execute("""
+    SELECT
+        id,
+        className,
+        validForTargetLocations,
+        userid,
+        password,
+        commandType
+    FROM Command
+    WHERE communication_id = ?
+    """,
+    (communication_id, ))
+    return cursor
+
 def update_command(cursor, row):
     cursor.execute("""
     UPDATE Command
@@ -761,13 +776,30 @@ def insert_into_commandparam(cursor, row):
     cursor.execute("""
     INSERT INTO CommandParam (
         command_id,
-        param
+        param,
+        paramName,
+        paramOrder
     )
-    VALUES (?, ?)
+    VALUES (?, ?, ?, ?)
     """, (
         row['command_id'],
-        row['param']
+        row['param'],
+        row['paramName'],
+        row['paramOrder']
     ))
+    return cursor
+
+def select_from_commandparam(cursor, command_id):
+    cursor.execute("""
+    SELECT
+        id,
+        param,
+        paramName,
+        paramOrder
+    FROM CommandParam
+    WHERE command_id = ?
+    """,
+    (command_id, ))
     return cursor
 
 def update_commandparam(cursor, row):

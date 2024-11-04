@@ -1,3 +1,6 @@
+from common.commandparam_map import set_command_param_name
+
+
 def add_xml_element(root, tag_name):
     value = (
         root.find(tag_name).text if root.find(tag_name) is not None and root.find(tag_name).text else ''
@@ -162,10 +165,12 @@ def createCommandDict(communication_id, command, commandType):
     }
     return CommandDict
 
-def createCommandParamDict(command_id, param):
+def createCommandParamDict(command_id, param, paramOrder, className):
     CommandParamDict = {
         'command_id':                   command_id,
-        'param':                        param
+        'param':                        param,
+        'paramName':                    set_command_param_name(className, paramOrder),
+        'paramOrder':                   paramOrder,
     }
     return CommandParamDict
 
