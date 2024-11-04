@@ -25,9 +25,11 @@ class CommandsGroup(QWidget):
         self.conn_manager = ConnectionManager()
         self.vertical_layout = QVBoxLayout()
         self.setLayout(self.vertical_layout)
+        self.commands_to_delete = []
 
     def refresh_commands_ui(self):
         logging.debug("Refreshing commands UI")
+        self.commands_to_delete = []
         self.clear_command_fields()
         self.generate_command_ui()
 
@@ -97,15 +99,13 @@ class CommandsGroup(QWidget):
 
     def clear_command_fields(self):
         logging.debug("Clearing command fields")
-        # Iterate over each widget in the layout and remove it
         for i in reversed(range(self.vertical_layout.count())):
             widget_item = self.vertical_layout.itemAt(i)
             widget = widget_item.widget()
             if widget and isinstance(widget, QGroupBox):
-                widget.setParent(None)  # Remove widget from the layout
-                widget.deleteLater()    # Mark it for deletion
+                widget.setParent(None) 
+                widget.deleteLater() 
 
-        # Clear any references to parameter widgets and command groups
         self.param_widgets.clear()
         self.command_group = None
 
@@ -153,29 +153,6 @@ class CommandsGroup(QWidget):
         command_layout = QVBoxLayout()
         command_group.setObjectName(className)
         return command_group, command_layout
-
-    def delete_command(self, command_widget):
-        command_id = getattr(command_widget, "command_id", None)
-        
-        if command_id and command_id != 'new':
-            try:
-                conn = self.conn_manager.get_db_connection()
-                cursor = conn.cursor()
-                delete_from_commandparam(cursor, command_id)
-                delete_from_command(cursor, command_id)
-
-                conn.commit()
-                logging.info(f"Deleted command ID: {command_id} from the database")
-
-            except Exception as e:
-                conn.rollback()
-                logging.error(f"Failed to delete command ID: {command_id} - {e}")
-            finally:
-                cursor.close()
-                conn.close()
-
-        command_widget.setParent(None)
-        command_widget.deleteLater()
 
     def generate_command_params(self, className, command_id):
         logging.debug(f"Generating command parameters for class: {className}, command ID: {command_id}")
@@ -275,16 +252,38 @@ class CommandsGroup(QWidget):
         command_group.setLayout(command_layout)
         self.vertical_layout.insertWidget(1, command_group)
 
+    def delete_command(self, command_widget):
+        command_id = getattr(command_widget, "command_id", None)
+        
+        if command_id and command_id != 'new':
+            if command_id not in self.commands_to_delete:
+                self.commands_to_delete.append(command_id)
+                logging.info(f"Marked command ID: {command_id} for deletion")
+
+        command_widget.setParent(None)
+        command_widget.deleteLater()
+
     def save_commands(self):
         logging.info("Saving commands to database")
         try:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
 
+            for command_id in self.commands_to_delete:
+                try:
+                    delete_from_commandparam(cursor, command_id)
+                    delete_from_command(cursor, command_id)
+                    logging.info(f"Deleted command ID: {command_id} from the database")
+                except Exception as e:
+                    logging.error(f"Failed to delete command ID: {command_id} - {e}")
+
             for command_widget in self.findChildren(QGroupBox):
                 command_id = getattr(command_widget, "command_id", None)
                 class_name = command_widget.objectName()
                 
+                if command_id in self.commands_to_delete:
+                    continue
+
                 command_type_dropdown = getattr(command_widget, "command_type_dropdown", None)
                 command_type = command_type_dropdown.currentText() if command_type_dropdown else "postCommand"
                 
@@ -311,8 +310,11 @@ class CommandsGroup(QWidget):
                     ))
 
             conn.commit()
-            self.refresh_commands_ui()
             logging.info("Commands and parameters saved successfully")
+            
+            self.commands_to_delete.clear()
+            self.refresh_commands_ui()
+
         except Exception as e:
             conn.rollback()
             logging.error(f"Failed to save commands: {e}")

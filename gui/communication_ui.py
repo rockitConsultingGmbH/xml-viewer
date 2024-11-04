@@ -89,7 +89,7 @@ class CommunicationUI(QWidget):
     def save_fields_to_db(self):
         try:
             if not self.name_input.text().strip():
-                show_save_error(self)  #TODO: Replace later with popup_message.py
+                self.popup_message.show_error_message(f"Error while saving data...")
                 return
             self.communication_table_data.save_communication_data(self.communication_id)
             new_name = self.communication_table_data.get_communication_name(self.communication_id)
