@@ -756,19 +756,19 @@ def update_command(cursor, row):
         userid = ?,
         password = ?,
         commandType = ?
-    WHERE communication_id = ?
+    WHERE id = ?
     """, (
         row['className'],
         row['validForTargetLocations'],
         row['userid'],
         row['password'],
         row['commandType'],
-        row['communication_id']
+        row['command_id']
     ))
     return cursor
 
-def delete_from_command(cursor, communication_id):
-    cursor.execute("DELETE FROM Command WHERE communication_id = ?", (communication_id,))
+def delete_from_command(cursor, command_id):
+    cursor.execute("DELETE FROM Command WHERE id = ?", (command_id,))
     return cursor
 
 # CommandParam
@@ -806,10 +806,11 @@ def update_commandparam(cursor, row):
     cursor.execute("""
     UPDATE CommandParam
     SET param = ?
-    WHERE command_id = ?
+    WHERE command_id = ? AND paramName = ?
     """, (
         row['param'],
-        row['command_id']
+        row['command_id'],
+        row['paramName']
     ))
     return cursor
 

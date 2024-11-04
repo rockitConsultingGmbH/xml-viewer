@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget
 from PyQt5.QtCore import Qt
 
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_command, select_from_commandparam
+from database.utils import delete_from_command, delete_from_commandparam, insert_into_command, insert_into_commandparam, select_from_command, select_from_commandparam, update_commandparam
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,6 +25,13 @@ class CommandsGroup(QWidget):
         self.conn_manager = ConnectionManager()
         self.vertical_layout = QVBoxLayout()
         self.setLayout(self.vertical_layout)
+        self.commands_to_delete = []
+
+    def refresh_commands_ui(self):
+        logging.debug("Refreshing commands UI")
+        self.commands_to_delete = []
+        self.clear_command_fields()
+        self.generate_command_ui()
 
     def create_commands_group(self):
         logging.debug("Initializing commands UI")
@@ -92,11 +99,15 @@ class CommandsGroup(QWidget):
 
     def clear_command_fields(self):
         logging.debug("Clearing command fields")
-        if self.command_group:
-            self.command_group.setParent(None)
-            self.command_group.deleteLater()
-            self.command_group = None
+        for i in reversed(range(self.vertical_layout.count())):
+            widget_item = self.vertical_layout.itemAt(i)
+            widget = widget_item.widget()
+            if widget and isinstance(widget, QGroupBox):
+                widget.setParent(None) 
+                widget.deleteLater() 
+
         self.param_widgets.clear()
+        self.command_group = None
 
     def generate_command_ui(self):
         logging.debug("Generating command UI from database")
@@ -143,46 +154,19 @@ class CommandsGroup(QWidget):
         command_group.setObjectName(className)
         return command_group, command_layout
 
-    def delete_command(self, command_widget):
-        command_id = getattr(command_widget, "command_id", None)
-        
-        if command_id and command_id != 'new':
-            try:
-                conn = self.conn_manager.get_db_connection()
-                cursor = conn.cursor()
-                cursor.execute("DELETE FROM CommandParam WHERE command_id = ?", (command_id,))
-                cursor.execute("DELETE FROM Command WHERE id = ?", (command_id,))
-                
-                conn.commit()
-                logging.info(f"Deleted command ID: {command_id} from the database")
-
-            except Exception as e:
-                conn.rollback()
-                logging.error(f"Failed to delete command ID: {command_id} - {e}")
-            finally:
-                cursor.close()
-                conn.close()
-
-        command_widget.setParent(None)
-        command_widget.deleteLater()
-
     def generate_command_params(self, className, command_id):
         logging.debug(f"Generating command parameters for class: {className}, command ID: {command_id}")
 
-        # Create a group for the command with layout
         command_group, command_layout = self.generate_command_widget(command_id, className)
         
-        # Check if this is a new command
         is_new_command = (command_id == 'new')
         command_params = self.get_command_params(command_id) if not is_new_command else {}
         command_params_list = params.get(className, [])
         
-        # Command label at the top
         command_label = QLabel(f"<b>{'New Command: ' if is_new_command else ''}{className.split('.')[-1]}</b>")
         command_label.setTextFormat(Qt.RichText)
         command_label.setAlignment(Qt.AlignLeft)
 
-        # Horizontal layout for the command title and delete button
         delete_button = QPushButton("-")
         delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
@@ -194,15 +178,15 @@ class CommandsGroup(QWidget):
         title_layout.setAlignment(Qt.AlignLeft)
         command_layout.addLayout(title_layout)
 
-        # Add classname as a read-only input field below the label
         command_layout.addLayout(self.generate_command_classname(className))
 
-        # Add a dropdown to select `commandType` (for both new and existing commands)
-        self.command_type_dropdown = QComboBox()
-        self.command_type_dropdown.addItems(["postCommand", "preCommand"])
-        self.command_type_dropdown.setFixedSize(350, 30)
+        command_type_dropdown = QComboBox()
+        command_type_dropdown.addItems(["postCommand", "preCommand"])
+        command_type_dropdown.setFixedSize(350, 30)
+        command_group.command_type_dropdown = command_type_dropdown
 
-        # Set current value for existing commands
+        command_group.param_widgets = {}
+
         if not is_new_command:
             try:
                 conn = self.conn_manager.get_db_connection()
@@ -210,56 +194,74 @@ class CommandsGroup(QWidget):
                 cursor.execute("SELECT commandType FROM Command WHERE id = ?", (command_id,))
                 result = cursor.fetchone()
                 if result and result['commandType'] in ["postCommand", "preCommand"]:
-                    self.command_type_dropdown.setCurrentText(result['commandType'])
+                    command_type_dropdown.setCurrentText(result['commandType'])
             except Exception as e:
                 logging.error(f"Failed to fetch command type: {e}")
             finally:
                 cursor.close()
                 conn.close()
 
-        command_layout.addLayout(self.create_horizontal_layout("Command Type", self.command_type_dropdown))
+        command_layout.addLayout(self.create_horizontal_layout("Command Type", command_type_dropdown))
 
-        # Display `userID`, `password`, and `validForTargetLocations` fields only if the class is `AcsFiletransferPostCommandTksSend`
+        # Conditionally display fields for `de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend`
         if className == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend":
-            self.userid_field = QLineEdit("")
-            self.password_field = QLineEdit("")
-            self.valid_for_target_field = QLineEdit("")
-
+            # Retrieve `userid`, `password`, and `validForTargetLocations` if they exist for existing commands
+            userid_value = ""
+            password_value = ""
+            valid_for_target_value = ""
+            
             if not is_new_command:
                 try:
                     conn = self.conn_manager.get_db_connection()
                     cursor = conn.cursor()
                     cursor.execute("""
-                        SELECT userid, password, validForTargetLocations 
-                        FROM Command 
+                        SELECT userid, password, validForTargetLocations
+                        FROM Command
                         WHERE id = ?
                     """, (command_id,))
-                    additional_fields = cursor.fetchone()
-                    
-                    if additional_fields:
-                        self.userid_field.setText(additional_fields['userid'] or "")
-                        self.password_field.setText(additional_fields['password'] or "")
-                        self.valid_for_target_field.setText(additional_fields['validForTargetLocations'] or "")
+                    result = cursor.fetchone()
+                    if result:
+                        userid_value = result['userid'] or ""
+                        password_value = result['password'] or ""
+                        valid_for_target_value = result['validForTargetLocations'] or ""
                 except Exception as e:
-                    logging.error(f"Failed to fetch additional fields: {e}")
+                    logging.error(f"Failed to fetch additional fields for command: {e}")
                 finally:
                     cursor.close()
                     conn.close()
 
-            # Add `userID`, `password`, and `validForTargetLocations` as editable fields
-            command_layout.addLayout(self.create_horizontal_layout("UserID", self.userid_field))
-            command_layout.addLayout(self.create_horizontal_layout("Password", self.password_field))
-            command_layout.addLayout(self.create_horizontal_layout("Valid For Target Locations", self.valid_for_target_field))
+            userid_field = QLineEdit(userid_value)
+            password_field = QLineEdit(password_value)
+            valid_for_target_field = QLineEdit(valid_for_target_value)
 
-        # Create input fields for each parameter and add to layout
+            command_group.userid_field = userid_field
+            command_group.password_field = password_field
+            command_group.valid_for_target_field = valid_for_target_field
+
+            command_layout.addLayout(self.create_horizontal_layout("userid", userid_field))
+            command_layout.addLayout(self.create_horizontal_layout("password", password_field))
+            command_layout.addLayout(self.create_horizontal_layout("validForTargetLocations", valid_for_target_field))
+
+        # Create input fields for each parameter and add to the command_group's param_widgets
         for param_name in command_params_list:
             param_value = command_params.get(param_name, '') if not is_new_command else ''
             param_input = QLineEdit(param_value)
-            self.param_widgets[(className, param_name)] = param_input
+            command_group.param_widgets[param_name] = param_input
             command_layout.addLayout(self.create_horizontal_layout(param_name, param_input))
 
         command_group.setLayout(command_layout)
         self.vertical_layout.insertWidget(1, command_group)
+
+    def delete_command(self, command_widget):
+        command_id = getattr(command_widget, "command_id", None)
+        
+        if command_id and command_id != 'new':
+            if command_id not in self.commands_to_delete:
+                self.commands_to_delete.append(command_id)
+                logging.info(f"Marked command ID: {command_id} for deletion")
+
+        command_widget.setParent(None)
+        command_widget.deleteLater()
 
     def save_commands(self):
         logging.info("Saving commands to database")
@@ -267,34 +269,52 @@ class CommandsGroup(QWidget):
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
 
-            # Process each command widget, determining if it should be inserted or updated
+            for command_id in self.commands_to_delete:
+                try:
+                    delete_from_commandparam(cursor, command_id)
+                    delete_from_command(cursor, command_id)
+                    logging.info(f"Deleted command ID: {command_id} from the database")
+                except Exception as e:
+                    logging.error(f"Failed to delete command ID: {command_id} - {e}")
+
             for command_widget in self.findChildren(QGroupBox):
                 command_id = getattr(command_widget, "command_id", None)
                 class_name = command_widget.objectName()
-                command_type = self.command_type_dropdown.currentText()
-                if command_id and command_id != 'new':
-                    # Update existing command
-                    self.update_command(cursor, command_id, class_name, command_type)
-                else:
-                    # Insert new command
-                    self.insert_command(cursor, command_id, class_name, command_type)
+                
+                if command_id in self.commands_to_delete:
+                    continue
 
-                # Save additional fields if this is `AcsFiletransferPostCommandTksSend`
+                command_type_dropdown = getattr(command_widget, "command_type_dropdown", None)
+                command_type = command_type_dropdown.currentText() if command_type_dropdown else "postCommand"
+                
+                if command_id and command_id != 'new':
+                    self.update_command(cursor, command_id, class_name, command_type, command_widget)
+                else:
+                    command_id = self.insert_command(cursor, command_id, class_name, command_type, command_widget)
+
                 if class_name == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend" and command_id:
+                    userid_field = getattr(command_widget, "userid_field", None)
+                    password_field = getattr(command_widget, "password_field", None)
+                    valid_for_target_field = getattr(command_widget, "valid_for_target_field", None)
+
                     cursor.execute("""
                         UPDATE Command 
                         SET userid = ?, password = ?, validForTargetLocations = ?, commandType = ?
                         WHERE id = ?
                     """, (
-                        self.userid_field.text(),
-                        self.password_field.text(),
-                        self.valid_for_target_field.text(),
-                        self.command_type_dropdown.currentText(),
+                        userid_field.text() if userid_field else "",
+                        password_field.text() if password_field else "",
+                        valid_for_target_field.text() if valid_for_target_field else "",
+                        command_type,
                         command_id
                     ))
 
             conn.commit()
             logging.info("Commands and parameters saved successfully")
+            
+            self.commands_to_delete.clear()
+            self.refresh_commands_ui()
+
         except Exception as e:
             conn.rollback()
             logging.error(f"Failed to save commands: {e}")
@@ -302,49 +322,80 @@ class CommandsGroup(QWidget):
             cursor.close()
             conn.close()
 
-    def insert_command(self, cursor, command_id, class_name, command_type):
+    def insert_command(self, cursor, command_id, class_name, command_type, command_widget):
         logging.debug(f"Inserting new command for class: {class_name}")
 
-        # Insert the new command and retrieve its ID
-        cursor.execute("""
-            INSERT INTO Command (communication_id, className, commandType)
-            VALUES (?, ?, ?)
-        """, (self.communication_id, class_name, command_type))
+        # Handle additional fields for `AcsFiletransferPostCommandTksSend`
+        userid = getattr(command_widget, "userid_field", QLineEdit("")).text()
+        password = getattr(command_widget, "password_field", QLineEdit("")).text()
+        valid_for_target_locations = getattr(command_widget, "valid_for_target_field", QLineEdit("")).text()
+
+        row = {
+            "communication_id": self.communication_id,
+            "className": class_name,
+            "commandType": command_type,
+            "userid": userid,
+            "password": password,
+            "validForTargetLocations": valid_for_target_locations
+        }
+        insert_into_command(cursor, row)
         command_id = cursor.lastrowid
         logging.debug(f"New command ID: {command_id}")
 
-        # Insert each parameter into CommandParam table
-        for order, param_name in enumerate(params.get(class_name, []), start=1):
-            # Fetch parameter value from the param_widgets dictionary
-            param_widget = self.param_widgets.get((class_name, param_name))
-            if param_widget:
-                param_value = param_widget.text()
-                logging.debug(f"Inserting parameter - Name: {param_name}, Value: {param_value}, Order: {order}")
-                cursor.execute("""
-                    INSERT INTO CommandParam (command_id, param, paramName, paramOrder)
-                    VALUES (?, ?, ?, ?)
-                """, (command_id, param_value, param_name, order))
+        for order, (param_name, param_widget) in enumerate(command_widget.param_widgets.items(), start=1):
+            param_value = param_widget.text()
+            logging.debug(f"Inserting parameter - Name: {param_name}, Value: {param_value}, Order: {order}")
+            row = {
+                "command_id": command_id,
+                "param": param_value,
+                "paramName": param_name,
+                "paramOrder": order
+            }
+            insert_into_commandparam(cursor, row)
+        
+        return command_id
 
-    def update_command(self,  cursor, command_id, class_name, command_type):
+    def update_command(self, cursor, command_id, class_name, command_type, command_widget):
         logging.debug(f"Updating command ID: {command_id}, class: {class_name}")
 
-        cursor.execute("""
-            UPDATE Command 
-            SET commandType = ?
-            WHERE id = ?
+        # Access the additional fields if the command class requires it
+        if class_name == "de.bundesbank.acs.filetransfer.post.AcsFiletransferPostCommandTksSend":
+            userid = getattr(command_widget, "userid_field", QLineEdit("")).text()
+            password = getattr(command_widget, "password_field", QLineEdit("")).text()
+            valid_for_target_locations = getattr(command_widget, "valid_for_target_field", QLineEdit("")).text()
+            
+            cursor.execute("""
+                UPDATE Command 
+                SET commandType = ?, userid = ?, password = ?, validForTargetLocations = ?
+                WHERE id = ?
+                """, (
+                command_type,
+                userid,
+                password,
+                valid_for_target_locations,
+                command_id
+            ))
+        else:
+            cursor.execute("""
+                UPDATE Command 
+                SET commandType = ?
+                WHERE id = ?
             """, (
-            command_type,
-            command_id
+                command_type,
+                command_id
             ))
 
-        for param_name in params.get(class_name, []):
-            # Access the QLineEdit widget directly using the param_widgets dictionary
-            param_widget = self.param_widgets.get((class_name, param_name))
-            if param_widget:
-                param_value = param_widget.text()
-                logging.debug(f"Updating parameter - Name: {param_name}, Value: {param_value}")
-                cursor.execute("""
-                    UPDATE CommandParam
-                    SET param = ?
-                    WHERE command_id = ? AND paramName = ?
-                """, (param_value, command_id, param_name))
+        for param_name, param_widget in command_widget.param_widgets.items():
+            param_value = param_widget.text()
+            logging.debug(f"Updating parameter - Name: {param_name}, Value: {param_value}")
+
+            row = {
+                "command_id": command_id,
+                "param": param_value,
+                "paramName": param_name
+            }
+            update_commandparam(cursor, row)
+
+    def set_fields_from_db(self):
+        logging.info("Resetting fields to original state from the database")
+        self.refresh_commands_ui()
