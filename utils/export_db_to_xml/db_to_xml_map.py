@@ -3,22 +3,24 @@ from lxml import etree
 excluded_columns = ['id', 'configFilePath', 'basicConfig_id', 'mqConfig_id', 'communication_id', 'command_id', 'location_id', 'locationType', 'commandType', 'nameList_id']
 
 def add_row_element_if_not_empty(xml_element, tag_name, value):
+    element = None
     if value:
-        etree.SubElement(xml_element, tag_name).text = str(value)
-    return etree
+        element = etree.SubElement(xml_element, tag_name).text = str(value)
+    return element
 
 def add_row_element(xml_element, tag_name, value):
     element = etree.SubElement(xml_element, tag_name)
     if value:
         element.text = str(value)
-    return etree
+    return element
 
 def add_row_element_if_not_emptys_for_row(xml_element, row, columns):
+    element = None
     for col in columns:
         if col in excluded_columns:
             continue
-        add_row_element_if_not_empty(xml_element, col, row[col])
-    return etree
+        element = add_row_element_if_not_empty(xml_element, col, row[col])
+    return element
 
 # BasicConfig
 def create_xml_from_basic_config(root, row, columns):
@@ -173,6 +175,8 @@ def create_xml_from_command(root, row):
 # CommandParam
 def create_xml_from_commandparam(root, row):
     xml_element = add_row_element(root, 'param',                            row['param'])
+    xml_element.set('paramName', row['paramName'])
+    xml_element.set('paramNr', str(row['paramOrder']))
     return etree, xml_element
 
 # NameList
@@ -188,7 +192,7 @@ def create_xml_from_alternatename(root, row):
 
 # Description
 def create_xml_from_description(root, row):
-    #xml_element = add_row_element_if_not_empty(root, 'description',          row['description'])
-    xml_element = add_row_element_if_not_empty(root, row['descriptionType'],          row['description'])
+    xml_element = add_row_element_if_not_empty(root, 'description',          row['description'])
+    #xml_element = add_row_element_if_not_empty(root, row['descriptionType'],          row['description'])
     return etree, xml_element
 

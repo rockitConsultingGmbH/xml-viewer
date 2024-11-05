@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class DescriptionTableData:
     def __init__(self, parent_widget=None):
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
         self.parent_widget = parent_widget
 
     def set_parent_widget(self, parent_widget):

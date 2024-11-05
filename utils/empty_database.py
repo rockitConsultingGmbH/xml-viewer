@@ -4,7 +4,7 @@ from database.utils import select_all_tablenames_from_db
 
 
 def empty_database():
-    conn_manager = ConnectionManager().get_instance()
+    conn_manager = ConnectionManager()
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
 

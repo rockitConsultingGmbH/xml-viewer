@@ -12,7 +12,7 @@ class DescriptionForm:
         self.create_description_form()
 
     def create_description_form(self):
-        conn_manager = ConnectionManager().get_instance()
+        conn_manager = ConnectionManager()
         conn = conn_manager.get_db_connection()
         cursor = conn.cursor()
         descriptions = select_from_description(cursor, self.communication_id).fetchall()

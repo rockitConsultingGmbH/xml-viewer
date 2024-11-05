@@ -1,17 +1,17 @@
 import logging
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QHBoxLayout, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QVBoxLayout, QGroupBox, QScrollArea, QWidget, QFrame, QSpacerItem, QSizePolicy
 
+from controllers.command_table_data import CommandParamTableData
 from controllers.communication_table_data import CommunicationTableData
 from controllers.description_table_data import DescriptionTableData
 from controllers.location_table_data import LocationTableData
-from gui.common_components.communication_popup_warnings import show_save_error
 
 from gui.communication_ui_components.overview_group import OverviewGroup
 from gui.communication_ui_components.patterns_group import PatternGroup
 from gui.communication_ui_components.settings_group import SettingsGroup
 from gui.communication_ui_components.location_group import LocationsGroup
-from gui.communication_ui_components.commands import CommandsUI
+from gui.communication_ui_components.commands_group import CommandsGroup
 
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
@@ -32,6 +32,7 @@ class CommunicationUI(QWidget):
         self.communication_table_data = CommunicationTableData(self)
         self.descritpion_table_data = DescriptionTableData(self)
         self.location_table_data = LocationTableData(self)
+        self.commandparam_table_data = CommandParamTableData(self)
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
@@ -58,7 +59,7 @@ class CommunicationUI(QWidget):
         self.create_group("Locations", communications_box_layout, self.communication_id)
         self.create_group("Settings", communications_box_layout)
         self.create_group("Pattern", communications_box_layout)
-        self.create_group("PostCommand(s)", communications_box_layout)
+        self.create_group("Commands", communications_box_layout)
 
         communications_box.setLayout(communications_box_layout)
         scroll_layout.addWidget(communications_box)
@@ -82,11 +83,12 @@ class CommunicationUI(QWidget):
             self.descritpion_table_data.populate_description_fields(self.communication_id)
             self.location_table_data.populate_source_location_fields(self.communication_id)
             self.location_table_data.populate_target_location_fields(self.communication_id)
+            self.commands_ui.refresh_commands_ui()
 
     def save_fields_to_db(self):
         try:
             if not self.name_input.text().strip():
-                show_save_error(self)  #TODO: Replace later with popup_message.py
+                self.popup_message.show_error_message(f"Error while saving data...")
                 return
             self.communication_table_data.save_communication_data(self.communication_id)
             new_name = self.communication_table_data.get_communication_name(self.communication_id)
@@ -95,6 +97,7 @@ class CommunicationUI(QWidget):
             self.descritpion_table_data.save_description_data(self.communication_id)
             self.location_table_data.save_source_location_data(self.communication_id)
             self.location_table_data.save_target_location_data(self.communication_id)
+            self.commands_ui.save_commands()
 
             description_ids_to_delete = self.overview_group_instance.description_form.get_description_ids_to_delete()
             if description_ids_to_delete:
@@ -103,6 +106,8 @@ class CommunicationUI(QWidget):
             target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
             if target_location_ids_to_delete:
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
+
+            self.popup_message.show_message("Changes have been successfully saved.")
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -135,10 +140,10 @@ class CommunicationUI(QWidget):
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
-        elif group_name == "PostCommand(s)":
-            commands_ui = CommandsUI()
-            commands_ui.generate_send_tks_a_satz()
-            group_layout.addWidget(commands_ui)
+        elif group_name == "Commands":
+            self.commands_ui = CommandsGroup(self.communication_id)
+            self.commands_ui.create_commands_group()
+            group_layout.addWidget(self.commands_ui)
 
         group_box.setLayout(group_layout)
         layout.addWidget(group_box)

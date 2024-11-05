@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScro
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
-from database.utils import (select_from_alternatename, select_from_namelist_with_communication, update_communication_column, 
+from database.utils import (select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_communication_column, 
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
@@ -16,9 +16,9 @@ class NameListsWidget(QWidget):
     def __init__(self, nameList_id=None, parent=None):
         super().__init__(parent)
         self.nameList_id = str(nameList_id) if nameList_id is not None else ""
-        self.conn_manager = ConnectionManager.get_instance()
+        self.conn_manager = ConnectionManager()
         self.popup_message = PopupMessage(self)
-        self.entries_to_delete = []  # Track entries marked for deletion
+        self.entries_to_delete = []
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
@@ -27,16 +27,12 @@ class NameListsWidget(QWidget):
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
 
-        # Add Save and Reset buttons
         layout.addLayout(Buttons().create_button_layout(self))
 
-        # Add the Name List group box
         self.add_group_box(layout, "Name List", self.create_namelist_layout)
 
-        # Add vertical spacing before the "Alternate Names" group box
         layout.addItem(QSpacerItem(20, 10, QSizePolicy.Minimum))
 
-        # Add the Alternate Names group box
         self.add_group_box(layout, "Alternate Names", self.create_alternate_names_layout)
 
         self.setLayout(layout)
@@ -59,15 +55,12 @@ class NameListsWidget(QWidget):
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         namelist_layout.addItem(spacer)
 
-        # Create clickable communication name label
         self.communication_label = QLabel("Communication")
 
-        # Add the Name field and Communication label in a horizontal layout
         name_layout = QHBoxLayout()
         name_layout.addWidget(self.list_name_input)
         name_layout.addWidget(self.communication_label)
 
-        # Add the horizontal layout to the form layout
         namelist_layout.addRow("Name:", name_layout)
                             
         self.populate_namelist_fields_from_db()
@@ -262,11 +255,15 @@ class NameListsWidget(QWidget):
         try:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
-            cursor = select_from_namelist_with_communication(cursor, self.nameList_id)
+
+            cursor = select_from_namelist(cursor, self.nameList_id)
             result = cursor.fetchone()
-            
             if result:
                 self.list_name_input.setText(result["listName"])
+
+            cursor = select_from_namelist_with_communication(cursor, self.nameList_id)
+            result = cursor.fetchone()
+            if result:
                 self.communication_label.setText(f"Communication: {result['communication_name']}")
                 self.communication_label.setProperty("communication_id", result["communication_id"])
         except Exception as e:

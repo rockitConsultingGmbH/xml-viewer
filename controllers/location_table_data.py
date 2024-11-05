@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 class LocationTableData:
     def __init__(self, parent_widget=None):
         self.parent_widget = parent_widget
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
 
     def set_parent_widget(self, parent_widget):
         self.parent_widget = parent_widget
@@ -130,8 +130,6 @@ class LocationTableData:
 
         gui_locations = self.get_gui_target_locations()
 
-        #target_location_ids_to_delete =  get_target_location_ids_to_delete()
-        #logging.debug("target_location_ids_to_delete", target_location_ids_to_delete)
         for location_data in gui_locations:
             location_id = location_data.get("id")
 

@@ -79,7 +79,6 @@ class Buttons:
         return button_layout
 
     def create_button(self, label, color, callback):
-        """Helper function to create a styled button with a callback."""
         button = QPushButton(label)
         button.setFixedSize(*BUTTON_SIZE)
         button.setStyleSheet(BUTTON_STYLE.format(color))
@@ -87,8 +86,7 @@ class Buttons:
         return button
 
     def save_fields_to_db(self):
-        """Override this method to provide custom behavior for the save button."""
         pass
+
     def save_fields_to_db(self):
-        """Override this method to provide custom behavior for the save button."""
         pass
