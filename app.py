@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import lxml
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit
