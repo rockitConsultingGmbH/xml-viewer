@@ -77,17 +77,19 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        save_action = QAction('Save', self)
-        save_action.setShortcut('Ctrl+S')
-        save_action.setStatusTip('Ctrl+S')
-        file_menu.addAction(save_action)
-        save_action.triggered.connect(self.save_config)
+        self.save_action = QAction('Save', self)
+        self.save_action.setShortcut('Ctrl+S')
+        self.save_action.setStatusTip('Ctrl+S')
+        file_menu.addAction(self.save_action)
+        self.save_action.triggered.connect(self.save_config)
+        self.save_action.setEnabled(False)
 
-        export_action = QAction('Save As...', self)
-        export_action.setShortcut('Ctrl+E')
-        export_action.setStatusTip('Ctrl+E')
-        file_menu.addAction(export_action)
-        export_action.triggered.connect(self.export_config)
+        self.saveas_action = QAction('Save As...', self)
+        self.saveas_action.setShortcut('Ctrl+E')
+        self.saveas_action.setStatusTip('Ctrl+E')
+        file_menu.addAction(self.saveas_action)
+        self.saveas_action.triggered.connect(self.export_config)
+        self.saveas_action.setEnabled(False)
 
         file_menu.addSeparator()
         exit_action = QAction('Exit', self)
@@ -98,59 +100,89 @@ class MainWindow(QMainWindow):
 
         edit_menu = menubar.addMenu('Edit')
 
-        copy_action = QAction('Copy', self)
-        copy_action.setShortcut('Ctrl+C')
-        copy_action.setStatusTip('Ctrl+C')
-        edit_menu.addAction(copy_action)
-        copy_action.triggered.connect(self.copy_text)
+        self.copy_action = QAction('Copy', self)
+        self.copy_action.setShortcut('Ctrl+C')
+        self.copy_action.setStatusTip('Ctrl+C')
+        edit_menu.addAction(self.copy_action)
+        self.copy_action.triggered.connect(self.copy_text)
+        self.copy_action.setEnabled(False)
 
-        delete_action = QAction('Delete', self)
-        delete_action.setShortcut('Ctrl+D')
-        delete_action.setStatusTip('Ctrl+D')
-        edit_menu.addAction(delete_action)
-        delete_action.triggered.connect(self.delete_text)
+        self.delete_action = QAction('Delete', self)
+        self.delete_action.setShortcut('Ctrl+D')
+        self.delete_action.setStatusTip('Ctrl+D')
+        edit_menu.addAction(self.delete_action)
+        self.delete_action.triggered.connect(self.delete_text)
+        self.delete_action.setEnabled(False)
 
-        select_all_action = QAction('Select all', self)
-        select_all_action.setShortcut('Ctrl+A')
-        select_all_action.setStatusTip('Ctrl+A')
-        edit_menu.addAction(select_all_action)
-        select_all_action.triggered.connect(self.select_all_text)
+        self.select_all_action = QAction('Select all', self)
+        self.select_all_action.setShortcut('Ctrl+A')
+        self.select_all_action.setStatusTip('Ctrl+A')
+        edit_menu.addAction(self.select_all_action)
+        self.select_all_action.triggered.connect(self.select_all_text)
+        self.select_all_action.setEnabled(False)
 
         edit_menu.addSeparator()
 
-        communication_menu = edit_menu.addMenu('Communication')
-        create_communication_action = QAction('New...', self)
-        communication_menu.addAction(create_communication_action)
-        create_communication_action.triggered.connect(lambda: create_new_communication(self))
+        self.communication_menu = edit_menu.addMenu('Communication')
+        self.communication_menu.setEnabled(False)
 
-        delete_communication_action = QAction('Delete selected', self)
-        communication_menu.addAction(delete_communication_action)
-        delete_communication_action.triggered.connect(self.delete_selected_communication)
+        self.create_communication_action = QAction('New', self)
+        self.communication_menu.addAction(self.create_communication_action)
+        self.create_communication_action.triggered.connect(lambda: create_new_communication(self))
+        self.create_communication_action.setEnabled(False)
 
+        self.delete_communication_action = QAction('Delete selected', self)
+        self.communication_menu.addAction(self.delete_communication_action)
+        self.delete_communication_action.triggered.connect(self.delete_selected_communication)
+        self.delete_communication_action.setEnabled(False)
 
-        namelist_menu = edit_menu.addMenu('NameList')
-        create_namelist_action = QAction('New...', self)
-        namelist_menu.addAction(create_namelist_action)
-        create_namelist_action.triggered.connect(lambda: create_new_namelist(self))
+        self.duplicate_communication_action = QAction('Duplicate selected', self)
+        #communication_menu.addAction(self.duplicate_communication_action)
+        #self.duplicate_communication_action.triggered.connect(self.duplicate_selected_communication)
+        #self.duplicate_communication_action.setEnabled(False)
 
-        delete_namelist_action = QAction('Delete selected', self)
-        namelist_menu.addAction(delete_namelist_action)
-        delete_namelist_action.triggered.connect(self.delete_selected_namelist)
-    
+        self.namelist_menu = edit_menu.addMenu('NameList')
+        self.namelist_menu.setEnabled(False)
+
+        self.create_namelist_action = QAction('New', self)
+        self.namelist_menu.addAction(self.create_namelist_action)
+        self.create_namelist_action.triggered.connect(lambda: create_new_namelist(self))
+        self.create_namelist_action.setEnabled(False)
+
+        self.duplicate_namelist_action = QAction('Duplicate selected', self)
+        #namelist_menu.addAction(self.duplicate_namelist_action)
+        #self.duplicate_namelist_action.triggered.connect(self.duplicate_selected_namelist)
+        #self.duplicate_namelist_action.setEnabled(False)
+
+        self.delete_namelist_action = QAction('Delete selected', self)
+        self.namelist_menu.addAction(self.delete_namelist_action)
+        self.delete_namelist_action.triggered.connect(self.delete_selected_namelist)
+        self.delete_namelist_action.setEnabled(False)
+
         about_action = QAction("About", self)
         about_action.triggered.connect(self.show_about)
 
-        guide_action = QAction("Guide", self)
-        guide_action.setEnabled(False)
-        #guide_action.triggered.connect(self.show_about)
+        guide_action = QAction("User Guide", self)
+        guide_action.triggered.connect(self.show_guide)
 
         menubar = self.menuBar()
         help_menu = menubar.addMenu("Help")
         help_menu.addAction(about_action)
         help_menu.addAction(guide_action)
 
+        self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action, 
+                             self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action, 
+                             self.namelist_menu, self.create_namelist_action, self.duplicate_namelist_action, self.delete_namelist_action]
+
+    def enable_edit_menu_actions(self, enable=True):
+        for action in self.edit_actions:
+            action.setEnabled(enable)
+
     def show_about(self):
         QMessageBox.about(self, "About", f"{self.app_name}: v{self.version }")
+
+    def show_guide(self):
+        QMessageBox.about(self, "User Guide", "This feature is still under development.")
 
     def copy_text(self):
         widget = self.focusWidget()
@@ -186,6 +218,8 @@ class MainWindow(QMainWindow):
             if self.basic_config_item:
                 tree_widget = self.left_widget.layout().itemAt(0).widget()
                 tree_widget.setCurrentItem(self.basic_config_item)
+
+        self.enable_edit_menu_actions(True)
 
     def reinitialize(self):
         if self.right_widget.layout() is not None:
@@ -282,7 +316,11 @@ class MainWindow(QMainWindow):
             create_new_action.triggered.connect(lambda: create_new_communication(self))
             menu.addAction(create_new_action)
 
-            delete_action = QAction("Delete selected", self)
+            #duplicate_action = QAction("Duplicate", self)
+            #duplicate_action.triggered.connect(lambda: duplicate_selected_communication(self, communication_id))
+            #menu.addAction(duplicate_action)
+
+            delete_action = QAction("Delete", self)
             delete_action.triggered.connect(lambda: delete_communication(self, communication_id))
             menu.addAction(delete_action)
 
@@ -296,7 +334,11 @@ class MainWindow(QMainWindow):
             create_new_action.triggered.connect(lambda: create_new_namelist(main_window))
             menu.addAction(create_new_action)
 
-            delete_action = QAction("Delete selected", self)
+            #duplicate_action = QAction("Duplicate", self)
+            #duplicate_action.triggered.connect(lambda: duplicate_selected_namelist(self, nameList_id))
+            #menu.addAction(duplicate_action)
+
+            delete_action = QAction("Delete", self)
             delete_action.triggered.connect(lambda: delete_selected_namelist(self, nameList_id))
             menu.addAction(delete_action)
 
