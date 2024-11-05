@@ -486,7 +486,8 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "Confirm Exit",
-                                     "Are you sure you want to close the application?",
+                                     "Are you sure you want to close the application?\n" 
+                                     "Any changes you have not saved into an XML file will be lost.",
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:

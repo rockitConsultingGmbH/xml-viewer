@@ -13,9 +13,10 @@ class PopupMessage:
         self.popup_message.setStyleSheet("""
             background-color: lightblue; 
             color: black; 
-            padding: 5px 10px; 
-            border-radius: 10px; 
-            border: 1px solid green;
+            padding: 5px;
+            border-radius: 8px;
+            font-size: 12,5px;
+            font-weight: bold;
         """)
         self.popup_message.setAlignment(Qt.AlignCenter)
         self.popup_message.setFixedHeight(height)
@@ -35,7 +36,7 @@ class PopupMessage:
         self.popup_message.setFixedWidth(adjusted_width)
 
         # Position the popup centered horizontally, adjust vertical positioning if needed
-        top_margin = 20  # adjust as needed for spacing
+        top_margin = 10  # adjust as needed for spacing
         self.popup_message.move((self.parent.width() - self.popup_message.width()) // 2, top_margin)
         self.popup_message.setVisible(True)
 
@@ -45,11 +46,12 @@ class PopupMessage:
     def show_error_message(self, text: str):
         self.show_message(text)
         self.popup_message.setStyleSheet("""
-            background-color: red; 
+            background-color: orange; 
             color: black; 
-            padding: 5px 10px; 
-            border-radius: 10px; 
-            border: 1px solid green;
+            padding: 5px;
+            border-radius: 8px;
+            font-size: 12,5px;
+            font-weight: bold;
         """)
 
     def hide_success_message(self):
