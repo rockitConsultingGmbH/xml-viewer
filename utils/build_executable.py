@@ -51,7 +51,6 @@ if __name__ == "__main__":
     executable_name  = "acsftconfig_editor"
     console = True
 
-    # Specify additional data files (e.g., database, stylesheets, icons) to include with the executable
     add_data = [
         ("database/database.db", "database"),
         ("gui/icon/folder.svg", "gui/icon"),
@@ -62,6 +61,6 @@ if __name__ == "__main__":
     ]
 
     # Optional icon path
-    icon_path = None  # Set this to "your_icon.ico" if you have an icon file
+    icon_path = None
 
-    build_executable(script_name, name=executable_name , console=console, add_data=add_data, icon_path=icon_path)
+    build_executable(script_name, name=executable_name , console=False, add_data=add_data, icon_path=icon_path)
