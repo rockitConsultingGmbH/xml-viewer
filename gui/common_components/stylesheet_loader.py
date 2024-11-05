@@ -1,9 +1,14 @@
+import os
+import sys
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-def load_stylesheet(widget, filepath):
+def load_stylesheet(widget, relative_filepath):
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    filepath = os.path.join(base_path, relative_filepath)
+    
     try:
         with open(filepath, 'r') as file:
             stylesheet = file.read()
