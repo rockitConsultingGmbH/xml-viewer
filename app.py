@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 import sys
 import lxml
@@ -16,13 +17,14 @@ from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
 
 from common.connection_manager import ConnectionManager
+from common.config_manager import ConfigManager
 
 from gui.namelists_ui import NameListsWidget
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
-from common import config_manager
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
+logging.basicConfig(level=logging.DEBUG)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -31,10 +33,15 @@ class MainWindow(QMainWindow):
         self.recent_files = []
         self.basic_config_item = None
         self.conn_manager = ConnectionManager().get_instance()
-        self.config_manager = config_manager
+        self.config_manager = ConfigManager()
+        self.version = self.config_manager.get_property_from_properties("version")
+        self.app_name = self.config_manager.get_property_from_properties("appName")
+
+        logging.debug(f"Version: {self.version}")
+        logging.debug(f"App Name: {self.app_name}")
 
         self.resize(1800, 900)
-        self.setWindowTitle("ACSFT-Configuration Editor")
+        self.setWindowTitle(self.app_name)
 
         screen = QApplication.primaryScreen().availableGeometry()
         x = (screen.width() - self.width()) // 2
@@ -129,6 +136,21 @@ class MainWindow(QMainWindow):
         delete_namelist_action = QAction('Delete selected', self)
         namelist_menu.addAction(delete_namelist_action)
         delete_namelist_action.triggered.connect(self.delete_selected_namelist)
+    
+        about_action = QAction("About", self)
+        about_action.triggered.connect(self.show_about)
+
+        guide_action = QAction("Guide", self)
+        guide_action.setEnabled(False)
+        #guide_action.triggered.connect(self.show_about)
+
+        menubar = self.menuBar()
+        help_menu = menubar.addMenu("Help")
+        help_menu.addAction(about_action)
+        help_menu.addAction(guide_action)
+
+    def show_about(self):
+        QMessageBox.about(self, "About", f"{self.app_name}: v{self.version }")
 
     def copy_text(self):
         widget = self.focusWidget()
@@ -214,7 +236,7 @@ class MainWindow(QMainWindow):
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
                 conn.row_factory = sqlite3.Row
-                cursor.execute(f"SELECT id, listName FROM NameList WHERE basicConfig_id = {config_manager.config_id};")
+                cursor.execute(f"SELECT id, listName FROM NameList WHERE basicConfig_id = {self.config_manager.config_id};")
                 rows = cursor.fetchall()
                 self.namelist_item = table_item
 
@@ -229,7 +251,7 @@ class MainWindow(QMainWindow):
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
                 conn.row_factory = sqlite3.Row
-                cursor.execute(f"SELECT id, name FROM Communication WHERE basicConfig_id = {config_manager.config_id};")
+                cursor.execute(f"SELECT id, name FROM Communication WHERE basicConfig_id = {self.config_manager.config_id};")
                 rows = cursor.fetchall()
                 self.communication_config_item = table_item
 
@@ -385,7 +407,7 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([250, 1000])
 
     def save_config(self):
-        file_path = config_manager.config_filepath
+        file_path = self.config_manager.config_filepath
         self._export_to_file(file_path)
         self.update_window_title(file_path)
 
@@ -399,15 +421,15 @@ class MainWindow(QMainWindow):
             self.update_window_title(file_path)
 
     def _export_to_file(self, file_path):
-        if not config_manager or not config_manager.config_id:
+        if not self.config_manager or not self.config_manager.config_id:
             QMessageBox.warning(self, "Error", "No configuration loaded. Please load an XML file first.")
             return
 
         if file_path:
             try:
-                export_to_xml_function(file_path, config_manager.config_id)
+                export_to_xml_function(file_path, self.config_manager.config_id)
                 QMessageBox.information(self, "Success", f"Data saved successfully to:\n{file_path}")
-                config_manager.config_filepath = file_path
+                self.config_manager.config_filepath = file_path
             except Exception:
                 QMessageBox.critical(self, "Error", "Failed to export data")
         else:
@@ -415,7 +437,7 @@ class MainWindow(QMainWindow):
 
     def update_window_title(self, file_path):
         #file_name = os.path.basename(file_path)
-        self.setWindowTitle(f"ACSFT-Configuration Editor - {file_path}")
+        self.setWindowTitle(f"{self.app_name} - {file_path}")
 
     def exit_application(self):
         self.close()
