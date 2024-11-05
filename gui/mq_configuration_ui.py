@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, QLineEdit, QWidget, QScrollArea, QGroupBox, QSpacerItem, QSizePolicy, QFrame)
 from PyQt5.QtGui import QFont
-from common import config_manager
+from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
 from gui.common_components.popup_message import PopupMessage
@@ -11,7 +11,8 @@ from gui.common_components.stylesheet_loader import load_stylesheet
 class MQConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
+        self.config_manager = ConfigManager()
         self.popup_message = PopupMessage(self)
         self.ipqueue_fields = []
         self.setup_ui()
@@ -41,7 +42,7 @@ class MQConfigurationWidget(QWidget):
         self.setLayout(main_layout)
 
     def add_groupbox_spacing(self, layout):
-        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         layout.addItem(spacer)
 
     def create_mqconfig_layout(self, parent_layout):
@@ -125,7 +126,7 @@ class MQConfigurationWidget(QWidget):
     def get_mqconfig_data(self):
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        cursor = select_from_mqconfig(cursor, config_manager.config_id)
+        cursor = select_from_mqconfig(cursor, self.config_manager.config_id)
         row = cursor.fetchone()
         conn.close()
         return dict(row) if row else None
@@ -184,7 +185,7 @@ class MQConfigurationWidget(QWidget):
     def get_mqtrigger_data(self):
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        cursor = select_from_mqtrigger(cursor, config_manager.config_id)
+        cursor = select_from_mqtrigger(cursor, self.config_manager.config_id)
         row = cursor.fetchone()
         conn.close()
         return dict(row) if row else None
@@ -263,7 +264,7 @@ class MQConfigurationWidget(QWidget):
     def get_ipqueue_data(self):
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        cursor = select_from_ipqueue(cursor, config_manager.config_id)
+        cursor = select_from_ipqueue(cursor, self.config_manager.config_id)
         rows = cursor.fetchall()
         conn.close()
         return rows
@@ -278,7 +279,7 @@ class MQConfigurationWidget(QWidget):
                 "errorQueue": field_group["errorQueue"].text(),
                 "numberOfThreads": field_group["numberOfThreads"].text(),
                 "description": field_group["description"].text(),
-                "basicConfig_id": config_manager.config_id
+                "basicConfig_id": self.config_manager.config_id
             }
 
             update_ipqueue(cursor, ipqueue_data)
@@ -303,7 +304,7 @@ class MQConfigurationWidget(QWidget):
             "commandQueue": self.command_queue_input.text(),
             "commandReplyQueue": self.command_reply_queue_input.text(),
             "waitinterval": self.wait_interval_input.text(),
-            "basicConfig_id": config_manager.config_id
+            "basicConfig_id": self.config_manager.config_id
         }
 
         update_mqconfig(cursor, mqconfig_data)
@@ -318,7 +319,7 @@ class MQConfigurationWidget(QWidget):
             "dynamic_success_count": self.dynamic_success_count_input.text(),
             "dynamic_success_interval": self.dynamic_success_interval_input.text(),
             "dynamic_max_instances": self.dynamic_max_instances_input.text(),
-            "basicConfig_id": config_manager.config_id
+            "basicConfig_id": self.config_manager.config_id
         }
 
         update_mqtrigger(cursor, mqtrigger_data)
@@ -347,7 +348,7 @@ class MQConfigurationWidget(QWidget):
             self.populate_ipqueue_fields_from_db()
         except Exception as e:
             print(f"Error populating fields from database: {e}")
-            self.popup_message.show_message("Error populating fields from database.")
+            self.popup_message.show_error_message("Error populating fields from database.")
 
     def refresh_page(self):
         self.clear_layout(self.scroll_layout)

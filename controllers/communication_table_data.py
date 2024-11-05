@@ -1,6 +1,6 @@
 import logging
 from common.connection_manager import ConnectionManager
-from common import config_manager
+from common.config_manager import ConfigManager
 from database.utils import update_communication, select_from_communication, \
     get_communication_names
 from controllers.utils.get_and_set_value import (get_text_value, set_checkbox_field, get_checkbox_value,
@@ -12,7 +12,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 class CommunicationTableData:
     def __init__(self, parent_widget=None):
         self.parent_widget = parent_widget
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
+        self.config_manager = ConfigManager()
         logging.debug("CommunicationTableData initialized with parent_widget: %s", parent_widget)
 
     def get_communication_name(self, communication_id):
@@ -20,7 +21,7 @@ class CommunicationTableData:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
 
-            cursor = get_communication_names(cursor, communication_id, config_manager.config_id)
+            cursor = get_communication_names(cursor, communication_id, self.config_manager.config_id)
             result = cursor.fetchone()
 
             if result:
@@ -45,7 +46,7 @@ class CommunicationTableData:
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
 
-        result = select_from_communication(cursor, communication_id, config_manager.config_id).fetchone()
+        result = select_from_communication(cursor, communication_id, self.config_manager.config_id).fetchone()
 
         if result:
             logging.debug("Data fetched for communication_id: %s", communication_id)
@@ -134,7 +135,7 @@ class CommunicationTableData:
             'postzip': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"post_zip_checkbox")),
             'renameWithTimestamp': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"rename_with_timestamp_checkbox")),
             'communication_id': communication_id,
-            'basicConfig_id': config_manager.config_id
+            'basicConfig_id': self.config_manager.config_id
         }
 
 

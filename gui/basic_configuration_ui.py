@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
                              QLineEdit, QWidget, QGroupBox, QSizePolicy, QSpacerItem)
 from PyQt5.QtGui import QFont
-from common import config_manager
+from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_basicconfig, update_basicconfig
 from gui.common_components.popup_message import PopupMessage
@@ -14,7 +14,8 @@ from gui.common_components.stylesheet_loader import load_stylesheet
 class BasicConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.conn_manager = ConnectionManager.get_instance()
+        self.conn_manager = ConnectionManager()
+        self.config_manager = ConfigManager()
         self.popup_message = PopupMessage(self)
         self.setup_ui()
 
@@ -113,13 +114,13 @@ class BasicConfigurationWidget(QWidget):
                 self.watcher_escalation_timeout_input.setText(data["watcherEscalationTimeout"])
                 self.watcher_sleep_time_input.setText(data["watcherSleepTime"])
         except sqlite3.Error as e:
-            self.popup_message.show_message(f"Error loading configuration: {e}")
+            self.popup_message.show_error_message(f"Error loading configuration: {e}")
 
     def get_basic_configuration(self):
         try:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
-            select_from_basicconfig(cursor, config_manager.config_id)
+            select_from_basicconfig(cursor, self.config_manager.config_id)
             row = cursor.fetchone()
             conn.close()
             return row if row else None
@@ -132,7 +133,7 @@ class BasicConfigurationWidget(QWidget):
 
     def save_fields_to_db(self):
         row = {
-            'id': config_manager.config_id,
+            'id': self.config_manager.config_id,
             'stage': self.stage_input.text(),
             'tempDir': self.temp_dir_input.text(),
             'tempDir1': self.temp_dir1_input.text(),

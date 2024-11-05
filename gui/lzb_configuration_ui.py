@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget, QGroupBox, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFont
-from common import config_manager
+from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_lzbconfig, update_lzbconfig
 from gui.common_components.popup_message import PopupMessage
@@ -11,7 +11,8 @@ from gui.common_components.stylesheet_loader import load_stylesheet
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
+        self.config_manager = ConfigManager()
         self.popup_message = PopupMessage(self)
         self.setup_ui()
 
@@ -80,13 +81,13 @@ class LZBConfigurationWidget(QWidget):
                 self.ssh_implementation_input.setText(data["ssh_implementation"])
                 self.dns_timeout_input.setText(str(data["dns_timeout"]))
         except Exception as e:
-            self.popup_message.show_message(f"Error loading configuration: {e}")
+            self.popup_message.show_error_message(f"Error loading configuration: {e}")
 
     def get_lzb_configuration(self):
         try:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
-            select_from_lzbconfig(cursor, config_manager.config_id)
+            select_from_lzbconfig(cursor, self.config_manager.config_id)
             row = cursor.fetchone()
             conn.close()
             return row if row else None
@@ -107,7 +108,7 @@ class LZBConfigurationWidget(QWidget):
             'truststore_password': self.truststore_password_input.text(),
             'ssh_implementation': self.ssh_implementation_input.text(),
             'dns_timeout': self.dns_timeout_input.text(), 
-            'basicConfig_id': config_manager.config_id
+            'basicConfig_id': self.config_manager.config_id
         }
 
         try:

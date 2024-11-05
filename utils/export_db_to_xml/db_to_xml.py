@@ -37,7 +37,7 @@ def save_xml_to_file(pretty_xml_as_string, file_path):
 # Main function to execute the conversion
 def create_xml_from_dbconfig(config_id):
     # Connect to the database
-    conn_manager = ConnectionManager().get_instance()
+    conn_manager = ConnectionManager()
     conn = conn_manager.get_db_connection() 
     cursor = conn.cursor()
 
