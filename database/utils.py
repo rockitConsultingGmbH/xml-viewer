@@ -66,6 +66,35 @@ def select_from_basicconfig(cursor, basicConfig_id):
     """, (basicConfig_id,))
     return cursor
 
+def get_basic_configs(conn, text):
+    try:
+        cursor = conn.cursor()
+        query = """
+        SELECT id, 'BasicConfig' as table_name, stage, tempDir, tempDir1, tempDir2, historyFile, historyFile1, historyFile2, historyDays, archiverTime, watcherEscalationTimeout, watcherSleepTime,
+        CASE
+            WHEN stage LIKE ? THEN 'stage'
+            WHEN tempDir LIKE ? THEN 'tempDir'
+            WHEN tempDir1 LIKE ? THEN 'tempDir1'
+            WHEN tempDir2 LIKE ? THEN 'tempDir2'
+            WHEN historyFile LIKE ? THEN 'historyFile'
+            WHEN historyFile1 LIKE ? THEN 'historyFile1'
+            WHEN historyFile2 LIKE ? THEN 'historyFile2'
+            WHEN historyDays LIKE ? THEN 'historyDays'
+            WHEN archiverTime LIKE ? THEN 'archiverTime'
+            WHEN watcherEscalationTimeout LIKE ? THEN 'watcherEscalationTimeout'
+            WHEN watcherSleepTime LIKE ? THEN 'watcherSleepTime'
+        END as source
+        FROM BasicConfig
+        WHERE stage LIKE ? OR tempDir LIKE ? OR tempDir1 LIKE ? OR tempDir2 LIKE ? OR historyFile LIKE ? OR historyFile1 LIKE ? OR historyFile2 LIKE ? OR historyDays LIKE ? OR archiverTime LIKE ? OR watcherEscalationTimeout LIKE ? OR watcherSleepTime LIKE ?
+        """
+        params = [f'%{text}%'] * 22
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
 def update_basicconfig(cursor, row):
     cursor.execute("""
     UPDATE BasicConfig
@@ -148,6 +177,31 @@ def select_from_lzbconfig(cursor, basicConfig_id):
     WHERE basicConfig_id = ?
     """, (basicConfig_id,))
     return cursor
+
+def get_lzb_configs(conn, text):
+    try:
+        cursor = conn.cursor()
+        query = """
+        SELECT id, 'LzbConfig' as table_name, encrypt_key, encrypt_enabled, keystore_path, keystore_password, truststore_path, truststore_password, ssh_implementation, dns_timeout,
+        CASE
+            WHEN encrypt_key LIKE ? THEN 'encrypt_key'
+            WHEN keystore_path LIKE ? THEN 'keystore_path'
+            WHEN keystore_password LIKE ? THEN 'keystore_password'
+            WHEN truststore_path LIKE ? THEN 'truststore_path'
+            WHEN truststore_password LIKE ? THEN 'truststore_password'
+            WHEN ssh_implementation LIKE ? THEN 'ssh_implementation'
+            WHEN dns_timeout LIKE ? THEN 'dns_timeout'
+        END as source
+        FROM LzbConfig
+        WHERE encrypt_key LIKE ? OR keystore_path LIKE ? OR keystore_password LIKE ? OR truststore_path LIKE ? OR truststore_password LIKE ? OR ssh_implementation LIKE ? OR dns_timeout LIKE ?
+        """
+        params = [f'%{text}%'] * 14
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
 
 def update_lzbconfig(cursor, row):
     cursor.execute("""
@@ -249,6 +303,39 @@ def select_from_mqconfig(cursor, basicConfig_id):
     """, (basicConfig_id,))
     return cursor
 
+def get_mq_configs(conn, text):
+    try:
+        cursor = conn.cursor()
+        query = """
+        SELECT id, 'MqConfig' as table_name, isRemote, qmgr, hostname, port, channel, userid, password, cipher, sslPeer, ccsid, queue, numberOfThreads, errorQueue, commandQueue, commandReplyQueue, waitinterval, description,
+        CASE
+            WHEN qmgr LIKE ? THEN 'qmgr'
+            WHEN hostname LIKE ? THEN 'hostname'
+            WHEN port LIKE ? THEN 'port'
+            WHEN channel LIKE ? THEN 'channel'
+            WHEN userid LIKE ? THEN 'userid'
+            WHEN password LIKE ? THEN 'password'
+            WHEN cipher LIKE ? THEN 'cipher'
+            WHEN sslPeer LIKE ? THEN 'sslPeer'
+            WHEN ccsid LIKE ? THEN 'ccsid'
+            WHEN queue LIKE ? THEN 'queue'
+            WHEN numberOfThreads LIKE ? THEN 'numberOfThreads'
+            WHEN errorQueue LIKE ? THEN 'errorQueue'
+            WHEN commandQueue LIKE ? THEN 'commandQueue'
+            WHEN commandReplyQueue LIKE ? THEN 'commandReplyQueue'
+            WHEN waitinterval LIKE ? THEN 'waitinterval'
+        END as source
+        FROM MqConfig
+        WHERE qmgr LIKE ? OR hostname LIKE ? OR port LIKE ? OR channel LIKE ? OR userid LIKE ? OR password LIKE ? OR cipher LIKE ? OR sslPeer LIKE ? OR ccsid LIKE ? OR queue LIKE ? OR numberOfThreads LIKE ? OR errorQueue LIKE ? OR commandQueue LIKE ? OR commandReplyQueue LIKE ? OR waitinterval LIKE ?
+        """
+        params = [f'%{text}%'] * 30
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
 def update_mqconfig(cursor, row):
     cursor.execute("""
     UPDATE MqConfig
@@ -339,6 +426,31 @@ def select_from_mqtrigger(cursor, basicConfig_id):
     """, (basicConfig_id,))
     return cursor
 
+def get_mq_trigger(conn, text):
+    try:
+        cursor = conn.cursor()
+        query = """
+        SELECT id, 'MqTrigger' as table_name, success_interval, trigger_interval, polling, dynamic_instance_management, dynamic_success_count, dynamic_success_interval, dynamic_max_instances,
+        CASE
+            WHEN success_interval LIKE ? THEN 'success_interval'
+            WHEN trigger_interval LIKE ? THEN 'trigger_interval'
+            WHEN polling LIKE ? THEN 'polling'
+            WHEN dynamic_instance_management LIKE ? THEN 'dynamic_instance_management'
+            WHEN dynamic_success_count LIKE ? THEN 'dynamic_success_count'
+            WHEN dynamic_success_interval LIKE ? THEN 'dynamic_success_interval'
+            WHEN dynamic_max_instances LIKE ? THEN 'dynamic_max_instances'
+        END as source
+        FROM MqTrigger
+        WHERE success_interval LIKE ? OR trigger_interval LIKE ? OR polling LIKE ? OR dynamic_instance_management LIKE ? OR dynamic_success_count LIKE ? OR dynamic_success_interval LIKE ? OR dynamic_max_instances LIKE ?
+        """
+        params = [f'%{text}%'] * 14
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
 def update_mqtrigger(cursor, row):
     cursor.execute("""
     UPDATE MqTrigger
@@ -402,6 +514,28 @@ def select_from_ipqueue(cursor, basicConfig_id):
     WHERE basicConfig_id = ?
     """, (basicConfig_id,))
     return cursor
+
+def get_ip_queue(conn, text):
+    try:
+        cursor = conn.cursor()
+        query = """
+        SELECT id, 'IPQueue' as table_name, queue, errorQueue, numberOfThreads, description,
+        CASE
+            WHEN queue LIKE ? THEN 'queue'
+            WHEN errorQueue LIKE ? THEN 'errorQueue'
+            WHEN numberOfThreads LIKE ? THEN 'numberOfThreads'
+            WHEN description LIKE ? THEN 'description'
+        END as source
+        FROM IPQueue
+        WHERE queue LIKE ? OR errorQueue LIKE ? OR numberOfThreads LIKE ? OR description LIKE ?
+        """
+        params = [f'%{text}%'] * 8
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
 
 def update_ipqueue(cursor, row):
     cursor.execute("""
@@ -530,6 +664,42 @@ def get_communication_names(cursor, communication_id, basicConfig_id):
     """,
     (communication_id, basicConfig_id))
     return cursor
+
+def get_communications(conn, config_id, text):
+    cursor = conn.cursor()
+    query = """
+    SELECT id, name as communication_name,
+    CASE
+        WHEN name LIKE ? THEN 'name'
+        WHEN alternateNameList LIKE ? THEN 'alternateNameList'
+        WHEN gueltigAb LIKE ? THEN 'gueltigAb'
+        WHEN gueltigBis LIKE ? THEN 'gueltigBis'
+        WHEN befoerderungAb LIKE ? THEN 'befoerderungAb'
+        WHEN befoerderungBis LIKE ? THEN 'befoerderungBis'
+        WHEN pollInterval LIKE ? THEN 'pollInterval'
+        WHEN watcherEscalationTimeout LIKE ? THEN 'watcherEscalationTimeout'
+        WHEN findPattern LIKE ? THEN 'findPattern'
+        WHEN movPattern LIKE ? THEN 'movPattern'
+        WHEN quitPattern LIKE ? THEN 'quitPattern'
+        WHEN putPattern LIKE ? THEN 'putPattern'
+        WHEN ackPattern LIKE ? THEN 'ackPattern'
+        WHEN rcvPattern LIKE ? THEN 'rcvPattern'
+        WHEN zipPattern LIKE ? THEN 'zipPattern'
+        WHEN tmpPattern LIKE ? THEN 'tmpPattern'
+    END as source
+    FROM Communication
+    WHERE basicConfig_id = ?
+    AND (name LIKE ? OR alternateNameList LIKE ? OR gueltigAb LIKE ? OR gueltigBis LIKE ?
+    OR befoerderungAb LIKE ? OR befoerderungBis LIKE ? OR pollInterval LIKE ?
+    OR watcherEscalationTimeout LIKE ? OR findPattern LIKE ?
+    OR movPattern LIKE ? OR quitPattern LIKE ? OR putPattern LIKE ?
+    OR ackPattern LIKE ? OR rcvPattern LIKE ? OR zipPattern LIKE ?
+    OR tmpPattern LIKE ?)
+    """
+    params = [f'%{text}%'] * 16 + [config_id] + [f'%{text}%'] * 16
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    return rows
 
 def update_communication(cursor, row):
     cursor.execute("""
@@ -676,6 +846,28 @@ def select_from_location(cursor, communication_id, locationType):
     """,
     (communication_id, locationType,))
     return cursor
+
+def get_locations(conn, text):
+    cursor = conn.cursor()
+    query = """
+    SELECT l.id, l.location, l.communication_id, l.password, l.description,
+    CASE
+        WHEN l.location LIKE ? THEN 'location'
+        WHEN l.location_id LIKE ? THEN 'location_id'
+        WHEN l.userid LIKE ? THEN 'userid'
+        WHEN l.locationType LIKE ? THEN 'locationType'
+        WHEN l.description LIKE ? THEN 'description'
+        WHEN l.password LIKE ? THEN 'password'
+    END as source,
+    c.name as communication_name
+    FROM Location l
+    JOIN Communication c ON l.communication_id = c.id
+    WHERE l.location LIKE ? OR l.location_id LIKE ? OR l.userid LIKE ? OR l.locationType LIKE ? OR l.description LIKE ? OR l.password LIKE ?
+    """
+    params = [f'%{text}%'] * 6 + [f'%{text}%'] * 6
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    return rows
 
 def update_location(cursor, row):
     cursor.execute("""
@@ -841,6 +1033,27 @@ def select_from_namelist_with_communication(cursor, nameList_id):
     (nameList_id,))
     return cursor
 
+def get_namelist(conn, text):
+    try:
+        cursor = conn.cursor()
+        query = """
+        SELECT nl.id, nl.listName, nl.basicConfig_id, nl.communication_id,
+        CASE
+            WHEN nl.listName LIKE ? THEN 'listName'
+        END as source,
+        c.name as communication_name
+        FROM NameList nl
+        JOIN Communication c ON nl.communication_id = c.id
+        WHERE nl.listName LIKE ?
+        """
+        params = [f'%{text}%'] * 2
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
 # AlternateName
 def insert_into_alternatename(cursor, row):
     cursor.execute("""
@@ -867,6 +1080,25 @@ def select_from_alternatename(cursor, nameList_id):
     (nameList_id,))
     return cursor
 
+def get_alternatenames(conn, text):
+    try:
+        cursor = conn.cursor()
+        query = """
+        SELECT an.id, an.entry, an.nameList_id, nl.listName,
+        CASE
+            WHEN an.entry LIKE ? THEN 'entry'
+        END as source
+        FROM AlternateName an
+        JOIN NameList nl ON an.nameList_id = nl.id
+        WHERE an.entry LIKE ?
+        """
+        params = [f'%{text}%'] * 2
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        return rows
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
 def update_alternatename(cursor, row):
     cursor.execute("""
     UPDATE AlternateName
@@ -920,6 +1152,24 @@ def select_from_description(cursor, communication_id, description_id=None):
         WHERE communication_id = ?
         """, (communication_id,))
     return cursor
+
+def get_descriptions(conn, text):
+    cursor = conn.cursor()
+    query = """
+    SELECT d.id, d.description, d.communication_id, d.descriptionType,
+    CASE
+        WHEN d.description LIKE ? THEN 'description'
+        WHEN d.descriptionType LIKE ? THEN 'descriptionType'
+    END as source,
+    c.name as communication_name
+    FROM Description d
+    JOIN Communication c ON d.communication_id = c.id
+    WHERE d.description LIKE ? OR d.descriptionType LIKE ?
+    """
+    params = [f'%{text}%'] * 2 + [f'%{text}%'] * 2
+    cursor.execute(query, params)
+    rows = cursor.fetchall()
+    return rows
 
 def update_description(cursor, row):
     cursor.execute("""
