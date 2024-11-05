@@ -11,7 +11,7 @@ from gui.common_components.stylesheet_loader import load_stylesheet
 class LZBConfigurationWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
         self.config_manager = ConfigManager()
         self.popup_message = PopupMessage(self)
         self.setup_ui()

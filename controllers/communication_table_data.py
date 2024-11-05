@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 class CommunicationTableData:
     def __init__(self, parent_widget=None):
         self.parent_widget = parent_widget
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
         self.config_manager = ConfigManager()
         logging.debug("CommunicationTableData initialized with parent_widget: %s", parent_widget)
 

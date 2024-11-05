@@ -16,7 +16,7 @@ class NameListsWidget(QWidget):
     def __init__(self, nameList_id=None, parent=None):
         super().__init__(parent)
         self.nameList_id = str(nameList_id) if nameList_id is not None else ""
-        self.conn_manager = ConnectionManager.get_instance()
+        self.conn_manager = ConnectionManager()
         self.popup_message = PopupMessage(self)
         self.entries_to_delete = []
         self.setup_ui()

@@ -14,7 +14,7 @@ class TargetLocationForm:
         self.communication_id = communication_id
         self.target_location_ids_to_delete = []
         self.target_locations_form_layout = QFormLayout()
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
         self.conn = self.conn_manager.get_db_connection()
         self.cursor = self.conn.cursor()
         self.targetLocations = select_from_location(self.cursor, self.communication_id, 'targetLocation').fetchall()

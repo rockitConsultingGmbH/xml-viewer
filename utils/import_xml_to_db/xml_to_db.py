@@ -63,7 +63,7 @@ def insert_description(cursor, communication_id, description, descriptionType):
     return utils.insert_into_description(cursor, dictionaries.createDescriptionDict(communication_id, description, descriptionType))
 
 def insert_data_into_db(xml_tree, config_file_path):
-    conn_manager = ConnectionManager().get_instance()
+    conn_manager = ConnectionManager()
     conn = conn_manager.get_db_connection()
     cursor = conn.cursor()
     rows_created = 0

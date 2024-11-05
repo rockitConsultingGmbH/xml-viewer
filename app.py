@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.input_field = None
         self.recent_files = []
         self.basic_config_item = None
-        self.conn_manager = ConnectionManager().get_instance()
+        self.conn_manager = ConnectionManager()
         self.config_manager = ConfigManager()
         self.version = self.config_manager.get_property_from_properties("version")
         self.app_name = self.config_manager.get_property_from_properties("appName")

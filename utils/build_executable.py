@@ -1,62 +1,67 @@
 import subprocess
 import sys
 import os
+import logging
 
-def install_pyinstaller():
-    """Install PyInstaller if it is not already installed."""
-    try:
-        import PyInstaller  # Try importing PyInstaller
-        print("PyInstaller is already installed.")
-    except ImportError:
-        print("PyInstaller not found. Installing PyInstaller...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def build_executable(script_name, icon_path=None, console=True):
-    """
-    Build an executable from a Python script using PyInstaller.
-    
-    :param script_name: Name of the Python script to turn into an executable
-    :param icon_path: Path to the .ico file to use as the icon (optional)
-    :param console: Boolean, if False hides the console window (for GUI apps)
-    """
-    # PyInstaller command with necessary hidden-imports for lxml and its submodules
+def build_executable(script_name, name="app", console=True, add_data=None, icon_path=None):
+
     command = [
-        "pyinstaller", 
-        "--onefile", 
-        "--hidden-import=PyQt5", 
-        "--hidden-import=lxml", 
-        "--hidden-import=lxml.etree", 
-        "--hidden-import=lxml.objectify", 
+        "pyinstaller",
+        "--onefile",
+        "--name", name,
+        "--hidden-import=lxml",
+        "--hidden-import=lxml.etree",
+        "--hidden-import=lxml.objectify",
+        "--hidden-import=PyQt5",
+        "--hidden-import=PyQt5.QtWidgets",
+        "--hidden-import=PyQt5.QtCore",
+        "--hidden-import=PyQt5.QtGui",
         script_name
     ]
 
-    # Add icon if provided
+    if not console:
+        command.append("--noconsole")
     if icon_path:
         command.extend(["--icon", icon_path])
 
-    # Hide console window if not desired
-    if not console:
-        command.append("--noconsole")
+    if add_data:
+        for source, destination in add_data:
+            # Adjust syntax based on the operating system
+            formatted_data = f"{source};{destination}" if sys.platform == "win32" else f"{source}:{destination}"
+            command.extend(["--add-data", formatted_data])
 
-    # Run PyInstaller with the specified options
-    print(f"Building executable for {script_name}...")
-    subprocess.run(command, check=True)
-    print("Build complete.")
+    logging.info(f"Building executable {name} for {script_name}...")
+    try:
+        subprocess.run(command, check=True)
+        logging.info("Build complete.")
+    except subprocess.CalledProcessError as e:
+        logging.error(f"An error occurred while building the executable: {e}")
+        return
 
-    # Path to the built executable
-    dist_path = os.path.join("dist", os.path.splitext(script_name)[0] + ".exe")
+    dist_path = os.path.join("dist", os.path.splitext(name)[0] + ".exe")
     if os.path.exists(dist_path):
-        print(f"Executable created successfully at: {dist_path}")
+        logging.info(f"Executable created successfully at: {dist_path}")
     else:
-        print("Something went wrong. Executable not found in 'dist' folder.")
+        logging.error("Something went wrong. Executable not found in 'dist' folder.")
 
 if __name__ == "__main__":
-    # Specify the name of your Python script here
-    script_name = "app.py"  # Replace with your actual script name
-    icon_path = "your_icon.ico"  # Replace with the path to your icon file if needed, or None
-    console = True  # Set to False if you don't want a console window for GUI apps
+    script_name = "app.py"
+    executable_name  = "acsftconfig_editor"
+    console = True
 
-    install_pyinstaller()  # Ensure PyInstaller is installed
-    #build_executable(script_name, icon_path=icon_path, console=console)  # Build the executable
-    build_executable(script_name)  # Build the executable
+    # Specify additional data files (e.g., database, stylesheets, icons) to include with the executable
+    add_data = [
+        ("database/database.db", "database"),
+        ("gui/icon/folder.svg", "gui/icon"),
+        ("gui/icon/pick_file.svg", "gui/icon"),
+        ("css/right_widget_styling.qss", "css"),
+        ("css/tree_widget_styling.qss", "css"),
+        ("config.properties", "."),
+    ]
 
+    # Optional icon path
+    icon_path = None  # Set this to "your_icon.ico" if you have an icon file
+
+    build_executable(script_name, name=executable_name , console=console, add_data=add_data, icon_path=icon_path)
