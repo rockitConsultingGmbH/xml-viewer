@@ -81,7 +81,7 @@ class LZBConfigurationWidget(QWidget):
                 self.ssh_implementation_input.setText(data["ssh_implementation"])
                 self.dns_timeout_input.setText(str(data["dns_timeout"]))
         except Exception as e:
-            self.popup_message.show_message(f"Error loading configuration: {e}")
+            self.popup_message.show_error_message(f"Error loading configuration: {e}")
 
     def get_lzb_configuration(self):
         try:

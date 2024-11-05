@@ -114,7 +114,7 @@ class BasicConfigurationWidget(QWidget):
                 self.watcher_escalation_timeout_input.setText(data["watcherEscalationTimeout"])
                 self.watcher_sleep_time_input.setText(data["watcherSleepTime"])
         except sqlite3.Error as e:
-            self.popup_message.show_message(f"Error loading configuration: {e}")
+            self.popup_message.show_error_message(f"Error loading configuration: {e}")
 
     def get_basic_configuration(self):
         try:

@@ -42,7 +42,7 @@ class MQConfigurationWidget(QWidget):
         self.setLayout(main_layout)
 
     def add_groupbox_spacing(self, layout):
-        spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         layout.addItem(spacer)
 
     def create_mqconfig_layout(self, parent_layout):
@@ -348,7 +348,7 @@ class MQConfigurationWidget(QWidget):
             self.populate_ipqueue_fields_from_db()
         except Exception as e:
             print(f"Error populating fields from database: {e}")
-            self.popup_message.show_message("Error populating fields from database.")
+            self.popup_message.show_error_message("Error populating fields from database.")
 
     def refresh_page(self):
         self.clear_layout(self.scroll_layout)
