@@ -3,7 +3,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QApplication, QMessageBox
 
 from database.utils import get_communications, get_locations, get_descriptions, get_basic_configs, get_lzb_configs, \
-    get_mq_configs, get_mq_trigger, get_ip_queue, get_namelist, get_alternatenames
+    get_mq_configs, get_mq_trigger, get_ip_queue, get_namelist, get_alternatenames, get_command, get_command_param
 
 
 class SearchResultsWindow(QWidget):
@@ -67,8 +67,10 @@ class Search:
         mq_trigger_results = filter_mq_trigger(self.cursor, text)
         ip_queue_results = filter_ip_queue(self.cursor, text)
         namelist_results = filter_namelists(self.cursor, text)
+        command_results = filter_command(self.cursor, text)
         results = (communication_results + location_results + description_results + basic_config_results +
-                   lzb_config_results + mq_config_results + mq_trigger_results + ip_queue_results + namelist_results)
+                   lzb_config_results + mq_config_results + mq_trigger_results + ip_queue_results +
+                   namelist_results + command_results)
         return results
 
     def create_result_window(self, main_window, results, text):
@@ -150,4 +152,15 @@ def filter_namelists(cursor, text):
     namelist_cursor = get_namelist(cursor, text)
     alternatename_cursor = get_alternatenames(cursor, text)
     rows = namelist_cursor.fetchall() + alternatename_cursor.fetchall()
+    return rows
+
+
+def filter_command(cursor, text):
+    command_cursor = get_command(cursor, text)
+    command_rows = command_cursor.fetchall()
+
+    command_param_cursor = get_command_param(cursor, text)
+    command_param_rows = command_param_cursor.fetchall()
+
+    rows = command_rows + command_param_rows
     return rows

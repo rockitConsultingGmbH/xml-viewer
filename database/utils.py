@@ -959,6 +959,24 @@ def select_from_command(cursor, communication_id):
     return cursor
 
 
+def get_command(cursor, text):
+    query = """
+    SELECT c.id, c.className, c.validForTargetLocations, c.userid, c.password, c.commandType,
+    CASE
+        WHEN c.className LIKE ? THEN 'className'
+        WHEN c.validForTargetLocations LIKE ? THEN 'validForTargetLocations'
+        WHEN c.userid LIKE ? THEN 'userid'
+        WHEN c.password LIKE ? THEN 'password'
+        WHEN c.commandType LIKE ? THEN 'commandType'
+    END as source
+    FROM Command c
+    WHERE c.className LIKE ? OR c.validForTargetLocations LIKE ? OR c.userid LIKE ? OR c.password LIKE ? OR c.commandType LIKE ?
+    """
+    params = [f'%{text}%'] * 10
+    cursor.execute(query, params)
+    return cursor
+
+
 def update_command(cursor, row):
     cursor.execute("""
     UPDATE Command
@@ -1014,6 +1032,22 @@ def select_from_commandparam(cursor, command_id):
     WHERE command_id = ?
     """,
                    (command_id,))
+    return cursor
+
+
+def get_command_param(cursor, text):
+    query = """
+    SELECT cp.id, cp.param, cp.paramName, cp.paramOrder,
+    CASE
+        WHEN cp.param LIKE ? THEN 'param'
+        WHEN cp.paramName LIKE ? THEN 'paramName'
+        WHEN cp.paramOrder LIKE ? THEN 'paramOrder'
+    END as source
+    FROM CommandParam cp
+    WHERE cp.param LIKE ? OR cp.paramName LIKE ? OR cp.paramOrder LIKE ?
+    """
+    params = [f'%{text}%'] * 6
+    cursor.execute(query, params)
     return cursor
 
 
