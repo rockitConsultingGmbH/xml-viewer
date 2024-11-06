@@ -1,4 +1,4 @@
-from common.commandparam_map import set_command_param_name
+from controllers.commandparam_map import set_command_param_name
 
 
 def add_xml_element(root, tag_name):

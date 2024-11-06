@@ -1,3 +1,4 @@
+import configparser
 import os
 import sys
 
@@ -36,3 +37,14 @@ class ConfigManager:
         except Exception as e:
             print(f"Error reading {property_name} from properties file: {e}")
         return value
+    
+    def get_all_properties(file_path):
+        config = configparser.ConfigParser()
+        config.read(file_path)
+
+        properties = {}
+        for line in open(file_path):
+            if "=" in line:
+                key, value = line.strip().split("=", 1)
+                properties[key.strip()] = value.strip()
+        return properties

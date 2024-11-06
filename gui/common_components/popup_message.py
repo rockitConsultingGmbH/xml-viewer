@@ -10,14 +10,6 @@ class PopupMessage:
 
         # Create the bubble popup message label
         self.popup_message = QLabel(parent)
-        self.popup_message.setStyleSheet("""
-            background-color: lightblue; 
-            color: black; 
-            padding: 5px;
-            border-radius: 8px;
-            font-size: 12,5px;
-            font-weight: bold;
-        """)
         self.popup_message.setAlignment(Qt.AlignCenter)
         self.popup_message.setFixedHeight(height)
         self.popup_message.setVisible(False)  # Initially hidden
@@ -28,6 +20,14 @@ class PopupMessage:
         self.message_timer.timeout.connect(self.hide_success_message)
 
     def show_message(self, text: str):
+        self.popup_message.setStyleSheet("""
+            background-color: lightblue; 
+            color: black; 
+            padding: 5px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        """)
         # Set the message text and adjust the width
         self.popup_message.setText(text)
         # Set the width based on text length, with a limit on the maximum width
@@ -50,7 +50,7 @@ class PopupMessage:
             color: black; 
             padding: 5px;
             border-radius: 8px;
-            font-size: 12,5px;
+            font-size: 12px;
             font-weight: bold;
         """)
 
