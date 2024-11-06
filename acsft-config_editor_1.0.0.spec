@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='acsftconfig_editor',
+    name='acsft-config_editor_1.0.0',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

@@ -3,52 +3,67 @@ import sys
 import os
 import logging
 
+# Add the project root directory to sys.path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
+
+from common.config_manager import ConfigManager
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def build_executable(script_name, name="app", console=True, add_data=None, icon_path=None):
+class ExecutableBuilder:
+    def __init__(self, script_name, name="app", console=True, add_data=None, icon_path=None):
+        self.script_name = script_name
+        self.name = name
+        self.console = console
+        self.add_data = add_data
+        self.icon_path = icon_path
 
-    command = [
-        "pyinstaller",
-        "--onefile",
-        "--name", name,
-        "--hidden-import=lxml",
-        "--hidden-import=lxml.etree",
-        "--hidden-import=lxml.objectify",
-        "--hidden-import=PyQt5",
-        "--hidden-import=PyQt5.QtWidgets",
-        "--hidden-import=PyQt5.QtCore",
-        "--hidden-import=PyQt5.QtGui",
-        script_name
-    ]
+    def build(self):
+        command = [
+            "pyinstaller",
+            "--onefile",
+            "--name", self.name,
+            "--hidden-import=lxml",
+            "--hidden-import=lxml.etree",
+            "--hidden-import=lxml.objectify",
+            "--hidden-import=PyQt5",
+            "--hidden-import=PyQt5.QtWidgets",
+            "--hidden-import=PyQt5.QtCore",
+            "--hidden-import=PyQt5.QtGui",
+            self.script_name
+        ]
 
-    if not console:
-        command.append("--noconsole")
-    if icon_path:
-        command.extend(["--icon", icon_path])
+        if not self.console:
+            command.append("--noconsole")
+        if self.icon_path:
+            command.extend(["--icon", self.icon_path])
 
-    if add_data:
-        for source, destination in add_data:
-            # Adjust syntax based on the operating system
-            formatted_data = f"{source};{destination}" if sys.platform == "win32" else f"{source}:{destination}"
-            command.extend(["--add-data", formatted_data])
+        if self.add_data:
+            for source, destination in self.add_data:
+                formatted_data = f"{source};{destination}" if sys.platform == "win32" else f"{source}:{destination}"
+                command.extend(["--add-data", formatted_data])
 
-    logging.info(f"Building executable {name} for {script_name}...")
-    try:
-        subprocess.run(command, check=True)
-        logging.info("Build complete.")
-    except subprocess.CalledProcessError as e:
-        logging.error(f"An error occurred while building the executable: {e}")
-        return
+        logging.info(f"Building executable {self.name} for {self.script_name}...")
+        try:
+            subprocess.run(command, check=True)
+            logging.info("Build complete.")
+        except subprocess.CalledProcessError as e:
+            logging.error(f"An error occurred while building the executable: {e}")
+            return
 
-    dist_path = os.path.join("dist", os.path.splitext(name)[0] + ".exe")
-    if os.path.exists(dist_path):
-        logging.info(f"Executable created successfully at: {dist_path}")
-    else:
-        logging.error("Something went wrong. Executable not found in 'dist' folder.")
+        dist_path = os.path.join("dist", os.path.splitext(self.name)[0] + ".exe")
+        if os.path.exists(dist_path):
+            logging.info(f"Executable created successfully at: {dist_path}")
+        else:
+            logging.error("Something went wrong. Executable not found in 'dist' folder.")
 
 if __name__ == "__main__":
     script_name = "app.py"
-    executable_name  = "acsftconfig_editor"
+    config_manager = ConfigManager()
+    version = config_manager.get_property_from_properties("version")
+    app_name = config_manager.get_property_from_properties("appName")
+    executable_name = f"{app_name}_{version}".lower()
     console = True
 
     add_data = [
@@ -63,4 +78,5 @@ if __name__ == "__main__":
     # Optional icon path
     icon_path = None
 
-    build_executable(script_name, name=executable_name , console=False, add_data=add_data, icon_path=icon_path)
+    builder = ExecutableBuilder(script_name, name=executable_name, console=False, add_data=add_data, icon_path=icon_path)
+    builder.build()

@@ -162,13 +162,13 @@ class MainWindow(QMainWindow):
         about_action = QAction("About", self)
         about_action.triggered.connect(self.show_about)
 
-        guide_action = QAction("User Guide", self)
-        guide_action.triggered.connect(self.show_guide)
+        #guide_action = QAction("User Guide", self)
+        #guide_action.triggered.connect(self.show_guide)
 
         menubar = self.menuBar()
         help_menu = menubar.addMenu("Help")
         help_menu.addAction(about_action)
-        help_menu.addAction(guide_action)
+        #help_menu.addAction(guide_action)
 
         self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action, 
                              self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action, 
@@ -211,7 +211,7 @@ class MainWindow(QMainWindow):
         if dialog.exec_():
             if self.recent_files:
                 self.reinitialize()
-            self.display_db_tables()
+            self.create_tree_view()
 
             self.load_basic_config_view()
 
@@ -219,7 +219,7 @@ class MainWindow(QMainWindow):
                 tree_widget = self.left_widget.layout().itemAt(0).widget()
                 tree_widget.setCurrentItem(self.basic_config_item)
 
-        self.enable_edit_menu_actions(True)
+            self.enable_edit_menu_actions(True)
 
     def reinitialize(self):
         if self.right_widget.layout() is not None:
@@ -238,9 +238,9 @@ class MainWindow(QMainWindow):
         self.right_widget.setObjectName("left_widget")
         self.splitter.insertWidget(0, self.left_widget)
 
-        self.display_db_tables()
+        self.create_tree_view()
 
-    def display_db_tables(self):
+    def create_tree_view(self):
         if self.left_widget.layout() is not None:
             old_layout = self.left_widget.layout()
             QWidget().setLayout(old_layout)
@@ -486,7 +486,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, "Confirm Exit",
-                                     "Are you sure you want to close the application?",
+                                     "Are you sure you want to close the application?\n",
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:

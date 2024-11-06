@@ -10,13 +10,6 @@ class PopupMessage:
 
         # Create the bubble popup message label
         self.popup_message = QLabel(parent)
-        self.popup_message.setStyleSheet("""
-            background-color: lightblue; 
-            color: black; 
-            padding: 5px 10px; 
-            border-radius: 10px; 
-            border: 1px solid green;
-        """)
         self.popup_message.setAlignment(Qt.AlignCenter)
         self.popup_message.setFixedHeight(height)
         self.popup_message.setVisible(False)  # Initially hidden
@@ -27,6 +20,14 @@ class PopupMessage:
         self.message_timer.timeout.connect(self.hide_success_message)
 
     def show_message(self, text: str):
+        self.popup_message.setStyleSheet("""
+            background-color: lightblue; 
+            color: black; 
+            padding: 5px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        """)
         # Set the message text and adjust the width
         self.popup_message.setText(text)
         # Set the width based on text length, with a limit on the maximum width
@@ -35,7 +36,7 @@ class PopupMessage:
         self.popup_message.setFixedWidth(adjusted_width)
 
         # Position the popup centered horizontally, adjust vertical positioning if needed
-        top_margin = 20  # adjust as needed for spacing
+        top_margin = 10  # adjust as needed for spacing
         self.popup_message.move((self.parent.width() - self.popup_message.width()) // 2, top_margin)
         self.popup_message.setVisible(True)
 
@@ -45,11 +46,12 @@ class PopupMessage:
     def show_error_message(self, text: str):
         self.show_message(text)
         self.popup_message.setStyleSheet("""
-            background-color: red; 
+            background-color: orange; 
             color: black; 
-            padding: 5px 10px; 
-            border-radius: 10px; 
-            border: 1px solid green;
+            padding: 5px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
         """)
 
     def hide_success_message(self):
