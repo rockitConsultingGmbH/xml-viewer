@@ -1,22 +1,20 @@
 import logging
 import sqlite3
 import sys
-import lxml
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit, QHBoxLayout
 
+from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
 from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
-    delete_new_communication
-from gui.communication_ui_components.search import filter_communications, filter_locations, filter_descriptions, \
-    SearchResultsWindow, filter_basic_configs, filter_lzb_configs, filter_mq_configs, filter_mq_trigger, \
-    filter_ip_queue, filter_namelists
-from utils.empty_database import empty_database
-from gui.import_xml_dialog_window import FileDialog
+    delete_new_communication, delete_communication
+from gui.common_components.create_new_namelist import create_new_namelist, delete_selected_namelist
 from gui.communication_ui import CommunicationUI
-from gui.basic_configuration_ui import BasicConfigurationWidget
+from gui.communication_ui_components.search import Search
+from gui.import_xml_dialog_window import FileDialog
 from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
 
@@ -24,6 +22,7 @@ from common.connection_manager import ConnectionManager
 from common.config_manager import ConfigManager
 
 from gui.namelists_ui import NameListsWidget
+from utils.empty_database import empty_database
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
 
 from gui.common_components.stylesheet_loader import load_stylesheet
@@ -71,43 +70,10 @@ class MainWindow(QMainWindow):
         self.search_field = QLineEdit(self)
         self.search_field.setPlaceholderText("Search...")
         self.search_field.setFixedWidth(300)
-        self.search_field.returnPressed.connect(self.show_search_results)
+        self.search_helper = Search(self.conn_manager, self.config_manager)
+        self.search_field.returnPressed.connect(lambda: self.search_helper.on_search(self))
 
         self.create_menu()
-
-    def show_search_results(self):
-        text = self.search_field.text().strip()
-        if not text:
-            return
-
-        communication_results = filter_communications(self.conn_manager, self.config_manager, text)
-        location_results = filter_locations(self.conn_manager, text)
-        description_results = filter_descriptions(self.conn_manager, text)
-        basic_config_results = filter_basic_configs(self.conn_manager, text)
-        lzb_config_results = filter_lzb_configs(self.conn_manager, text)
-        mq_config_results = filter_mq_configs(self.conn_manager, text)
-        mq_trigger_results = filter_mq_trigger(self.conn_manager, text)
-        ip_queue_results = filter_ip_queue(self.conn_manager, text)
-        namelist_results = filter_namelists(self.conn_manager, text)
-        results = (communication_results + location_results + description_results + basic_config_results +
-                   lzb_config_results + mq_config_results + mq_trigger_results + ip_queue_results + namelist_results)
-
-        if not results:
-            QMessageBox.information(self, "No Results", "No search results found.")
-        else:
-            self.results_window = SearchResultsWindow(results, text)
-            self.results_window.communication_selected.connect(self.navigate_to_communication)
-            self.results_window.show()
-
-    def navigate_to_communication(self, communication_id):
-        tree_widget = self.left_widget.layout().itemAt(0).widget()
-        for i in range(self.communication_config_item.childCount()):
-            child_item = self.communication_config_item.child(i)
-            if child_item.data(0, Qt.UserRole) == communication_id:
-                tree_widget.setCurrentItem(child_item)
-                self.on_item_clicked(child_item)
-                self.results_window.close()
-                break
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -214,8 +180,8 @@ class MainWindow(QMainWindow):
         help_menu.addAction(about_action)
         help_menu.addAction(guide_action)
 
-        self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action, 
-                             self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action, 
+        self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action,
+                             self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action,
                              self.namelist_menu, self.create_namelist_action, self.duplicate_namelist_action, self.delete_namelist_action]
 
         search_widget = QWidget(self)
