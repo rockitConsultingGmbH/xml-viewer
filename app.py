@@ -1,18 +1,20 @@
 import logging
 import sqlite3
 import sys
-import lxml
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
-    QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit
 
-from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
-from gui.common_components.create_new_communication import create_new_communication, on_name_changed, delete_new_communication, delete_communication
-from gui.common_components.create_new_namelist import create_new_namelist, on_name_changed, delete_selected_namelist
-from utils.empty_database import empty_database
-from gui.import_xml_dialog_window import FileDialog
-from gui.communication_ui import CommunicationUI
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
+    QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit, QHBoxLayout
+
 from gui.basic_configuration_ui import BasicConfigurationWidget
+from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
+from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
+    delete_new_communication, delete_communication
+from gui.common_components.create_new_namelist import create_new_namelist, delete_selected_namelist
+from gui.communication_ui import CommunicationUI
+from gui.communication_ui_components.search import Search
+from gui.import_xml_dialog_window import FileDialog
 from gui.lzb_configuration_ui import LZBConfigurationWidget
 from gui.mq_configuration_ui import MQConfigurationWidget
 
@@ -20,6 +22,7 @@ from common.connection_manager import ConnectionManager
 from common.config_manager import ConfigManager
 
 from gui.namelists_ui import NameListsWidget
+from utils.empty_database import empty_database
 from utils.export_db_to_xml.db_to_xml import export_to_xml as export_to_xml_function
 
 from gui.common_components.stylesheet_loader import load_stylesheet
@@ -41,6 +44,7 @@ class MainWindow(QMainWindow):
         logging.debug(f"App Name: {self.app_name}")
 
         self.resize(1800, 900)
+        self.setWindowIcon(QIcon('gui/icon/main.svg'))
         self.setWindowTitle(self.app_name)
 
         screen = QApplication.primaryScreen().availableGeometry()
@@ -62,6 +66,12 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.splitter)
 
         load_stylesheet(self, "css/tree_widget_styling.qss")
+
+        self.search_field = QLineEdit(self)
+        self.search_field.setPlaceholderText("Search...")
+        self.search_field.setFixedWidth(300)
+        self.search_helper = Search(self.conn_manager, self.config_manager)
+        self.search_field.returnPressed.connect(lambda: self.search_helper.on_search(self))
 
         self.create_menu()
 
@@ -170,9 +180,25 @@ class MainWindow(QMainWindow):
         help_menu.addAction(about_action)
         #help_menu.addAction(guide_action)
 
-        self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action, 
-                             self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action, 
+        self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action,
+                             self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action,
                              self.namelist_menu, self.create_namelist_action, self.duplicate_namelist_action, self.delete_namelist_action]
+
+        search_widget = QWidget(self)
+        search_layout = QHBoxLayout(search_widget)
+        search_layout.addStretch()
+        search_layout.addWidget(self.search_field)
+        search_layout.setContentsMargins(0, 0, 5, 0)
+
+        menubar.setCornerWidget(search_widget, Qt.TopRightCorner)
+
+        search_widget = QWidget(self)
+        search_layout = QHBoxLayout(search_widget)
+        search_layout.addStretch()
+        search_layout.addWidget(self.search_field)
+        search_layout.setContentsMargins(0, 0, 5, 0)
+
+        menubar.setCornerWidget(search_widget, Qt.TopRightCorner)
 
     def enable_edit_menu_actions(self, enable=True):
         for action in self.edit_actions:
@@ -183,7 +209,6 @@ class MainWindow(QMainWindow):
 
     def show_guide(self):
         QMessageBox.about(self, "User Guide", "This feature is still under development.")
-
     def copy_text(self):
         widget = self.focusWidget()
         if isinstance(widget, QLineEdit):
