@@ -45,7 +45,9 @@ def delete_new_namelist(main_window):
     try:
         conn = main_window.conn_manager.get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM NameList WHERE id = ?", (main_window.current_namelist_id,))
+        namelist_id = main_window.current_namelist_id
+        cursor.execute("DELETE FROM NameList WHERE id = ?", (namelist_id,))
+        cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (namelist_id,))
         conn.commit()
         conn.close()
 
@@ -65,7 +67,7 @@ def delete_new_namelist(main_window):
         main_window.unsaved_changes = False
         main_window.current_namelist_id = None
     except Exception as e:
-        QMessageBox.critical(main_window, "Error", f"An error occurred while deleting the communication: {str(e)}")
+        QMessageBox.critical(main_window, "Error", f"An error occurred while deleting the nameList: {str(e)}")
 
 
 def delete_namelist(main_window, namelist_id):
@@ -81,6 +83,7 @@ def delete_namelist(main_window, namelist_id):
         conn = main_window.conn_manager.get_db_connection()
         cursor = conn.cursor()
         cursor.execute("DELETE FROM NameList WHERE id = ?", (namelist_id,))
+        cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (namelist_id,))
         conn.commit()
         conn.close()
 
