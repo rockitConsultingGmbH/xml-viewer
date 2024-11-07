@@ -21,7 +21,8 @@ class ExecutableBuilder:
 
     def build(self):
         command = [
-            "pyinstaller",
+            sys.executable,  # Use Python executable to run PyInstaller
+            "-m", "PyInstaller",
             "--onefile",
             "--name", self.name,
             "--hidden-import=lxml",
@@ -45,18 +46,24 @@ class ExecutableBuilder:
                 command.extend(["--add-data", formatted_data])
 
         logging.info(f"Building executable {self.name} for {self.script_name}...")
+        logging.debug(f"Full command: {' '.join(command)}")
+
         try:
             subprocess.run(command, check=True)
             logging.info("Build complete.")
+            
+            # Print the path where the executable is created
+            dist_path = os.path.join("dist", self.name + (".exe" if sys.platform == "win32" else ""))
+            if os.path.exists(dist_path):
+                logging.info(f"Executable created successfully at: {dist_path}")
+                print(f"Executable created successfully at: {os.path.abspath(dist_path)}")
+            else:
+                logging.error("Something went wrong. Executable not found in 'dist' folder.")
+        
         except subprocess.CalledProcessError as e:
             logging.error(f"An error occurred while building the executable: {e}")
-            return
-
-        dist_path = os.path.join("dist", os.path.splitext(self.name)[0] + ".exe")
-        if os.path.exists(dist_path):
-            logging.info(f"Executable created successfully at: {dist_path}")
-        else:
-            logging.error("Something went wrong. Executable not found in 'dist' folder.")
+        except FileNotFoundError as e:
+            logging.error(f"FileNotFoundError: {e}")
 
 if __name__ == "__main__":
     script_name = "app.py"
