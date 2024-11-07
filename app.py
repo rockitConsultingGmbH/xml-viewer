@@ -7,6 +7,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit, QHBoxLayout
 
+from common.resource_manager import ResourceManager
 from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
 from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
@@ -37,6 +38,7 @@ class MainWindow(QMainWindow):
         self.basic_config_item = None
         self.conn_manager = ConnectionManager()
         self.config_manager = ConfigManager()
+        self.resource_manager = ResourceManager()
         self.version = self.config_manager.get_property_from_properties("version")
         self.app_name = self.config_manager.get_property_from_properties("appName")
 
@@ -44,7 +46,8 @@ class MainWindow(QMainWindow):
         logging.debug(f"App Name: {self.app_name}")
 
         self.resize(1800, 900)
-        self.setWindowIcon(QIcon('gui/icon/main.svg'))
+        main_icon =  self.resource_manager.get_resource_path('gui/icon/main.svg')
+        self.setWindowIcon(QIcon(main_icon))
         self.setWindowTitle(self.app_name)
 
         screen = QApplication.primaryScreen().availableGeometry()
