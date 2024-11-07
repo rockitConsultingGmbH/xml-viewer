@@ -11,7 +11,7 @@ from gui.basic_configuration_ui import BasicConfigurationWidget
 from gui.common_components.communication_popup_warnings import show_unsaved_changes_warning
 from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
     delete_new_communication, delete_communication
-from gui.common_components.create_new_namelist import create_new_namelist, delete_selected_namelist
+from gui.common_components.create_new_namelist import create_new_namelist, delete_new_namelist, delete_namelist
 from gui.communication_ui import CommunicationUI
 from gui.communication_ui_components.search import Search
 from gui.import_xml_dialog_window import FileDialog
@@ -364,7 +364,7 @@ class MainWindow(QMainWindow):
             #menu.addAction(duplicate_action)
 
             delete_action = QAction("Delete", self)
-            delete_action.triggered.connect(lambda: delete_selected_namelist(self, nameList_id))
+            delete_action.triggered.connect(lambda: delete_namelist(self, nameList_id))
             menu.addAction(delete_action)
 
             menu.exec_(self.left_widget.layout().itemAt(0).widget().mapToGlobal(position))
@@ -379,6 +379,9 @@ class MainWindow(QMainWindow):
     def delete_new_communication(self):
         delete_new_communication(self)
 
+    def delete_new_namelist(self):
+        delete_new_namelist(self)
+
     def delete_selected_communication(self):
         tree_widget = self.left_widget.layout().itemAt(0).widget()
         current_item = tree_widget.currentItem()
@@ -391,7 +394,7 @@ class MainWindow(QMainWindow):
         current_item = tree_widget.currentItem()
         if current_item and current_item.parent() == self.namelist_item:
             nameList_id = current_item.data(0, Qt.UserRole)
-            delete_selected_namelist(self, nameList_id)
+            delete_namelist(self, nameList_id)
 
     def update_namelist_in_tree(self, nameList_id, new_name):
         for i in range(self.namelist_item.childCount()):
@@ -403,8 +406,8 @@ class MainWindow(QMainWindow):
     def on_item_clicked(self, item):
         try:
             communication_id = item.data(0, Qt.UserRole)
-            if hasattr(self,
-                       'unsaved_changes') and self.unsaved_changes and not self.name_changed and communication_id != self.current_communication_id:
+            if hasattr(self, 'unsaved_changes') and self.unsaved_changes and not self.name_changed and hasattr(self,
+                                                                                                               'current_communication_id') and communication_id != self.current_communication_id:
                 reply = show_unsaved_changes_warning(self)
                 if reply == QMessageBox.No:
                     tree_widget = self.left_widget.layout().itemAt(0).widget()
@@ -414,6 +417,20 @@ class MainWindow(QMainWindow):
                     return
                 elif reply == QMessageBox.Yes:
                     self.delete_new_communication()
+
+            namelist_id = item.data(0, Qt.UserRole)
+            if hasattr(self,
+                       'unsaved_changes') and self.unsaved_changes and not self.name_changed and hasattr(self,
+                                                                                                               'current_namelist_id') and namelist_id != self.current_namelist_id:
+                reply = show_unsaved_changes_warning(self)
+                if reply == QMessageBox.No:
+                    tree_widget = self.left_widget.layout().itemAt(0).widget()
+                    new_namelist_items = tree_widget.findItems("New Namelist", Qt.MatchExactly | Qt.MatchRecursive)
+                    if new_namelist_items:
+                        tree_widget.setCurrentItem(new_namelist_items[0])
+                    return
+                elif reply == QMessageBox.Yes:
+                    self.delete_new_namelist()
 
             if item.parent() == self.communication_config_item:
                 if communication_id is not None:

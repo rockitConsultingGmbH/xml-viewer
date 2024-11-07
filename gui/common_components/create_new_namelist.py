@@ -2,18 +2,20 @@ from gui.namelists_ui import NameListsWidget
 from PyQt5.QtWidgets import QTreeWidgetItem, QMessageBox, QWidget
 from PyQt5.QtCore import Qt
 
-def on_name_changed(main_window):
-    main_window.name_changed = True
 
 def create_new_namelist(main_window):
     try:
         conn = main_window.conn_manager.get_db_connection()
         cursor = conn.cursor()
         cursor.execute("INSERT INTO NameList (listName, basicConfig_id) VALUES (?, ?)",
-                       ("New Namelist", main_window.config_manager.config_id))
+                       ("", main_window.config_manager.config_id))
         conn.commit()
         new_namelist_id = cursor.lastrowid
         conn.close()
+
+        new_namelist_item = QTreeWidgetItem(["New Namelist"])
+        new_namelist_item.setData(0, Qt.UserRole, new_namelist_id)
+        main_window.namelist_item.insertChild(0, new_namelist_item)
 
         main_window.right_widget.setParent(None)
         name_list_ui = NameListsWidget(new_namelist_id)
@@ -23,17 +25,50 @@ def create_new_namelist(main_window):
         main_window.right_widget.setObjectName("namelists_widget")
         main_window.splitter.addWidget(main_window.right_widget)
         main_window.splitter.setSizes([250, 1000])
+        main_window.setCentralWidget(main_window.splitter)
 
-        new_namelist_item = QTreeWidgetItem(["New Namelist"])
-        new_namelist_item.setData(0, Qt.UserRole, new_namelist_id)
-        main_window.namelist_item.insertChild(0, new_namelist_item)
         tree_widget = main_window.left_widget.layout().itemAt(0).widget()
         tree_widget.setCurrentItem(new_namelist_item)
 
+        main_window.unsaved_changes = True
+        main_window.current_namelist_id = new_namelist_id
+        main_window.name_changed = False
     except Exception as e:
         QMessageBox.critical(main_window, "Error", f"An error occurred: {str(e)}")
 
-def delete_selected_namelist(main_window, namelist_id):
+
+def on_name_changed(main_window):
+    main_window.name_changed = True
+
+
+def delete_new_namelist(main_window):
+    try:
+        conn = main_window.conn_manager.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM NameList WHERE id = ?", (main_window.current_namelist_id,))
+        conn.commit()
+        conn.close()
+
+        for i in range(main_window.namelist_item.childCount()):
+            child_item = main_window.namelist_item.child(i)
+            if child_item.data(0, Qt.UserRole) == main_window.current_namelist_id:
+                main_window.namelist_item.removeChild(child_item)
+                break
+
+        main_window.right_widget.setParent(None)
+        main_window.right_widget = QWidget()
+        main_window.right_widget.setObjectName("right_widget")
+        main_window.splitter.addWidget(main_window.right_widget)
+        main_window.splitter.setSizes([250, 1000])
+        main_window.setCentralWidget(main_window.splitter)
+
+        main_window.unsaved_changes = False
+        main_window.current_namelist_id = None
+    except Exception as e:
+        QMessageBox.critical(main_window, "Error", f"An error occurred while deleting the communication: {str(e)}")
+
+
+def delete_namelist(main_window, namelist_id):
     reply = QMessageBox.question(
         main_window,
         "Confirm Deletion",
