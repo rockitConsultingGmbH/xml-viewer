@@ -6,12 +6,10 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 def load_stylesheet(widget, relative_filepath):
-    # Get the absolute path of the main script's directory (app.py)
-    main_script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-    logging.debug(f"Main script directory: {main_script_path}")
+    # Get the base path using _MEIPASS if it exists (PyInstaller compatibility)
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    filepath = os.path.join(base_path, relative_filepath)
     
-    # Join the base path with the relative path to create the full path
-    filepath = os.path.join(main_script_path, relative_filepath)
     logging.debug(f"Full path to stylesheet: {filepath}")
     
     try:
