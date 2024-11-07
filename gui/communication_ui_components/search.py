@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QApplication, QMessageBox
 
+from common.resource_manager import ResourceManager
 from database.utils import get_communications, get_locations, get_descriptions, get_basic_configs, get_lzb_configs, \
     get_mq_configs, get_mq_trigger, get_ip_queue, get_namelist, get_alternatenames, get_command, get_command_param
 
@@ -11,9 +12,11 @@ class SearchResultsWindow(QWidget):
 
     def __init__(self, results, search_query):
         super().__init__()
+        self.resource_manager = ResourceManager()
         self.setWindowTitle("Search Results")
         self.setGeometry(100, 100, 800, 400)
-        self.setWindowIcon(QIcon('gui/icon/search.svg'))
+        search_icon =  self.resource_manager.get_resource_path('gui/icon/search.svg')
+        self.setWindowIcon(QIcon(search_icon))
         layout = QVBoxLayout()
         self.results_tree = QTreeWidget()
         self.results_tree.setHeaderLabels(["Found", "Name", "Source"])
