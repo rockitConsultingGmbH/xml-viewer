@@ -1,11 +1,4 @@
 <svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
- <defs>
-  <filter id="svg_1_blur">
-   <feGaussianBlur in="SourceGraphic" stdDeviation="0.5"/>
-  </filter>
- </defs>
- <g class="layer" display="inline">
-  <title>Layer 1</title>
-  <text fill="#000000" filter="url(#svg_1_blur)" font-family="Arial, sans-serif" font-size="80" font-weight="bold" id="svg_1" text-anchor="middle" x="128" y="140">ACSFT</text>
- </g>
+ <rect x="0" y="0" width="256" height="256" fill="white"/>
+ <text fill="#000000" font-family="Arial, sans-serif" font-size="80" font-weight="bold" text-anchor="middle" x="128" y="150">ACSFT</text>
 </svg>

@@ -103,8 +103,9 @@ def create_xml_from_mqtrigger(root, row):
 
 # IPQueue
 def create_xml_from_ipqueue(root, row):
-    etree.SubElement(root, 'description').text = str(row['description'])
+    #etree.SubElement(root, 'description').text = str(row['description'])
     xml_element = etree.SubElement(root, 'IPQueue')
+    add_row_element_if_not_empty(xml_element, 'description',                row['description'])
     add_row_element_if_not_empty(xml_element, 'queue',                      row['queue'])
     add_row_element_if_not_empty(xml_element, 'errorQueue',                 row['errorQueue'])
     add_row_element_if_not_empty(xml_element, 'numberOfThreads',            row['numberOfThreads'])

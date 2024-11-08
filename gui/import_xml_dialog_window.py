@@ -12,7 +12,6 @@ class FileDialog(QDialog):
         super().__init__(parent)
         self.resource_manager = ResourceManager()
         self.config_manager = ConfigManager()
-        self.app_name = self.config_manager.get_property_from_properties("appName")
 
         self.setWindowTitle("Choose XML and XSD Files")
         self.setGeometry(100, 100, 400, 200)
@@ -99,8 +98,6 @@ class FileDialog(QDialog):
                 self.config_manager.config_filepath = self.xml_path.text()
 
                 QMessageBox.information(self, "Success", "XML file was successfully imported.")
-                self.parent().setWindowTitle(f"{self.app_name} - {self.xml_path.text()}")
-
                 self.accept()
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Error: {str(e)}")

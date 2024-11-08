@@ -248,6 +248,7 @@ class MainWindow(QMainWindow):
                 tree_widget = self.left_widget.layout().itemAt(0).widget()
                 tree_widget.setCurrentItem(self.basic_config_item)
 
+            self.setWindowTitle(f"{self.app_name} - {self.config_manager.config_filepath}")
             self.enable_edit_menu_actions(True)
 
     def reinitialize(self):
