@@ -72,8 +72,8 @@ class MainWindow(QMainWindow):
 
         self.search_field = QLineEdit(self)
         self.search_field.setPlaceholderText("Search...")
-        self.search_field.setFixedWidth(450)
-        self.search_field.setFixedHeight(30)
+        self.search_field.setFixedWidth(500)
+        self.search_field.setFixedHeight(35)
         self.search_helper = Search(self.conn_manager, self.config_manager)
         self.search_field.returnPressed.connect(lambda: self.search_helper.on_search(self))
 
@@ -248,8 +248,8 @@ class MainWindow(QMainWindow):
                 tree_widget = self.left_widget.layout().itemAt(0).widget()
                 tree_widget.setCurrentItem(self.basic_config_item)
 
-            self.setWindowTitle(f"{self.app_name} - {self.config_manager.config_filepath}")
             self.enable_edit_menu_actions(True)
+            self.setWindowTitle(f"{self.app_name} - {self.config_manager.config_filepath}")
 
     def reinitialize(self):
         if self.right_widget.layout() is not None:
