@@ -71,8 +71,8 @@ def select_from_basicconfig(cursor, basicConfig_id):
 
 def get_basic_configs(cursor, text):
     query = """
-    SELECT id, 'BasicConfig' as table_name, stage, tempDir, tempDir1, tempDir2, historyFile, 
-           historyFile1, historyFile2, historyDays, archiverTime, watcherEscalationTimeout, 
+    SELECT id, 'BasicConfig' as table_name, stage, tempDir, tempDir1, tempDir2, historyFile,
+           historyFile1, historyFile2, historyDays, archiverTime, watcherEscalationTimeout,
            watcherSleepTime,
     CASE
         WHEN stage LIKE ? THEN 'stage'
@@ -88,9 +88,9 @@ def get_basic_configs(cursor, text):
         WHEN watcherSleepTime LIKE ? THEN 'watcherSleepTime'
     END as source
     FROM BasicConfig
-    WHERE stage LIKE ? OR tempDir LIKE ? OR tempDir1 LIKE ? OR tempDir2 LIKE ? OR 
-          historyFile LIKE ? OR historyFile1 LIKE ? OR historyFile2 LIKE ? OR 
-          historyDays LIKE ? OR archiverTime LIKE ? OR watcherEscalationTimeout LIKE ? 
+    WHERE stage LIKE ? OR tempDir LIKE ? OR tempDir1 LIKE ? OR tempDir2 LIKE ? OR
+          historyFile LIKE ? OR historyFile1 LIKE ? OR historyFile2 LIKE ? OR
+          historyDays LIKE ? OR archiverTime LIKE ? OR watcherEscalationTimeout LIKE ?
           OR watcherSleepTime LIKE ?
     """
     params = [f'%{text}%'] * 22
@@ -678,7 +678,7 @@ def get_communication_names(cursor, communication_id, basicConfig_id):
 
 def get_communications(cursor, config_id, text):
     query = """
-    SELECT id, name as communication_name,
+    SELECT id, 'Communication' as table_name, name as communication_name,
     CASE
         WHEN name LIKE ? THEN 'name'
         WHEN alternateNameList LIKE ? THEN 'alternateNameList'
@@ -865,7 +865,7 @@ def select_from_location(cursor, communication_id, locationType):
 
 def get_locations(cursor, text):
     query = """
-    SELECT l.id, l.location, l.communication_id, l.password, l.description,
+    SELECT l.id, 'Location' as table_name, l.location, l.communication_id, l.password, l.description,
     CASE
         WHEN l.location LIKE ? THEN 'location'
         WHEN l.location_id LIKE ? THEN 'location_id'
@@ -877,7 +877,7 @@ def get_locations(cursor, text):
     c.name as communication_name
     FROM Location l
     JOIN Communication c ON l.communication_id = c.id
-    WHERE l.location LIKE ? OR l.location_id LIKE ? OR l.userid LIKE ? 
+    WHERE l.location LIKE ? OR l.location_id LIKE ? OR l.userid LIKE ?
     OR l.locationType LIKE ? OR l.description LIKE ? OR l.password LIKE ?
     """
     params = [f'%{text}%'] * 6 + [f'%{text}%'] * 6
@@ -961,7 +961,7 @@ def select_from_command(cursor, communication_id):
 
 def get_command(cursor, text):
     query = """
-    SELECT c.id, c.className, c.validForTargetLocations, c.userid, c.password, c.commandType,
+    SELECT c.id, 'Command' as table_name, c.className, c.validForTargetLocations, c.userid, c.password, c.commandType,
     CASE
         WHEN c.className LIKE ? THEN 'className'
         WHEN c.validForTargetLocations LIKE ? THEN 'validForTargetLocations'
@@ -1037,7 +1037,7 @@ def select_from_commandparam(cursor, command_id):
 
 def get_command_param(cursor, text):
     query = """
-    SELECT cp.id, cp.param, cp.paramName, cp.paramOrder,
+    SELECT cp.id, 'CommandParam' as table_name, cp.param, cp.paramName, cp.paramOrder,
     CASE
         WHEN cp.param LIKE ? THEN 'param'
         WHEN cp.paramName LIKE ? THEN 'paramName'
@@ -1133,7 +1133,7 @@ def select_from_namelist_with_communication(cursor, nameList_id):
 
 def get_namelist(cursor, text):
     query = """
-    SELECT nl.id, nl.listName, nl.basicConfig_id, nl.communication_id,
+    SELECT nl.id, 'NameList' as table_name, nl.listName, nl.basicConfig_id, nl.communication_id,
     CASE
         WHEN nl.listName LIKE ? THEN 'listName'
     END as source,
@@ -1177,7 +1177,7 @@ def select_from_alternatename(cursor, nameList_id):
 
 def get_alternatenames(cursor, text):
     query = """
-    SELECT an.id, an.entry, an.nameList_id, nl.listName,
+    SELECT an.id, 'AlternateName' as table_name, an.entry, an.nameList_id, nl.listName,
     CASE
         WHEN an.entry LIKE ? THEN 'entry'
     END as source
@@ -1250,7 +1250,7 @@ def select_from_description(cursor, communication_id, description_id=None):
 
 def get_descriptions(cursor, text):
     query = """
-    SELECT d.id, d.description, d.communication_id, d.descriptionType,
+    SELECT d.id, 'Description' as table_name, d.description, d.communication_id, d.descriptionType,
     CASE
         WHEN d.description LIKE ? THEN 'description'
         WHEN d.descriptionType LIKE ? THEN 'descriptionType'

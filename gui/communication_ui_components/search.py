@@ -16,7 +16,7 @@ class SearchResultsWindow(QWidget):
         self.setWindowIcon(QIcon('gui/icon/search.svg'))
         layout = QVBoxLayout()
         self.results_tree = QTreeWidget()
-        self.results_tree.setHeaderLabels(["Found", "Name", "Source"])
+        self.results_tree.setHeaderLabels(["Found", "Configuration", "Source", "Name"])
         self.results_tree.setColumnWidth(0, 250)
         self.results_tree.setColumnWidth(1, 200)
         self.results_tree.setColumnWidth(2, 200)
@@ -28,12 +28,10 @@ class SearchResultsWindow(QWidget):
 
     def populate_results(self, results, search_query):
         for result in results:
-            if 'table_name' in result.keys():
-                name = result['table_name']
-            else:
-                name = result['communication_name'] if 'communication_name' in result.keys() else 'Unknown'
+            name = result['table_name'] if 'table_name' in result.keys() else 'Unknown'
             source = result['source'] if 'source' in result.keys() else 'Unknown'
-            item = QTreeWidgetItem([search_query, name, source])
+            communication_name = result['communication_name'] if 'communication_id' in result.keys() else ''
+            item = QTreeWidgetItem([search_query, name, source, communication_name])
             communication_id = result['communication_id'] if 'communication_id' in result.keys() else result['id']
             item.setData(0, Qt.UserRole, communication_id)
             self.results_tree.addTopLevelItem(item)
