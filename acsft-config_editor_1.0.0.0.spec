@@ -5,7 +5,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('database/database.db', 'database'), ('gui/icon/folder.svg', 'gui/icon'), ('gui/icon/pick_file.svg', 'gui/icon'), ('css/right_widget_styling.qss', 'css'), ('css/tree_widget_styling.qss', 'css'), ('config.properties', '.')],
+    datas=[('database/database.db', 'database'), ('gui/icon/folder.svg', 'gui/icon'), ('gui/icon/main.svg', 'gui/icon'), ('gui/icon/pick_file.svg', 'gui/icon'), ('gui/icon/search.svg', 'gui/icon'), ('css/right_widget_styling.qss', 'css'), ('css/tree_widget_styling.qss', 'css'), ('config.properties', '.')],
     hiddenimports=['lxml', 'lxml.etree', 'lxml.objectify', 'PyQt5', 'PyQt5.QtWidgets', 'PyQt5.QtCore', 'PyQt5.QtGui'],
     hookspath=[],
     hooksconfig={},

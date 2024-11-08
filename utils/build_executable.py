@@ -87,5 +87,5 @@ if __name__ == "__main__":
     # Optional icon path
     icon_path = None
 
-    builder = ExecutableBuilder(script_name, name=executable_name, console=True, add_data=add_data, icon_path=icon_path)
+    builder = ExecutableBuilder(script_name, name=executable_name, console=False, add_data=add_data, icon_path=icon_path)
     builder.build()
