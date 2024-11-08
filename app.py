@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.search_field.setPlaceholderText("Search...")
         self.search_field.setFixedWidth(450)
         self.search_field.setFixedHeight(30)
-        self.search_helper = Search(self.conn_manager, self.config_manager)
+        self.search_helper = Search()
         self.search_field.returnPressed.connect(lambda: self.search_helper.on_search(self))
 
         self.create_menu()

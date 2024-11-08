@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, 
 
 from database.utils import get_communications, get_locations, get_descriptions, get_basic_configs, get_lzb_configs, \
     get_mq_configs, get_mq_trigger, get_ip_queue, get_namelist, get_alternatenames, get_command, get_command_param
+from common.connection_manager import ConnectionManager
+from common.config_manager import ConfigManager
 
 
 class SearchResultsWindow(QWidget):
@@ -49,27 +51,36 @@ class SearchResultsWindow(QWidget):
 
 
 class Search:
-    def __init__(self, conn_manager, config_manager):
-        self.conn_manager = conn_manager
-        self.config_manager = config_manager
-        self.conn = self.conn_manager.get_db_connection()
-        self.cursor = self.conn.cursor()
+    def __init__(self):
+        self.conn_manager = ConnectionManager()
+        self.config_manager = ConfigManager()
 
     def search(self, text):
-        communication_results = filter_communications(self.cursor, self.config_manager, text)
-        location_results = filter_locations(self.cursor, text)
-        description_results = filter_descriptions(self.cursor, text)
-        basic_config_results = filter_basic_configs(self.cursor, text)
-        lzb_config_results = filter_lzb_configs(self.cursor, text)
-        mq_config_results = filter_mq_configs(self.cursor, text)
-        mq_trigger_results = filter_mq_trigger(self.cursor, text)
-        ip_queue_results = filter_ip_queue(self.cursor, text)
-        namelist_results = filter_namelists(self.cursor, text)
-        command_results = filter_command(self.cursor, text)
-        results = (communication_results + location_results + description_results + basic_config_results +
-                   lzb_config_results + mq_config_results + mq_trigger_results + ip_queue_results +
-                   namelist_results + command_results)
-        return results
+        conn = None
+        try:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+
+            communication_results = get_communications(cursor, self.config_manager.config_id, text).fetchall()
+            location_results = get_locations(cursor, text).fetchall()
+            description_results = get_descriptions(cursor, text).fetchall()
+            basic_config_results = get_basic_configs(cursor, text).fetchall()
+            lzb_config_results = get_lzb_configs(cursor, text).fetchall()
+            mq_config_results = get_mq_configs(cursor, text).fetchall()
+            mq_trigger_results = get_mq_trigger(cursor, text).fetchall()
+            ip_queue_results = get_ip_queue(cursor, text).fetchall()
+            namelist_results = get_namelist(cursor, text).fetchall() + get_alternatenames(cursor, text).fetchall()
+            command_results = get_command(cursor, text).fetchall() + get_command_param(cursor, text).fetchall()
+            results = (communication_results + location_results + description_results + basic_config_results +
+                       lzb_config_results + mq_config_results + mq_trigger_results + ip_queue_results +
+                       namelist_results + command_results)
+            return results
+        except Exception as e:
+            QMessageBox.critical(None, "Search Error", f"An error occurred during the search: {str(e)}")
+            return []
+        finally:
+            if conn:
+                conn.close()
 
     def create_result_window(self, main_window, results, text):
         if not results:
@@ -96,69 +107,3 @@ class Search:
                 main_window.on_item_clicked(child_item)
                 main_window.results_window.close()
                 break
-
-
-def filter_communications(cursor, config_manager, text):
-    cursor = get_communications(cursor, config_manager.config_id, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_locations(cursor, text):
-    cursor = get_locations(cursor, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_descriptions(cursor, text):
-    cursor = get_descriptions(cursor, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_basic_configs(cursor, text):
-    cursor = get_basic_configs(cursor, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_lzb_configs(cursor, text):
-    cursor = get_lzb_configs(cursor, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_mq_configs(cursor, text):
-    cursor = get_mq_configs(cursor, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_mq_trigger(cursor, text):
-    cursor = get_mq_trigger(cursor, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_ip_queue(cursor, text):
-    cursor = get_ip_queue(cursor, text)
-    rows = cursor.fetchall()
-    return rows
-
-
-def filter_namelists(cursor, text):
-    namelist_cursor = get_namelist(cursor, text)
-    alternatename_cursor = get_alternatenames(cursor, text)
-    rows = namelist_cursor.fetchall() + alternatename_cursor.fetchall()
-    return rows
-
-
-def filter_command(cursor, text):
-    command_cursor = get_command(cursor, text)
-    command_rows = command_cursor.fetchall()
-
-    command_param_cursor = get_command_param(cursor, text)
-    command_param_rows = command_param_cursor.fetchall()
-
-    rows = command_rows + command_param_rows
-    return rows
