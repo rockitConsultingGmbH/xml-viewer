@@ -58,9 +58,9 @@ class CommunicationTableData:
     def populate_fields(self, result):
         logging.debug("Populating fields with data...")
         (name, is_to_poll, poll_until_found, no_transfer, befoerderung_ab, befoerderung_bis,
-         poll_interval, escalation_timeout, pre_unzip, post_zip, rename_with_timestamp,
-         gueltig_ab, gueltig_bis, find_pattern, quit_pattern, ack_pattern, zip_pattern,
-         mov_pattern, put_pattern, rcv_pattern, tmp_pattern, alternate_name_list) = result
+         befoerderung_cron, poll_interval, escalation_timeout, pre_unzip, post_zip, 
+         rename_with_timestamp, gueltig_ab, gueltig_bis, find_pattern, quit_pattern, ack_pattern, 
+         zip_pattern, mov_pattern, put_pattern, rcv_pattern, tmp_pattern, alternate_name_list) = result
 
         set_text_field(self.parent_widget, "name_input", name)
         set_checkbox_field(self.parent_widget,"polling_activiert_checkbox", is_to_poll)
@@ -68,6 +68,7 @@ class CommunicationTableData:
         set_checkbox_field(self.parent_widget,"no_transfer_checkbox", no_transfer)
         set_text_field(self.parent_widget, "befoerderung_ab_input", befoerderung_ab)
         set_text_field(self.parent_widget, "befoerderung_bis_input", befoerderung_bis)
+        set_text_field(self.parent_widget, "befoerderung_cron_input", befoerderung_cron)
         set_text_field(self.parent_widget, "poll_interval_input", poll_interval)
         set_text_field(self.parent_widget, "escalation_timeout_input", escalation_timeout)
         set_checkbox_field(self.parent_widget,"pre_unzip_checkbox", pre_unzip)
@@ -130,7 +131,7 @@ class CommunicationTableData:
             'gueltigBis': get_text_value(self.parent_widget,"gueltig_bis_input"),
             'befoerderungAb': get_text_value(self.parent_widget,"befoerderung_ab_input"),
             'befoerderungBis': get_text_value(self.parent_widget,"befoerderung_bis_input"),
-            'befoerderungCron': '',
+            'befoerderungCron': get_text_value(self.parent_widget,"befoerderung_cron_input"),
             'preunzip': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"pre_unzip_checkbox")),
             'postzip': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"post_zip_checkbox")),
             'renameWithTimestamp': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"rename_with_timestamp_checkbox")),

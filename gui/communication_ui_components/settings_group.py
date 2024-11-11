@@ -1,10 +1,12 @@
-from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QWidget, QGridLayout
+from PyQt5.QtCore import Qt
 
 from gui.common_components.clickable_label import ClickableLabel
 
 
-class SettingsGroup:
+class SettingsGroup(QWidget):
     def __init__(self, group_layout, communication_id, toggle_inputs):
+        super().__init__()
         self.communication_id = communication_id
         self.group_layout = group_layout
         self.toggle_inputs = toggle_inputs
@@ -15,131 +17,147 @@ class SettingsGroup:
 
     def create_settings_group(self):
         hbox = QHBoxLayout()
+        hbox.setAlignment(Qt.AlignLeft)
 
+        # Add spacer at the top
         self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        polling_label = ClickableLabel("Polling")
+        # Create the header with a fixed size
+        polling_label = QLabel("Polling")
         polling_label.setFixedWidth(120)
         polling_label.setObjectName("label_parent")
+        polling_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
         hbox.addWidget(polling_label)
 
         poll_until_found_checkbox = QCheckBox("Poll until found")
         poll_until_found_checkbox.setObjectName("poll_until_found_checkbox")
         poll_until_found_checkbox.setFixedWidth(200)
+        poll_until_found_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         no_transfer_checkbox = QCheckBox("No transfer")
         no_transfer_checkbox.setObjectName("no_transfer_checkbox")
+        no_transfer_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         hbox.addWidget(poll_until_found_checkbox)
         hbox.addWidget(no_transfer_checkbox)
 
         self.group_layout.addLayout(hbox)
 
+        # Add a spacer to separate sections
         self.group_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        form_layout_left = QVBoxLayout()
+        # Create a grid layout with fixed-size widgets and add spacers
+        grid_layout = QGridLayout()
 
-        hbox_gueltig_ab = QHBoxLayout()
-        hbox_gueltig_ab.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
-        gueltig_ab_label = QLabel("Gültig ab")
-        gueltig_ab_label.setFixedWidth(100)
-        gueltig_ab_input = QLineEdit()
-        gueltig_ab_input.setObjectName("gueltig_ab_input")
-        gueltig_ab_input.setFixedSize(450, 30)
-        hbox_gueltig_ab.addWidget(gueltig_ab_label)
-        hbox_gueltig_ab.addWidget(gueltig_ab_input)
-        form_layout_left.addLayout(hbox_gueltig_ab)
+        # Row 0 - Gültig ab
+        grid_layout.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum), 0, 0)
+        gultig_ab_label = QLabel("Gültig ab")
+        gultig_ab_label.setFixedWidth(120)
+        gultig_ab_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        gultig_ab_input = QLineEdit()
+        gultig_ab_input.setObjectName("gueltig_ab_input")
+        gultig_ab_input.setFixedSize(450, 30)
+        gultig_ab_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid_layout.addWidget(gultig_ab_label, 0, 1, Qt.AlignLeft)
+        grid_layout.addWidget(gultig_ab_input, 0, 2, Qt.AlignLeft)
 
-        hbox_input1 = QHBoxLayout()
-        hbox_input1.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
-        input1_label = QLabel("Beförderung ab")
-        input1_label.setFixedWidth(100)
-        input1 = QLineEdit()
-        input1.setObjectName("befoerderung_ab_input")
-        input1.setFixedSize(450, 30)
-        hbox_input1.addWidget(input1_label)
-        hbox_input1.addWidget(input1)
-        form_layout_left.addLayout(hbox_input1)
+        # Row 0 - Gültig bis
+        grid_layout.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum), 0, 3)
+        gultig_bis_label = QLabel("Gültig bis")
+        gultig_bis_label.setFixedWidth(120)
+        gultig_bis_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        gultig_bis_input = QLineEdit()
+        gultig_bis_input.setObjectName("gueltig_bis_input")
+        gultig_bis_input.setFixedSize(450, 30)
+        gultig_bis_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid_layout.addWidget(gultig_bis_label, 0, 4, Qt.AlignLeft)
+        grid_layout.addWidget(gultig_bis_input, 0, 5, Qt.AlignLeft)
 
-        self.settings_labels.extend([gueltig_ab_label, input1_label])
-        self.settings_inputs.extend([gueltig_ab_input, input1])
+        # Row 1 - Beförderung ab
+        grid_layout.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum), 1, 0)
+        befoerderung_ab_label = QLabel("Beförderung ab")
+        befoerderung_ab_label.setFixedWidth(120)
+        befoerderung_ab_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        befoerderung_ab_input = QLineEdit()
+        befoerderung_ab_input.setObjectName("befoerderung_ab_input")
+        befoerderung_ab_input.setFixedSize(450, 30)
+        befoerderung_ab_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid_layout.addWidget(befoerderung_ab_label, 1, 1, Qt.AlignLeft)
+        grid_layout.addWidget(befoerderung_ab_input, 1, 2, Qt.AlignLeft)
 
-        hbox_input2 = QHBoxLayout()
-        hbox_input2.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
+        # Row 1 - Beförderung bis
+        grid_layout.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum), 1, 3)
+        befoerderung_bis_label = QLabel("Beförderung bis")
+        befoerderung_bis_label.setFixedWidth(120)
+        befoerderung_bis_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        befoerderung_bis_input = QLineEdit()
+        befoerderung_bis_input.setObjectName("befoerderung_bis_input")
+        befoerderung_bis_input.setFixedSize(450, 30)
+        befoerderung_bis_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid_layout.addWidget(befoerderung_bis_label, 1, 4, Qt.AlignLeft)
+        grid_layout.addWidget(befoerderung_bis_input, 1, 5, Qt.AlignLeft)
+
+        # Row 2 - Beförderung Cron
+        grid_layout.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum), 2, 0)
+        input_cron_label = QLabel("Beförderung Cron")
+        input_cron_label.setFixedWidth(120)
+        input_cron_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        input_cron = QLineEdit()
+        input_cron.setObjectName("befoerderung_cron_input")
+        input_cron.setFixedSize(450, 30)
+        input_cron.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid_layout.addWidget(input_cron_label, 2, 1, Qt.AlignLeft)
+        grid_layout.addWidget(input_cron, 2, 2, Qt.AlignLeft)
+
+        # Row 3 - Poll Intervall
+        grid_layout.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum), 3, 0)
         input2_label = QLabel("Poll Intervall")
-        input2_label.setFixedWidth(100)
+        input2_label.setFixedWidth(120)
+        input2_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         input2 = QLineEdit()
         input2.setObjectName("poll_interval_input")
         input2.setFixedSize(450, 30)
-        hbox_input2.addWidget(input2_label)
-        hbox_input2.addWidget(input2)
-        form_layout_left.addLayout(hbox_input2)
+        input2.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid_layout.addWidget(input2_label, 3, 1, Qt.AlignLeft)
+        grid_layout.addWidget(input2, 3, 2, Qt.AlignLeft)
 
-        self.settings_labels.append(input2_label)
-        self.settings_inputs.append(input2)
-
-        form_layout_right = QVBoxLayout()
-
-        hbox_gueltig_bis = QHBoxLayout()
-        gueltig_bis_label = QLabel("Gültig bis")
-        gueltig_bis_label.setFixedWidth(120)
-        gueltig_bis_input = QLineEdit()
-        gueltig_bis_input.setObjectName("gueltig_bis_input")
-        gueltig_bis_input.setFixedSize(450, 30)
-        hbox_gueltig_bis.addWidget(gueltig_bis_label)
-        hbox_gueltig_bis.addWidget(gueltig_bis_input)
-        form_layout_right.addLayout(hbox_gueltig_bis)
-
-        hbox_input3 = QHBoxLayout()
-        input3_label = QLabel("Beförderung bis")
-        input3_label.setFixedWidth(120)
-        input3 = QLineEdit()
-        input3.setObjectName("befoerderung_bis_input")
-        input3.setFixedSize(450, 30)
-        hbox_input3.addWidget(input3_label)
-        hbox_input3.addWidget(input3)
-        form_layout_right.addLayout(hbox_input3)
-
-        self.settings_labels.extend([gueltig_bis_label, input3_label])
-        self.settings_inputs.extend([gueltig_bis_input, input3])
-
-        hbox_input4 = QHBoxLayout()
+        # Row 4 - Escalation timeout
+        grid_layout.addItem(QSpacerItem(125, 0, QSizePolicy.Fixed, QSizePolicy.Minimum), 4, 0)
         input4_label = QLabel("Escalation timeout")
         input4_label.setFixedWidth(120)
+        input4_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         input4 = QLineEdit()
         input4.setObjectName("escalation_timeout_input")
         input4.setFixedSize(450, 30)
-        hbox_input4.addWidget(input4_label)
-        hbox_input4.addWidget(input4)
-        form_layout_right.addLayout(hbox_input4)
-
-        self.settings_labels.append(input4_label)
-        self.settings_inputs.append(input4)
+        input4.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        grid_layout.addWidget(input4_label, 4, 1, Qt.AlignLeft)
+        grid_layout.addWidget(input4, 4, 2, Qt.AlignLeft)
 
         polling_label.mousePressEvent = lambda event: self.toggle_inputs(self.settings_labels, self.settings_inputs)
 
-        hbox_columns = QHBoxLayout()
-        hbox_columns.addLayout(form_layout_left)
-        hbox_columns.addStretch()
-        hbox_columns.addLayout(form_layout_right)
-
-        self.group_layout.addLayout(hbox_columns)
+        self.group_layout.addLayout(grid_layout)
 
         self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
+        # Additional settings layout (compression, etc.)
         hbox_new_settings = QHBoxLayout()
+        hbox_new_settings.setAlignment(Qt.AlignLeft)
         new_label = QLabel("Compression")
         new_label.setObjectName("label_parent")
         new_label.setFixedWidth(120)
+        new_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox_new_settings.addWidget(new_label)
 
         new_checkbox1 = QCheckBox("Pre-Unzip")
         new_checkbox1.setObjectName("pre_unzip_checkbox")
         new_checkbox1.setFixedWidth(200)
+        new_checkbox1.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox_new_settings.addWidget(new_checkbox1)
 
         new_checkbox2 = QCheckBox("Post-Zip")
         new_checkbox2.setObjectName("post_zip_checkbox")
+        new_checkbox2.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox_new_settings.addWidget(new_checkbox2)
 
         self.group_layout.addLayout(hbox_new_settings)
@@ -147,13 +165,16 @@ class SettingsGroup:
         self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         hbox_additional_settings = QHBoxLayout()
+        hbox_additional_settings.setAlignment(Qt.AlignLeft)
         additional_label = QLabel("Other Settings")
         additional_label.setObjectName("label_parent")
         additional_label.setFixedWidth(120)
+        additional_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox_additional_settings.addWidget(additional_label)
 
         additional_checkbox1 = QCheckBox("Rename with Timestamp")
         additional_checkbox1.setObjectName("rename_with_timestamp_checkbox")
+        additional_checkbox1.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox_additional_settings.addWidget(additional_checkbox1)
 
         self.group_layout.addLayout(hbox_additional_settings)
