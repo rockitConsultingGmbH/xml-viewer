@@ -49,19 +49,19 @@ class CommunicationUI(QWidget):
 
         communications_box = QGroupBox("Communications")
         communications_box.setObjectName("group-border")
-        communications_box_layout = QVBoxLayout()
+        self.communications_box_layout = QVBoxLayout()
 
         # Add spacer item
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
-        communications_box_layout.addItem(spacer)
+        self.communications_box_layout.addItem(spacer)
 
-        self.create_group("Overview", communications_box_layout, self.communication_id)
-        self.create_group("Locations", communications_box_layout, self.communication_id)
-        self.create_group("Settings", communications_box_layout)
-        self.create_group("Pattern", communications_box_layout)
-        self.create_group("Commands", communications_box_layout)
+        self.create_group("Overview", self.communications_box_layout, self.communication_id)
+        self.create_group("Locations", self.communications_box_layout, self.communication_id)
+        self.create_group("Settings", self.communications_box_layout)
+        self.create_group("Pattern", self.communications_box_layout)
+        self.create_group("Commands", self.communications_box_layout)
 
-        communications_box.setLayout(communications_box_layout)
+        communications_box.setLayout(self.communications_box_layout)
         scroll_layout.addWidget(communications_box)
 
         scroll_area.setWidget(scroll_content)
@@ -71,7 +71,6 @@ class CommunicationUI(QWidget):
         layout.addLayout(button_layout)
         layout.addWidget(scroll_area)
         self.setLayout(layout)
-
 
     def set_fields_from_db(self):
         if self.communication_id is not None:
@@ -106,7 +105,6 @@ class CommunicationUI(QWidget):
             target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
             if target_location_ids_to_delete:
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
-
             self.popup_message.show_message("Changes have been successfully saved.")
 
         except Exception as e:

@@ -145,8 +145,6 @@ CREATE TABLE Location (
     location_id VARCHAR(255),
     useLocalFilename BOOLEAN,
     usePathFromConfig BOOLEAN,
-    targetMustBeArchived BOOLEAN,
-    targetHistoryDays BOOLEAN,
     renameExistingFile BOOLEAN,
     userid VARCHAR(255),
     password VARCHAR(255),

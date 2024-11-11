@@ -49,7 +49,9 @@ class MainWindow(QMainWindow):
         self.setFixedSize(1920, 1080)
         
         # Allow the window to be maximized by setting a minimum size
-        self.setMinimumSize(1800, 900)
+        self.setMinimumSize(800, 600)
+        self.setMaximumSize(1920, 1080)
+        #self.setWindowState(Qt.WindowMaximized)
 
         main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
         self.setWindowIcon(QIcon(main_icon))

@@ -29,6 +29,7 @@ class LocationsGroup(QWidget):
 
         source_label = ClickableLabel("Source")
         source_label.setFixedWidth(70)
+        source_label.setStyleSheet("font-weight: bold;")
         source_input = QLineEdit()
         source_input.setFixedHeight(30)
         source_input.setObjectName("source_input")
@@ -70,14 +71,6 @@ class LocationsGroup(QWidget):
         source_description_input.setFixedHeight(30)
         right_column_layout.addRow(source_description_label, source_description_input)
 
-        target_history_days_checkbox = QCheckBox("Target History Days")
-        target_history_days_checkbox.setObjectName("target_history_days_checkbox")
-        left_column_layout.addRow(target_history_days_checkbox)
-
-        target_must_be_archived_checkbox = QCheckBox("Target Must Be Archived")
-        target_must_be_archived_checkbox.setObjectName("target_must_be_archived_checkbox")
-        left_column_layout.addRow(target_must_be_archived_checkbox)
-
         left_column_with_margin = QHBoxLayout()
         left_margin = QSpacerItem(90, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
         left_column_with_margin.addItem(left_margin)
@@ -112,7 +105,6 @@ class LocationsGroup(QWidget):
 
         self.source_labels.extend([userid_label, location_id_label, password_label, source_description_label])
         self.source_inputs.extend([userid_input, location_id_input, password_input, source_description_input])
-        self.source_checkboxes.extend([target_history_days_checkbox, target_must_be_archived_checkbox])
 
         source_label.mousePressEvent = lambda event: self.toggle_inputs(self.source_labels + self.source_checkboxes, self.source_inputs)
 

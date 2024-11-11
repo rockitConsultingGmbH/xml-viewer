@@ -16,20 +16,25 @@ class OverviewGroup:
         self.group_layout.addItem(spacer)
 
         hbox1 = QHBoxLayout()
-        self.polling_activate_checkbox = QCheckBox("Polling aktiviert")
-        self.polling_activate_checkbox.setObjectName("polling_activiert_checkbox")
 
+        #polling_status_label = QLabel("Polling aktiviert:")
+        self.polling_status = QLabel()
+        self.polling_status.setObjectName("polling_status")
+        self.polling_status.setAlignment(Qt.AlignLeft)
+        self.polling_status.setStyleSheet("font-weight: bold;")  
+    
         description_label = QLabel("Description(s)")
         description_label.setFixedWidth(100)
         self.addButton = QPushButton("+")
         self.addButton.setFixedSize(30, 30)
         self.addButton.setObjectName("addButton")
 
-        hbox1.addWidget(self.polling_activate_checkbox)
+        #hbox1.addWidget(polling_status_label)
+        hbox1.addWidget(self.polling_status)
         hbox1.addWidget(description_label)
         hbox1.addWidget(self.addButton)
 
-        hbox1.addSpacerItem(QSpacerItem(550, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))  # Spacer
+        hbox1.addSpacerItem(QSpacerItem(550, 20, QSizePolicy.Fixed, QSizePolicy.Minimum))
 
         self.group_layout.addLayout(hbox1)
 
@@ -51,7 +56,7 @@ class OverviewGroup:
         self.goButton.setObjectName("goButton")
         self.goButton.setFixedSize(43, 30)
         self.goButton.setToolTip("Go to Alternate NameList...")
-        self.goButton.setEnabled(False)  # Deactivate the button, for the moment...
+        self.goButton.setEnabled(False)
 
         hbox_alt_name = QHBoxLayout()
         hbox_alt_name.addWidget(self.alt_name_input)

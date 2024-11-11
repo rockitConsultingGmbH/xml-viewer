@@ -33,16 +33,13 @@ class LocationTableData:
 
     def populate_source_fields(self, source_location_row):
         (id, communication_id, location, location_id, use_local_filename,
-         use_path_from_config, target_must_be_archived, target_history_days,
-         rename_existing_file, userid, password, description, location_type) = source_location_row
+         use_path_from_config, rename_existing_file, userid, password, description, location_type) = source_location_row
 
         set_text_field(self.parent_widget, "source_input", location)
         set_text_field(self.parent_widget, "userid_source_input", userid)
         set_text_field(self.parent_widget, "password_source_input", password)
         set_text_field(self.parent_widget, "source_description_input", description)
         set_text_field(self.parent_widget, "location_id_input", location_id)
-        set_checkbox_field(self.parent_widget, "target_history_days_checkbox", target_history_days)
-        set_checkbox_field(self.parent_widget, "target_must_be_archived_checkbox", target_must_be_archived)
 
     def save_source_location_data(self, communication_id, location_type='sourceLocation'):
         conn = self.conn_manager.get_db_connection()
@@ -71,10 +68,6 @@ class LocationTableData:
                 'password': get_text_value(self.parent_widget, "password_source_input"),
                 'useLocalFilename': '',
                 'usePathFromConfig': '',
-                'targetMustBeArchived': convert_checkbox_to_string(
-                    get_checkbox_value(self.parent_widget, "target_must_be_archived_checkbox")),
-                'targetHistoryDays': convert_checkbox_to_string(
-                    get_checkbox_value(self.parent_widget, "target_history_days_checkbox")),
                 'renameExistingFile': '',
                 'description': get_text_value(self.parent_widget, "source_description_input"),
                 'locationType': location_type,
@@ -102,7 +95,7 @@ class LocationTableData:
 
     def populate_target_fields(self, target_location_row):
         (id, communication_id, location, location_id, use_local_filename,
-         use_path_from_config, target_must_be_archived, target_history_days,
+         use_path_from_config,
          rename_existing_file, userid, password, description, location_type) = target_location_row
 
         self.parent_widget.setProperty("location_id", id)
@@ -113,9 +106,7 @@ class LocationTableData:
         set_text_field(self.parent_widget, f"location_id_target_{id}_input", location_id)
         set_checkbox_field(self.parent_widget, f"use_local_filename_checkbox_target_{id}", use_local_filename)
         set_checkbox_field(self.parent_widget, f"use_path_from_config_checkbox_target_{id}", use_path_from_config)
-        set_checkbox_field(self.parent_widget, f"target_history_days_checkbox_{id}", target_history_days)
         set_checkbox_field(self.parent_widget, f"rename_existing_file_checkbox_{id}", rename_existing_file)
-        set_checkbox_field(self.parent_widget, f"target_must_be_archived_checkbox_{id}", target_must_be_archived)
 
     def save_target_location_data(self, communication_id, location_type='targetLocation'):
         conn = self.conn_manager.get_db_connection()
@@ -147,8 +138,6 @@ class LocationTableData:
             'password': location_data['password'],
             'useLocalFilename': convert_checkbox_to_string(location_data['useLocalFilename']),
             'usePathFromConfig': convert_checkbox_to_string(location_data['usePathFromConfig']),
-            'targetMustBeArchived': convert_checkbox_to_string(location_data['targetMustBeArchived']),
-            'targetHistoryDays': convert_checkbox_to_string(location_data['targetHistoryDays']),
             'renameExistingFile': convert_checkbox_to_string(location_data['renameExistingFile']),
             'description': location_data['description'],
             'locationType': location_type,
@@ -177,8 +166,6 @@ class LocationTableData:
 
             location_data['useLocalFilename'] = get_checkbox_value(target_box, f"use_local_filename_checkbox_target_{target_id}")
             location_data['usePathFromConfig'] = get_checkbox_value(target_box, f"use_path_from_config_checkbox_target_{target_id}")
-            location_data['targetMustBeArchived'] = get_checkbox_value(target_box, f"target_must_be_archived_checkbox_{target_id}")
-            location_data['targetHistoryDays'] = get_checkbox_value(target_box, f"target_history_days_checkbox_{target_id}")
             location_data['renameExistingFile'] = get_checkbox_value(target_box, f"rename_existing_file_checkbox_{target_id}")
             location_data['description'] = get_text_value(target_box, f"target_description_{target_id}_input")
 

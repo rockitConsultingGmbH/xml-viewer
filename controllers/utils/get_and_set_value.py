@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox
+from PyQt5.QtWidgets import QApplication, QLineEdit, QCheckBox, QLabel
 from PyQt5.QtCore import Qt
 
 def get_input_value(widget_name):
@@ -43,6 +43,14 @@ def set_checkbox_field(parent_widget, field_name, value):
         checkbox = parent_widget.findChild(QCheckBox, field_name)
         if checkbox:
             checkbox.setChecked(value.lower() == 'true')
+
+def set_label(parent_widget, field_name, value):
+    text_field = parent_widget.findChild(QLabel, field_name)
+    if value:
+        if text_field:
+            text_field.setText(value)
+    else:
+        text_field.setText("")
 
 def get_text_value(parent_widget, widget_name):
     widget = parent_widget.findChild(QLineEdit, widget_name, Qt.FindChildrenRecursively)
