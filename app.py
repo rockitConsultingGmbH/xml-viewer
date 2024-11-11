@@ -45,11 +45,17 @@ class MainWindow(QMainWindow):
         logging.debug(f"Version: {self.version}")
         logging.debug(f"App Name: {self.app_name}")
 
-        self.resize(1800, 900)
-        main_icon =  self.resource_manager.get_resource_path('gui/icon/main.svg')
+        # Set the initial size of the window and restrict resizing by dragging
+        self.setFixedSize(1920, 1080)
+        
+        # Allow the window to be maximized by setting a minimum size
+        self.setMinimumSize(1800, 900)
+
+        main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
         self.setWindowIcon(QIcon(main_icon))
         self.setWindowTitle(self.app_name)
 
+        # Center the window on the screen
         screen = QApplication.primaryScreen().availableGeometry()
         x = (screen.width() - self.width()) // 2
         y = (screen.height() - self.height()) // 2
@@ -78,6 +84,7 @@ class MainWindow(QMainWindow):
         self.search_field.returnPressed.connect(lambda: self.search_helper.on_search(self))
 
         self.create_menu()
+        self.open_xml()
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -532,16 +539,16 @@ class MainWindow(QMainWindow):
         self.close()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(self, "Confirm Exit",
-                                     "Are you sure you want to close the application?\n",
-                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        #reply = QMessageBox.question(self, "Confirm Exit",
+        #                             "Are you sure you want to close the application?\n",
+        #                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            self.perform_cleanup()
-            event.accept()
-            QApplication.quit()
-        else:
-           event.ignore()
+        #if reply == QMessageBox.Yes:
+        self.perform_cleanup()
+            #event.accept()
+        QApplication.quit()
+        #else:
+        #   event.ignore()
 
     def perform_cleanup(self):
         empty_database()

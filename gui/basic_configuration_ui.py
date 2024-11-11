@@ -57,7 +57,7 @@ class BasicConfigurationWidget(QWidget):
         self.history_file_input = QLineEdit()
         self.history_file1_input = QLineEdit()
         self.history_file2_input = QLineEdit()
-        self.already_transferred_file_input = QCheckBox()
+        self.already_transferred_file_input = QLineEdit()
         self.history_days_input = QLineEdit()
         self.archiver_time_input = QLineEdit()
         self.watcher_escalation_timeout_input = QLineEdit()
@@ -68,7 +68,7 @@ class BasicConfigurationWidget(QWidget):
     def set_input_field_sizes(self):
         large_fields = [
             self.temp_dir_input, self.temp_dir1_input, self.temp_dir2_input, 
-            self.history_file_input, self.history_file1_input, self.history_file2_input
+            self.history_file_input, self.history_file1_input, self.history_file2_input, self.already_transferred_file_input
         ]
         small_fields = [
             self.stage_input, self.history_days_input, self.archiver_time_input, 
@@ -108,7 +108,7 @@ class BasicConfigurationWidget(QWidget):
                 self.history_file_input.setText(data["historyFile"])
                 self.history_file1_input.setText(data["historyFile1"])
                 self.history_file2_input.setText(data["historyFile2"])
-                self.already_transferred_file_input.setChecked(data["alreadyTransferedFile"] == "true")
+                self.already_transferred_file_input.setText(data["alreadyTransferedFile"])
                 self.history_days_input.setText(data["historyDays"])
                 self.archiver_time_input.setText(data["archiverTime"])
                 self.watcher_escalation_timeout_input.setText(data["watcherEscalationTimeout"])
@@ -141,7 +141,7 @@ class BasicConfigurationWidget(QWidget):
             'historyFile': self.history_file_input.text(),
             'historyFile1': self.history_file1_input.text(),
             'historyFile2': self.history_file2_input.text(),
-            'alreadyTransferedFile': "true" if self.already_transferred_file_input.isChecked() else "false",
+            'alreadyTransferedFile': self.already_transferred_file_input.text(),
             'historyDays': self.history_days_input.text(),
             'archiverTime': self.archiver_time_input.text(),
             'watcherEscalationTimeout': self.watcher_escalation_timeout_input.text(),

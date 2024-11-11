@@ -13,7 +13,6 @@ class LocationsGroup(QWidget):
         self.source_checkboxes = []
 
     def create_location_group(self):
-        #group_layout = QVBoxLayout(self)
         form_layout = QFormLayout()
         form_layout.setHorizontalSpacing(20)
         form_layout.setVerticalSpacing(15)
@@ -45,28 +44,14 @@ class LocationsGroup(QWidget):
         userid_input = QLineEdit()
         userid_input.setObjectName("userid_source_input")
         userid_input.setFixedHeight(30)
+        left_column_layout.addRow(userid_label, userid_input)
 
         location_id_label = QLabel("Location ID")
         location_id_label.setFixedWidth(100)
         location_id_input = QLineEdit()
         location_id_input.setObjectName("location_id_input")
         location_id_input.setFixedHeight(30)
-
-        use_local_filename_checkbox = QCheckBox("Use Local Filename")
-        use_local_filename_checkbox.setObjectName("use_local_filename_checkbox")
-
-        use_path_from_config_checkbox = QCheckBox("Use Path From Config")
-        use_path_from_config_checkbox.setObjectName("use_path_from_config_checkbox")
-
-        left_column_layout.addRow(userid_label, userid_input)
         left_column_layout.addRow(location_id_label, location_id_input)
-        left_column_layout.addRow(use_local_filename_checkbox)
-        left_column_layout.addRow(use_path_from_config_checkbox)
-
-        left_column_with_margin = QHBoxLayout()
-        left_margin = QSpacerItem(90, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
-        left_column_with_margin.addItem(left_margin)
-        left_column_with_margin.addLayout(left_column_layout)
 
         right_column_layout = QFormLayout()
         right_column_layout.setVerticalSpacing(15)
@@ -76,28 +61,27 @@ class LocationsGroup(QWidget):
         password_input = QLineEdit()
         password_input.setObjectName("password_source_input")
         password_input.setFixedHeight(30)
+        right_column_layout.addRow(password_label, password_input)
 
         source_description_label = QLabel("Description")
         source_description_label.setFixedWidth(100)
         source_description_input = QLineEdit()
         source_description_input.setObjectName("source_description_input")
         source_description_input.setFixedHeight(30)
+        right_column_layout.addRow(source_description_label, source_description_input)
 
         target_history_days_checkbox = QCheckBox("Target History Days")
         target_history_days_checkbox.setObjectName("target_history_days_checkbox")
-
-        rename_existing_file_checkbox = QCheckBox("Rename Existing File")
-        rename_existing_file_checkbox.setObjectName("rename_existing_file_checkbox")
+        left_column_layout.addRow(target_history_days_checkbox)
 
         target_must_be_archived_checkbox = QCheckBox("Target Must Be Archived")
         target_must_be_archived_checkbox.setObjectName("target_must_be_archived_checkbox")
+        left_column_layout.addRow(target_must_be_archived_checkbox)
 
-        right_column_layout.addRow(password_label, password_input)
-        right_column_layout.addRow(source_description_label, source_description_input)
-        right_column_layout.addRow(target_history_days_checkbox)
-        right_column_layout.addRow(rename_existing_file_checkbox)
-        right_column_layout.addRow(target_must_be_archived_checkbox)
-
+        left_column_with_margin = QHBoxLayout()
+        left_margin = QSpacerItem(90, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        left_column_with_margin.addItem(left_margin)
+        left_column_with_margin.addLayout(left_column_layout)
         hbox_columns.addLayout(left_column_with_margin)
         hbox_columns.addSpacing(50)
         hbox_columns.addLayout(right_column_layout)
@@ -128,8 +112,7 @@ class LocationsGroup(QWidget):
 
         self.source_labels.extend([userid_label, location_id_label, password_label, source_description_label])
         self.source_inputs.extend([userid_input, location_id_input, password_input, source_description_input])
-        self.source_checkboxes.extend([use_local_filename_checkbox, use_path_from_config_checkbox, target_history_days_checkbox,
-                                       rename_existing_file_checkbox, target_must_be_archived_checkbox])
+        self.source_checkboxes.extend([target_history_days_checkbox, target_must_be_archived_checkbox])
 
         source_label.mousePressEvent = lambda event: self.toggle_inputs(self.source_labels + self.source_checkboxes, self.source_inputs)
 

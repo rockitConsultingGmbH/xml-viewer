@@ -41,10 +41,7 @@ class LocationTableData:
         set_text_field(self.parent_widget, "password_source_input", password)
         set_text_field(self.parent_widget, "source_description_input", description)
         set_text_field(self.parent_widget, "location_id_input", location_id)
-        set_checkbox_field(self.parent_widget, "use_local_filename_checkbox", use_local_filename)
-        set_checkbox_field(self.parent_widget, "use_path_from_config_checkbox", use_path_from_config)
         set_checkbox_field(self.parent_widget, "target_history_days_checkbox", target_history_days)
-        set_checkbox_field(self.parent_widget, "rename_existing_file_checkbox", rename_existing_file)
         set_checkbox_field(self.parent_widget, "target_must_be_archived_checkbox", target_must_be_archived)
 
     def save_source_location_data(self, communication_id, location_type='sourceLocation'):
@@ -59,6 +56,7 @@ class LocationTableData:
                 insert_into_location(cursor, location_row)
             conn.commit()
         except Exception as e:
+            logging.error(f"An error occurred while saving source location data: {e}")
             conn.rollback()
         finally:
             conn.close()
@@ -71,22 +69,20 @@ class LocationTableData:
                 'location': get_text_value(self.parent_widget, "source_input"),
                 'userid': get_text_value(self.parent_widget, "userid_source_input"),
                 'password': get_text_value(self.parent_widget, "password_source_input"),
-                'useLocalFilename': convert_checkbox_to_string(
-                    get_checkbox_value(self.parent_widget, "use_local_filename_checkbox")),
-                'usePathFromConfig': convert_checkbox_to_string(
-                    get_checkbox_value(self.parent_widget, "use_path_from_config_checkbox")),
+                'useLocalFilename': '',
+                'usePathFromConfig': '',
                 'targetMustBeArchived': convert_checkbox_to_string(
                     get_checkbox_value(self.parent_widget, "target_must_be_archived_checkbox")),
                 'targetHistoryDays': convert_checkbox_to_string(
                     get_checkbox_value(self.parent_widget, "target_history_days_checkbox")),
-                'renameExistingFile': convert_checkbox_to_string(
-                    get_checkbox_value(self.parent_widget, "rename_existing_file_checkbox")),
+                'renameExistingFile': '',
                 'description': get_text_value(self.parent_widget, "source_description_input"),
                 'locationType': location_type,
                 'communication_id': communication_id,
             }
             return row
         except Exception as e:
+            logging.error(f"An error occurred while creating source location row: {e}")
             raise
 
     def populate_target_location_fields(self, communication_id, parent_widget=None, location_type='targetLocation'):

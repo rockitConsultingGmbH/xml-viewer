@@ -645,6 +645,7 @@ def select_from_communication(cursor, communication_id, basicConfig_id):
         noTransfer, 
         befoerderungAb, 
         befoerderungBis,
+        befoerderungCron,
         pollInterval, 
         watcherEscalationTimeout, 
         preunzip, 
