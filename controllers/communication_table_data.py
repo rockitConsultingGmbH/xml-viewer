@@ -137,5 +137,3 @@ class CommunicationTableData:
             'communication_id': communication_id,
             'basicConfig_id': self.config_manager.config_id
         }
-
-
