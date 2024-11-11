@@ -1,13 +1,15 @@
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, \
-    QSizePolicy
+    QSizePolicy, QMainWindow
 
 from gui.communication_ui_components.descriptions import DescriptionForm
+from gui.namelists_ui import NameListsWidget
+
 
 class OverviewGroup:
     def __init__(self, group_layout, communication_id):
         self.group_layout = group_layout
         self.communication_id = communication_id
+        self.namelist_ui = NameListsWidget(self)
         self.description_form = DescriptionForm(self.communication_id)
         self.setup_ui()
 
@@ -51,7 +53,6 @@ class OverviewGroup:
         self.goButton.setObjectName("goButton")
         self.goButton.setFixedSize(43, 30)
         self.goButton.setToolTip("Go to Alternate NameList...")
-        self.goButton.setEnabled(False)  # Deactivate the button, for the moment...
 
         hbox_alt_name = QHBoxLayout()
         hbox_alt_name.addWidget(self.alt_name_input)
@@ -66,6 +67,25 @@ class OverviewGroup:
         self.group_layout.addLayout(hbox_columns)
 
         self.addButton.clicked.connect(lambda: self.description_form.add_description_fields({'id': 'new', 'description': ''}))
+        self.goButton.clicked.connect(self.switch_to_namelist_view)
 
     def get_name_input(self):
         return self.name_input
+
+    def switch_to_namelist_view(self):
+        try:
+            namelist_view = NameListsWidget(self.communication_id)
+            parent_widget = self.group_layout.parentWidget()
+            while parent_widget and not isinstance(parent_widget, QMainWindow):
+                parent_widget = parent_widget.parentWidget()
+            if parent_widget:
+                main_window = parent_widget
+                while main_window and not hasattr(main_window, 'right_widget'):
+                    main_window = main_window.parentWidget()
+                if main_window and hasattr(main_window, 'right_widget'):
+                    main_window.right_widget.setParent(None)
+                    main_window.right_widget = namelist_view
+                    main_window.splitter.addWidget(main_window.right_widget)
+                    main_window.splitter.setSizes([250, 1000])
+        except Exception as e:
+            print(f"Error occurred: {e}")
