@@ -45,12 +45,10 @@ class MainWindow(QMainWindow):
         logging.debug(f"Version: {self.version}")
         logging.debug(f"App Name: {self.app_name}")
 
-        # Set the initial size of the window and restrict resizing by dragging
         self.setFixedSize(1920, 1080)
-        
-        # Allow the window to be maximized by setting a minimum size
         self.setMinimumSize(800, 600)
-        self.setMaximumSize(1920, 1080)
+        #self.setMaximumSize(1920, 1080)
+        #self.setWindowFlags(self.windowFlags() | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
         #self.setWindowState(Qt.WindowMaximized)
 
         main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
