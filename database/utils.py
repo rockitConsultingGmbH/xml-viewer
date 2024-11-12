@@ -5,7 +5,6 @@ def select_all_tablenames_from_db(cursor):
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
     return cursor
 
-
 # BasicConfig
 def insert_into_basicconfig(cursor, row):
     cursor.execute("""
@@ -44,7 +43,6 @@ def insert_into_basicconfig(cursor, row):
     ))
     return cursor
 
-
 def select_from_basicconfig(cursor, basicConfig_id):
     cursor.execute("""
     SELECT
@@ -67,7 +65,6 @@ def select_from_basicconfig(cursor, basicConfig_id):
     WHERE id = ?
     """, (basicConfig_id,))
     return cursor
-
 
 def get_basic_configs(cursor, text):
     query = """
@@ -96,7 +93,6 @@ def get_basic_configs(cursor, text):
     params = [f'%{text}%'] * 22
     cursor.execute(query, params)
     return cursor
-
 
 def update_basicconfig(cursor, row):
     cursor.execute("""
@@ -131,11 +127,9 @@ def update_basicconfig(cursor, row):
     ))
     return cursor
 
-
 def delete_from_basicconfig(cursor, id):
     cursor.execute("DELETE FROM BasicConfig WHERE id = ?", (id,))
     return cursor
-
 
 # LzbConfig
 def insert_into_lzbconfig(cursor, row):
@@ -165,7 +159,6 @@ def insert_into_lzbconfig(cursor, row):
     ))
     return cursor
 
-
 def select_from_lzbconfig(cursor, basicConfig_id):
     cursor.execute("""
     SELECT
@@ -183,7 +176,6 @@ def select_from_lzbconfig(cursor, basicConfig_id):
     WHERE basicConfig_id = ?
     """, (basicConfig_id,))
     return cursor
-
 
 def get_lzb_configs(cursor, text):
     query = """
@@ -206,7 +198,6 @@ def get_lzb_configs(cursor, text):
     params = [f'%{text}%'] * 14
     cursor.execute(query, params)
     return cursor
-
 
 def update_lzbconfig(cursor, row):
     cursor.execute("""
@@ -233,11 +224,9 @@ def update_lzbconfig(cursor, row):
     ))
     return cursor
 
-
 def delete_from_lzbconfig(cursor, basic_config_id):
     cursor.execute("DELETE FROM LzbConfig WHERE basic_config_id = ?", (basic_config_id,))
     return cursor
-
 
 # MqConfig
 def insert_into_mqconfig(cursor, row):
@@ -285,10 +274,10 @@ def insert_into_mqconfig(cursor, row):
     ))
     return cursor
 
-
 def select_from_mqconfig(cursor, basicConfig_id):
     cursor.execute("""
     SELECT
+        id,
         isRemote,
         qmgr,
         hostname,
@@ -310,7 +299,6 @@ def select_from_mqconfig(cursor, basicConfig_id):
     WHERE basicConfig_id = ?
     """, (basicConfig_id,))
     return cursor
-
 
 def get_mq_configs(cursor, text):
     query = """
@@ -342,7 +330,6 @@ def get_mq_configs(cursor, text):
     params = [f'%{text}%'] * 30
     cursor.execute(query, params)
     return cursor
-
 
 def update_mqconfig(cursor, row):
     cursor.execute("""
@@ -385,11 +372,9 @@ def update_mqconfig(cursor, row):
     ))
     return cursor
 
-
 def delete_from_mqconfig(cursor, basicConfig_id):
     cursor.execute("DELETE FROM MqConfig WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
-
 
 # MqTrigger
 def insert_into_mqtrigger(cursor, row):
@@ -419,7 +404,6 @@ def insert_into_mqtrigger(cursor, row):
     ))
     return cursor
 
-
 def select_from_mqtrigger(cursor, basicConfig_id):
     cursor.execute("""
     SELECT
@@ -436,7 +420,6 @@ def select_from_mqtrigger(cursor, basicConfig_id):
     WHERE basicConfig_id = ?
     """, (basicConfig_id,))
     return cursor
-
 
 def get_mq_trigger(cursor, text):
     query = """
@@ -456,7 +439,6 @@ def get_mq_trigger(cursor, text):
     params = [f'%{text}%'] * 14
     cursor.execute(query, params)
     return cursor
-
 
 def update_mqtrigger(cursor, row):
     cursor.execute("""
@@ -481,11 +463,9 @@ def update_mqtrigger(cursor, row):
     ))
     return cursor
 
-
 def delete_from_mqtrigger(cursor, mqTrigger_id):
     cursor.execute("DELETE FROM MqTrigger WHERE id = ?", (mqTrigger_id,))
     return cursor
-
 
 # IPQueue
 def insert_into_ipqueue(cursor, row):
@@ -509,7 +489,6 @@ def insert_into_ipqueue(cursor, row):
     ))
     return cursor
 
-
 def select_from_ipqueue(cursor, basicConfig_id):
     cursor.execute("""
     SELECT
@@ -524,7 +503,6 @@ def select_from_ipqueue(cursor, basicConfig_id):
     WHERE basicConfig_id = ?
     """, (basicConfig_id,))
     return cursor
-
 
 def get_ip_queue(cursor, text):
     query = """
@@ -541,7 +519,6 @@ def get_ip_queue(cursor, text):
     params = [f'%{text}%'] * 8
     cursor.execute(query, params)
     return cursor
-
 
 def update_ipqueue(cursor, row):
     cursor.execute("""
@@ -561,11 +538,9 @@ def update_ipqueue(cursor, row):
     ))
     return cursor
 
-
 def delete_from_ipqueue(cursor, ipqueue_id):
     cursor.execute("DELETE FROM IPQueue WHERE ipqueue_id = ? AND ", (ipqueue_id,))
     return cursor
-
 
 # Communication
 def insert_into_communication(cursor, row):
@@ -804,7 +779,6 @@ def delete_from_communication(cursor, basicConfig_id):
     cursor.execute("DELETE FROM Communication WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
 
-
 # Location
 def insert_into_location(cursor, row):
     cursor.execute("""
@@ -835,7 +809,6 @@ def insert_into_location(cursor, row):
     ))
     return cursor
 
-
 def select_from_location(cursor, communication_id, locationType):
     cursor.execute("""
     SELECT
@@ -855,7 +828,6 @@ def select_from_location(cursor, communication_id, locationType):
     """,
                    (communication_id, locationType,))
     return cursor
-
 
 def get_locations(cursor, text):
     query = """
@@ -907,7 +879,6 @@ def delete_from_location(cursor, location_id):
     cursor.execute("DELETE FROM Location WHERE id = ?", (location_id,))
     return cursor
 
-
 # Command
 def insert_into_command(cursor, row):
     cursor.execute("""
@@ -930,7 +901,6 @@ def insert_into_command(cursor, row):
     ))
     return cursor
 
-
 def select_from_command(cursor, communication_id):
     cursor.execute("""
     SELECT
@@ -945,7 +915,6 @@ def select_from_command(cursor, communication_id):
     """,
                    (communication_id,))
     return cursor
-
 
 def get_command(cursor, text):
     query = """
@@ -963,7 +932,6 @@ def get_command(cursor, text):
     params = [f'%{text}%'] * 10
     cursor.execute(query, params)
     return cursor
-
 
 def update_command(cursor, row):
     cursor.execute("""
@@ -984,11 +952,9 @@ def update_command(cursor, row):
     ))
     return cursor
 
-
 def delete_from_command(cursor, command_id):
     cursor.execute("DELETE FROM Command WHERE id = ?", (command_id,))
     return cursor
-
 
 # CommandParam
 def insert_into_commandparam(cursor, row):
@@ -1008,7 +974,6 @@ def insert_into_commandparam(cursor, row):
     ))
     return cursor
 
-
 def select_from_commandparam(cursor, command_id):
     cursor.execute("""
     SELECT
@@ -1021,7 +986,6 @@ def select_from_commandparam(cursor, command_id):
     """,
                    (command_id,))
     return cursor
-
 
 def get_command_param(cursor, text):
     query = """
@@ -1038,7 +1002,6 @@ def get_command_param(cursor, text):
     cursor.execute(query, params)
     return cursor
 
-
 def update_commandparam(cursor, row):
     cursor.execute("""
     UPDATE CommandParam
@@ -1051,11 +1014,9 @@ def update_commandparam(cursor, row):
     ))
     return cursor
 
-
 def delete_from_commandparam(cursor, command_id):
     cursor.execute("DELETE FROM CommandParam WHERE command_id = ?", (command_id,))
     return cursor
-
 
 # NameList
 def insert_into_namelist(cursor, row):
@@ -1073,7 +1034,6 @@ def insert_into_namelist(cursor, row):
     ))
     return cursor
 
-
 def select_from_namelist(cursor, nameList_id):
     cursor.execute("""
     SELECT
@@ -1086,7 +1046,6 @@ def select_from_namelist(cursor, nameList_id):
                    (nameList_id,))
     return cursor
 
-
 def update_namelist(cursor, row):
     cursor.execute("""
     UPDATE NameList
@@ -1098,12 +1057,10 @@ def update_namelist(cursor, row):
     ))
     return cursor
 
-
 def delete_from_namelist(cursor, basicConfig_id, communication_id):
     cursor.execute("DELETE FROM NameList WHERE basicConfig_id = ? AND communication_id = ?",
                    (basicConfig_id, communication_id,))
     return cursor
-
 
 def select_from_namelist_with_communication(cursor, nameList_id):
     cursor.execute("""
@@ -1117,7 +1074,6 @@ def select_from_namelist_with_communication(cursor, nameList_id):
     """,
                    (nameList_id,))
     return cursor
-
 
 def get_namelist(cursor, text):
     query = """
@@ -1134,7 +1090,6 @@ def get_namelist(cursor, text):
     cursor.execute(query, params)
     return cursor
 
-
 # AlternateName
 def insert_into_alternatename(cursor, row):
     cursor.execute("""
@@ -1149,7 +1104,6 @@ def insert_into_alternatename(cursor, row):
     ))
     return cursor
 
-
 def select_from_alternatename(cursor, nameList_id):
     cursor.execute("""
     SELECT
@@ -1161,7 +1115,6 @@ def select_from_alternatename(cursor, nameList_id):
     """,
                    (nameList_id,))
     return cursor
-
 
 def get_alternatenames(cursor, text):
     query = """
@@ -1177,7 +1130,6 @@ def get_alternatenames(cursor, text):
     cursor.execute(query, params)
     return cursor
 
-
 def update_alternatename(cursor, row):
     cursor.execute("""
     UPDATE AlternateName
@@ -1189,11 +1141,9 @@ def update_alternatename(cursor, row):
     ))
     return cursor
 
-
 def delete_from_alternatename(cursor, id):
     cursor.execute("DELETE FROM AlternateName WHERE id = ?", (id,))
     return cursor
-
 
 # Description
 def insert_into_description(cursor, row):
@@ -1210,7 +1160,6 @@ def insert_into_description(cursor, row):
         row['descriptionType']
     ))
     return cursor
-
 
 def select_from_description(cursor, communication_id, description_id=None):
     if description_id is not None:
@@ -1235,7 +1184,6 @@ def select_from_description(cursor, communication_id, description_id=None):
         """, (communication_id,))
     return cursor
 
-
 def get_descriptions(cursor, text):
     query = """
     SELECT d.id, 'Description' as table_name, d.description, d.communication_id, d.descriptionType,
@@ -1252,7 +1200,6 @@ def get_descriptions(cursor, text):
     cursor.execute(query, params)
     return cursor
 
-
 def update_description(cursor, row):
     cursor.execute("""
     UPDATE Description
@@ -1263,7 +1210,6 @@ def update_description(cursor, row):
         row['description_id'],
     ))
     return cursor
-
 
 def delete_from_description(cursor, description_id):
     cursor.execute("DELETE FROM Description WHERE id = ?", (description_id,))

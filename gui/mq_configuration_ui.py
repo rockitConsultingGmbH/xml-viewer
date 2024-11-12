@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, QLineEdit, QWi
 from PyQt5.QtGui import QFont
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
+from database.utils import select_from_mqconfig, update_mqconfig
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
@@ -110,6 +110,7 @@ class MQConfigurationWidget(QWidget):
     def populate_mqconfig_fields_from_db(self):
         data = self.get_mqconfig_data()
         if data:
+            self.config_manager.mqconfig_id = data["id"]
             self.is_remote_input.setChecked(data["isRemote"] == "true")
             self.qmgr_input.setText(data["qmgr"])
             self.hostname_input.setText(data["hostname"])

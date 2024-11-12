@@ -13,6 +13,7 @@ class ConfigManager:
     def __init__(self):
         if not hasattr(self, "initialized"):
             self.config_id = None
+            self.mqconfig_id = None
             self.config_filename = "config.properties"
             self.config_filepath = self.get_config_filepath()
             self.initialized = True
