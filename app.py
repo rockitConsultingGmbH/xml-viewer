@@ -294,6 +294,10 @@ class MainWindow(QMainWindow):
             table_name = table[0]
             table_item = QTreeWidgetItem([table_name])
             table_item.setExpanded(False)
+            font = table_item.font(0)
+            font.setBold(True)
+            font.setPointSize(12)
+            table_item.setFont(0, font)
             tree_widget.addTopLevelItem(table_item)
 
             if table_name == 'Basic Configuration':
