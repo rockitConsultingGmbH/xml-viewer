@@ -84,7 +84,6 @@ class MainWindow(QMainWindow):
         self.search_field.returnPressed.connect(lambda: self.search_helper.on_search(self))
 
         self.create_menu()
-        self.open_xml()
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -539,16 +538,16 @@ class MainWindow(QMainWindow):
         self.close()
 
     def closeEvent(self, event):
-        #reply = QMessageBox.question(self, "Confirm Exit",
-        #                             "Are you sure you want to close the application?\n",
-        #                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(self, "Confirm Exit",
+                                     "Are you sure you want to close the application?\n",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        #if reply == QMessageBox.Yes:
-        self.perform_cleanup()
-            #event.accept()
-        QApplication.quit()
-        #else:
-        #   event.ignore()
+        if reply == QMessageBox.Yes:
+            self.perform_cleanup()
+            event.accept()
+            QApplication.quit()
+        else:
+           event.ignore()
 
     def perform_cleanup(self):
         empty_database()
