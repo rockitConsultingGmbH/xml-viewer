@@ -142,16 +142,19 @@ def createLocationDict(communication_id, location, locationType):
         'communication_id':             communication_id,
         'location':                     add_xml_element(location, 'location'),
         'location_id':                  location.get('id', ''),
-        'useLocalFilename':             add_boolean_xml_element(location, 'useLocalFilename'),
-        'usePathFromConfig':            add_boolean_xml_element(location, 'usePathFromConfig'),
-        'targetMustBeArchived':         add_boolean_xml_element(location, 'targetMustBeArchived'),
-        'targetHistoryDays':            add_xml_element(location, 'targetHistoryDays'),
-        'renameExistingFile':           add_boolean_xml_element(location, 'renameExistingFile'),
+        'useLocalFilename': '',
+        'usePathFromConfig' : '',
+        'renameExistingFile': '',
         'userid':                       add_xml_element(location, 'userid'),
         'password':                     add_xml_element(location, 'password'),
         'description':                  add_xml_element(location, 'description'),
         'locationType':                 locationType
     }
+    if locationType == 'targetLocation':
+        LocationDict['useLocalFilename'] = add_boolean_xml_element(location, 'useLocalFilename')
+        LocationDict['usePathFromConfig'] = add_boolean_xml_element(location, 'usePathFromConfig')
+        LocationDict['renameExistingFile'] = add_boolean_xml_element(location, 'renameExistingFile')
+
     return LocationDict
 
 def createCommandDict(communication_id, command, commandType):

@@ -156,8 +156,6 @@ def create_xml_from_location(root, row, columns):
     # add_row_element_if_not_empty(xml_element, 'location',                   row['location'])
     # add_row_element_if_not_empty(xml_element, 'useLocalFilename',           row['useLocalFilename'])
     # add_row_element_if_not_empty(xml_element, 'usePathFromConfig',          row['usePathFromConfig'])
-    # add_row_element_if_not_empty(xml_element, 'targetMustBeArchived',       row['targetMustBeArchived'])
-    # add_row_element_if_not_empty(xml_element, 'targetHistoryDays',          row['targetHistoryDays'])
     # add_row_element_if_not_empty(xml_element, 'renameExistingFile',         row['renameExistingFile'])
     # add_row_element_if_not_empty(xml_element, 'userid',                     row['userid'])
     # add_row_element_if_not_empty(xml_element, 'password',                   row['password'])

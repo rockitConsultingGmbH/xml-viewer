@@ -4,9 +4,8 @@ from common.config_manager import ConfigManager
 from database.utils import update_communication, select_from_communication, \
     get_communication_names
 from controllers.utils.get_and_set_value import (get_text_value, set_checkbox_field, get_checkbox_value,
-                                                convert_checkbox_to_string, set_text_field)
+                                                convert_checkbox_to_string, set_text_field, set_label)
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class CommunicationTableData:
@@ -46,41 +45,42 @@ class CommunicationTableData:
         conn = self.conn_manager.get_db_connection()
         cursor = conn.cursor()
 
-        result = select_from_communication(cursor, communication_id, self.config_manager.config_id).fetchone()
+        row = select_from_communication(cursor, communication_id, self.config_manager.config_id).fetchone()
 
-        if result:
+        if row:
             logging.debug("Data fetched for communication_id: %s", communication_id)
-            self.populate_fields(result)
+            self.populate_fields(row)
         else:
             logging.warning("No data found for communication_id: %s", communication_id)
         conn.close()
 
-    def populate_fields(self, result):
+    def populate_fields(self, row):
         logging.debug("Populating fields with data...")
-        (name, is_to_poll, poll_until_found, no_transfer, befoerderung_ab, befoerderung_bis,
-         poll_interval, escalation_timeout, pre_unzip, post_zip, rename_with_timestamp,
-         gueltig_ab, gueltig_bis, find_pattern, quit_pattern, ack_pattern, zip_pattern,
-         mov_pattern, put_pattern, rcv_pattern, tmp_pattern, alternate_name_list) = result
 
-        set_text_field(self.parent_widget, "name_input", name)
-        set_checkbox_field(self.parent_widget,"polling_activiert_checkbox", is_to_poll)
-        set_checkbox_field(self.parent_widget,"poll_until_found_checkbox", poll_until_found)
-        set_checkbox_field(self.parent_widget,"no_transfer_checkbox", no_transfer)
-        set_text_field(self.parent_widget, "befoerderung_ab_input", befoerderung_ab)
-        set_text_field(self.parent_widget, "befoerderung_bis_input", befoerderung_bis)
-        set_text_field(self.parent_widget, "poll_interval_input", poll_interval)
-        set_text_field(self.parent_widget, "escalation_timeout_input", escalation_timeout)
-        set_checkbox_field(self.parent_widget,"pre_unzip_checkbox", pre_unzip)
-        set_checkbox_field(self.parent_widget,"post_zip_checkbox", post_zip)
-        set_checkbox_field(self.parent_widget,"rename_with_timestamp_checkbox", rename_with_timestamp)
-        set_text_field(self.parent_widget, "gueltig_ab_input", gueltig_ab)
-        set_text_field(self.parent_widget, "gueltig_bis_input", gueltig_bis)
-        set_text_field(self.parent_widget, "alt_name_input", alternate_name_list)
+        set_text_field(self.parent_widget, "name_input", row['name'])
+        set_checkbox_field(self.parent_widget,"polling_activated_checkbox", row['isToPoll'])
+        set_label(self.parent_widget, "polling_status", f"Polling aktiviert: {row['isToPoll']}")
+        set_checkbox_field(self.parent_widget,"poll_until_found_checkbox", row['pollUntilFound'])
+        set_checkbox_field(self.parent_widget,"no_transfer_checkbox", row['noTransfer'])
+        set_text_field(self.parent_widget, "befoerderung_ab_input", row['befoerderungAb'])
+        set_text_field(self.parent_widget, "befoerderung_bis_input", row['befoerderungBis'])
+        set_text_field(self.parent_widget, "befoerderung_cron_input", row['befoerderungCron'])
+        set_text_field(self.parent_widget, "poll_interval_input", row['pollInterval'])
+        set_text_field(self.parent_widget, "escalation_timeout_input", row['watcherEscalationTimeout'])
+        set_checkbox_field(self.parent_widget,"pre_unzip_checkbox", row['preunzip'])
+        set_checkbox_field(self.parent_widget,"post_zip_checkbox", row['postzip'])
+        set_checkbox_field(self.parent_widget,"target_must_be_archived_checkbox", row['targetMustBeArchived'])
+        set_checkbox_field(self.parent_widget,"must_be_archived_checkbox", row['mustBeArchived'])
+        set_text_field(self.parent_widget,"target_history_days_input", row['targetHistoryDays'])
+        set_text_field(self.parent_widget,"history_days_input", row['historyDays'])
+        set_checkbox_field(self.parent_widget,"rename_with_timestamp_checkbox", row['renameWithTimestamp'])
+        set_text_field(self.parent_widget, "gueltig_ab_input", row['gueltigAb'])
+        set_text_field(self.parent_widget, "gueltig_bis_input", row['gueltigBis'])
+        set_text_field(self.parent_widget, "alt_name_input", row['alternateNameList'])
 
-        self.populate_patterns(find_pattern, quit_pattern, ack_pattern, zip_pattern,
-                               mov_pattern, put_pattern, rcv_pattern, tmp_pattern)
+        self.populate_patterns(row)
 
-    def populate_patterns(self, *patterns, parent_widget=None):
+    def populate_patterns(self, row, parent_widget=None):
         logging.debug("Populating patterns...")
         pattern_names = [
             "find_pattern_input", "quit_pattern_input", "ack_pattern_input",
@@ -88,7 +88,13 @@ class CommunicationTableData:
             "tmp_pattern_input"
         ]
 
-        for pattern_name, pattern_value in zip(pattern_names, patterns):
+        pattern_values = [
+            row['findPattern'], row['quitPattern'], row['ackPattern'],
+            row['zipPattern'], row['movPattern'], row['putPattern'], row['rcvPattern'],
+            row['tmpPattern']
+        ]
+
+        for pattern_name, pattern_value in zip(pattern_names, pattern_values):
             set_text_field(self.parent_widget, pattern_name, pattern_value)
 
     def save_communication_data(self, communication_id):
@@ -109,13 +115,13 @@ class CommunicationTableData:
             'name': get_text_value(self.parent_widget,"name_input"),
             'alternateNameList': get_text_value(self.parent_widget,"alt_name_input"),
             'watcherEscalationTimeout': get_text_value(self.parent_widget,"escalation_timeout_input"),
-            'isToPoll': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"polling_activiert_checkbox")),
+            'isToPoll': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"polling_activated_checkbox")),
             'pollUntilFound': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"poll_until_found_checkbox")),
             'noTransfer': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"no_transfer_checkbox")),
-            'targetMustBeArchived': '',
-            'mustBeArchived': '',
-            'historyDays': '',
-            'targetHistoryDays': '',
+            'targetMustBeArchived': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"target_must_be_archived_checkbox")),
+            'targetHistoryDays': get_text_value(self.parent_widget,"target_history_days_input"),
+            'mustBeArchived': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"must_be_archived_checkbox")),
+            'historyDays':  get_text_value(self.parent_widget,"history_days_input"),
             'findPattern': get_text_value(self.parent_widget,"find_pattern_input"),
             'movPattern': get_text_value(self.parent_widget,"mov_pattern_input"),
             'quitPattern': get_text_value(self.parent_widget,"quit_pattern_input"),
@@ -130,7 +136,7 @@ class CommunicationTableData:
             'gueltigBis': get_text_value(self.parent_widget,"gueltig_bis_input"),
             'befoerderungAb': get_text_value(self.parent_widget,"befoerderung_ab_input"),
             'befoerderungBis': get_text_value(self.parent_widget,"befoerderung_bis_input"),
-            'befoerderungCron': '',
+            'befoerderungCron': get_text_value(self.parent_widget,"befoerderung_cron_input"),
             'preunzip': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"pre_unzip_checkbox")),
             'postzip': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"post_zip_checkbox")),
             'renameWithTimestamp': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"rename_with_timestamp_checkbox")),

@@ -635,38 +635,42 @@ def insert_into_communication(cursor, row):
     ))
     return cursor
 
-
 def select_from_communication(cursor, communication_id, basicConfig_id):
     cursor.execute("""
-    SELECT 
-        name, 
-        isToPoll, 
-        pollUntilFound, 
-        noTransfer, 
-        befoerderungAb, 
-        befoerderungBis,
-        pollInterval, 
-        watcherEscalationTimeout, 
-        preunzip, 
-        postzip,
-        renameWithTimestamp, 
-        gueltigAb, 
-        gueltigBis, 
-        findPattern, 
-        quitPattern,
-        ackPattern,
-        zipPattern,
+    SELECT         
+        name,
+        alternateNameList,
+        watcherEscalationTimeout,
+        isToPoll,
+        pollUntilFound,
+        noTransfer,
+        targetMustBeArchived,
+        mustBeArchived,
+        historyDays,
+        targetHistoryDays,
+        findPattern,
         movPattern,
-        putPattern, 
+        tmpPattern,
+        quitPattern,
+        putPattern,
+        ackPattern,
         rcvPattern,
-        tmpPattern, 
-        alternateNameList
+        zipPattern,
+        befoerderung,
+        pollInterval,
+        gueltigAb,
+        gueltigBis,
+        befoerderungAb,
+        befoerderungBis,
+        befoerderungCron,
+        preunzip,
+        postzip,
+        renameWithTimestamp
     FROM Communication
     WHERE id = ? AND basicConfig_id = ?
     """,
                    (communication_id, basicConfig_id))
     return cursor
-
 
 def get_communication_names(cursor, communication_id, basicConfig_id):
     cursor.execute("""
@@ -674,7 +678,6 @@ def get_communication_names(cursor, communication_id, basicConfig_id):
     """,
                    (communication_id, basicConfig_id))
     return cursor
-
 
 def get_communications(cursor, config_id, text):
     query = """
@@ -709,7 +712,6 @@ def get_communications(cursor, config_id, text):
     params = [f'%{text}%'] * 16 + [config_id] + [f'%{text}%'] * 16
     cursor.execute(query, params)
     return cursor
-
 
 def update_communication(cursor, row):
     cursor.execute("""
@@ -777,7 +779,6 @@ def update_communication(cursor, row):
     ))
     return cursor
 
-
 def update_communication_column(cursor, column_name, column_value, id):
     # List of allowed column names
     valid_columns = ['name', 'alternateNameList', 'watcherEscalationTimeout', 'isToPoll',
@@ -799,7 +800,6 @@ def update_communication_column(cursor, column_name, column_value, id):
     cursor.execute(query, (column_value, id,))
     return cursor
 
-
 def delete_from_communication(cursor, basicConfig_id):
     cursor.execute("DELETE FROM Communication WHERE basicConfig_id = ?", (basicConfig_id,))
     return cursor
@@ -814,23 +814,19 @@ def insert_into_location(cursor, row):
         location_id,
         useLocalFilename,
         usePathFromConfig,
-        targetMustBeArchived,
-        targetHistoryDays,
         renameExistingFile,
         userid,
         password,
         description,
         locationType
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         row['communication_id'],
         row['location'],
         row['location_id'],
         row['useLocalFilename'],
         row['usePathFromConfig'],
-        row['targetMustBeArchived'],
-        row['targetHistoryDays'],
         row['renameExistingFile'],
         row['userid'],
         row['password'],
@@ -849,8 +845,6 @@ def select_from_location(cursor, communication_id, locationType):
         location_id,
         useLocalFilename,
         usePathFromConfig,
-        targetMustBeArchived,
-        targetHistoryDays,
         renameExistingFile,
         userid,
         password,
@@ -884,7 +878,6 @@ def get_locations(cursor, text):
     cursor.execute(query, params)
     return cursor
 
-
 def update_location(cursor, row):
     cursor.execute("""
     UPDATE Location
@@ -892,8 +885,6 @@ def update_location(cursor, row):
         location_id = ?,
         useLocalFilename = ?,
         usePathFromConfig = ?,
-        targetMustBeArchived = ?,
-        targetHistoryDays = ?,
         renameExistingFile = ?,
         userid = ?,
         password = ?,
@@ -904,8 +895,6 @@ def update_location(cursor, row):
         row['location_id'],
         row['useLocalFilename'],
         row['usePathFromConfig'],
-        row['targetMustBeArchived'],
-        row['targetHistoryDays'],
         row['renameExistingFile'],
         row['userid'],
         row['password'],
@@ -913,7 +902,6 @@ def update_location(cursor, row):
         row['id']
     ))
     return cursor
-
 
 def delete_from_location(cursor, location_id):
     cursor.execute("DELETE FROM Location WHERE id = ?", (location_id,))

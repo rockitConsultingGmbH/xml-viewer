@@ -38,7 +38,7 @@ class LZBConfigurationWidget(QWidget):
 
     def initialize_fields(self):
         self.encrypt_key_input = QLineEdit()
-        self.encrypt_enabled_input = QCheckBox()
+        self.encrypt_enabled_input = QLineEdit()
         self.keystore_path_input = QLineEdit()
         self.keystore_password_input = QLineEdit()
         self.truststore_path_input = QLineEdit()
@@ -46,10 +46,9 @@ class LZBConfigurationWidget(QWidget):
         self.ssh_implementation_input = QLineEdit()
         self.dns_timeout_input = QLineEdit()
 
-        self.apply_field_size(self.encrypt_key_input, self.keystore_path_input, 
+        self.apply_field_size(self.encrypt_enabled_input, self.encrypt_key_input, self.keystore_path_input, 
                               self.keystore_password_input, self.truststore_path_input, 
-                              self.truststore_password_input, self.ssh_implementation_input)
-        self.dns_timeout_input.setFixedSize(500, 35)
+                              self.truststore_password_input, self.ssh_implementation_input, self.dns_timeout_input)
 
     def apply_field_size(self, *fields):
         for field in fields:
@@ -59,7 +58,7 @@ class LZBConfigurationWidget(QWidget):
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.form_layout.addItem(spacer)
 
-        self.form_layout.addRow("Encrypt:", self.encrypt_enabled_input)
+        self.form_layout.addRow("Encrypt Enabled:", self.encrypt_enabled_input)
         self.form_layout.addRow("Encrypt Key:", self.encrypt_key_input)
         self.form_layout.addRow("Keystore Path:", self.keystore_path_input)
         self.form_layout.addRow("Keystore Password:", self.keystore_password_input)
@@ -73,7 +72,7 @@ class LZBConfigurationWidget(QWidget):
             data = self.get_lzb_configuration()
             if data:
                 self.encrypt_key_input.setText(data["encrypt_key"])
-                self.encrypt_enabled_input.setChecked(data["encrypt_enabled"] == "true")
+                self.encrypt_enabled_input.setText(data["encrypt_enabled"])
                 self.keystore_path_input.setText(data["keystore_path"])
                 self.keystore_password_input.setText(data["keystore_password"])
                 self.truststore_path_input.setText(data["truststore_path"])
@@ -101,7 +100,7 @@ class LZBConfigurationWidget(QWidget):
     def save_fields_to_db(self):
         row = {
             'encrypt_key': self.encrypt_key_input.text(),
-            'encrypt_enabled': "true" if self.encrypt_enabled_input.isChecked() else "false",
+            'encrypt_enabled': self.encrypt_enabled_input.text(),
             'keystore_path': self.keystore_path_input.text(),
             'keystore_password': self.keystore_password_input.text(),
             'truststore_path': self.truststore_path_input.text(),

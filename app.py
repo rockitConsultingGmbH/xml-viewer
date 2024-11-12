@@ -45,11 +45,17 @@ class MainWindow(QMainWindow):
         logging.debug(f"Version: {self.version}")
         logging.debug(f"App Name: {self.app_name}")
 
-        self.resize(1800, 900)
-        main_icon =  self.resource_manager.get_resource_path('gui/icon/main.svg')
+        self.setFixedSize(1920, 1080)
+        self.setMinimumSize(800, 600)
+        #self.setMaximumSize(1920, 1080)
+        #self.setWindowFlags(self.windowFlags() | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
+        #self.setWindowState(Qt.WindowMaximized)
+
+        main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
         self.setWindowIcon(QIcon(main_icon))
         self.setWindowTitle(self.app_name)
 
+        # Center the window on the screen
         screen = QApplication.primaryScreen().availableGeometry()
         x = (screen.width() - self.width()) // 2
         y = (screen.height() - self.height()) // 2
@@ -288,6 +294,10 @@ class MainWindow(QMainWindow):
             table_name = table[0]
             table_item = QTreeWidgetItem([table_name])
             table_item.setExpanded(False)
+            font = table_item.font(0)
+            font.setBold(True)
+            font.setPointSize(12)
+            table_item.setFont(0, font)
             tree_widget.addTopLevelItem(table_item)
 
             if table_name == 'Basic Configuration':
