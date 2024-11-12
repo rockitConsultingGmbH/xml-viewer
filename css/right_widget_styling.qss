@@ -1,7 +1,11 @@
-QScrollArea, QGroupBox, QCheckBox  {
+QScrollArea, QGroupBox {
     border: none;
 }
 
+ QCheckBox  {
+    border: none;
+    font-size: 14px;
+}
 
 #group-border {
     border: 1px solid black;
