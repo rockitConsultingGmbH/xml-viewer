@@ -29,6 +29,10 @@ class SettingsGroup(QWidget):
         polling_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         hbox.addWidget(polling_label)
+        polling_activated_checkbox = QCheckBox("Polling aktiviert")
+        polling_activated_checkbox.setObjectName("polling_activated_checkbox")
+        polling_activated_checkbox.setFixedWidth(200)
+        polling_activated_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         poll_until_found_checkbox = QCheckBox("Poll until found")
         poll_until_found_checkbox.setObjectName("poll_until_found_checkbox")
@@ -39,6 +43,7 @@ class SettingsGroup(QWidget):
         no_transfer_checkbox.setObjectName("no_transfer_checkbox")
         no_transfer_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
+        hbox.addWidget(polling_activated_checkbox)
         hbox.addWidget(poll_until_found_checkbox)
         hbox.addWidget(no_transfer_checkbox)
 
@@ -172,11 +177,24 @@ class SettingsGroup(QWidget):
         additional_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox_additional_settings.addWidget(additional_label)
 
-        additional_checkbox1 = QCheckBox("Rename with Timestamp")
-        additional_checkbox1.setObjectName("rename_with_timestamp_checkbox")
-        additional_checkbox1.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox_additional_settings.addWidget(additional_checkbox1)
+        target_must_be_archived_checkbox = QCheckBox("Target Must Be Archived")
+        target_must_be_archived_checkbox.setObjectName("target_must_be_archived_checkbox")
+        target_must_be_archived_checkbox.setFixedWidth(200)
+        target_must_be_archived_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        hbox_additional_settings.addWidget(target_must_be_archived_checkbox)
 
+        target_history_days_checkbox = QCheckBox("Target History Days")
+        target_history_days_checkbox.setObjectName("target_history_days_checkbox")
+        target_history_days_checkbox.setFixedWidth(200)
+        target_history_days_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        hbox_additional_settings.addWidget(target_history_days_checkbox)
+
+        rename_with_timestamp_checkbox = QCheckBox("Rename with Timestamp")
+        rename_with_timestamp_checkbox.setObjectName("rename_with_timestamp_checkbox")
+        rename_with_timestamp_checkbox.setFixedWidth(200)
+        rename_with_timestamp_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        hbox_additional_settings.addWidget(rename_with_timestamp_checkbox)
+        
         self.group_layout.addLayout(hbox_additional_settings)
 
         self.group_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))

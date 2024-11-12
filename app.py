@@ -46,11 +46,11 @@ class MainWindow(QMainWindow):
         logging.debug(f"Version: {self.version}")
         logging.debug(f"App Name: {self.app_name}")
 
-        # Set the initial size of the window and restrict resizing by dragging
         self.setFixedSize(1920, 1080)
-        
-        # Allow the window to be maximized by setting a minimum size
-        self.setMinimumSize(1800, 900)
+        self.setMinimumSize(800, 600)
+        #self.setMaximumSize(1920, 1080)
+        #self.setWindowFlags(self.windowFlags() | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
+        #self.setWindowState(Qt.WindowMaximized)
 
         main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
         self.setWindowIcon(QIcon(main_icon))
@@ -85,7 +85,6 @@ class MainWindow(QMainWindow):
         self.search_field.returnPressed.connect(lambda: self.search_helper.on_search(self))
 
         self.create_menu()
-        self.open_xml()
 
     def create_menu(self):
         menubar = self.menuBar()
@@ -509,16 +508,16 @@ class MainWindow(QMainWindow):
         self.close()
 
     def closeEvent(self, event):
-        #reply = QMessageBox.question(self, "Confirm Exit",
-        #                             "Are you sure you want to close the application?\n",
-        #                             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(self, "Confirm Exit",
+                                     "Are you sure you want to close the application?\n",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        #if reply == QMessageBox.Yes:
-        self.perform_cleanup()
-            #event.accept()
-        QApplication.quit()
-        #else:
-        #   event.ignore()
+        if reply == QMessageBox.Yes:
+            self.perform_cleanup()
+            event.accept()
+            QApplication.quit()
+        else:
+           event.ignore()
 
     def perform_cleanup(self):
         empty_database()

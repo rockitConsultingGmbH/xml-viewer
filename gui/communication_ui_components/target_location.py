@@ -36,6 +36,7 @@ class TargetLocationForm:
 
         target_label = ClickableLabel("Target")
         target_label.setFixedWidth(80)
+        target_label.setStyleSheet("font-weight: bold;")
         target_input = QLineEdit()
         target_input.setFixedHeight(30)
         target_input.setObjectName(f"target_{targetLocation['id']}_input")
@@ -87,6 +88,7 @@ class TargetLocationForm:
         target_description_input.setObjectName(f"target_description_{targetLocation['id']}_input")
         target_description_input.setFixedHeight(30)
 
+        # Create checkboxes
         use_local_filename_checkbox = QCheckBox("Use Local Filename")
         use_local_filename_checkbox.setObjectName(f"use_local_filename_checkbox_target_{targetLocation['id']}")
 
@@ -95,28 +97,26 @@ class TargetLocationForm:
 
         rename_existing_file_checkbox = QCheckBox("Rename Existing File")
         rename_existing_file_checkbox.setObjectName(f"rename_existing_file_checkbox_{targetLocation['id']}")
-    
+
+        # Add fields to columns
         left_column_layout.addRow(userid_label, userid_input)
         right_column_layout.addRow(password_label, password_input)
         left_column_layout.addRow(location_id_label, location_id_input)
         right_column_layout.addRow(target_description_label, target_description_input)
-        right_column_layout.addRow(use_local_filename_checkbox)
-        right_column_layout.addRow(use_path_from_config_checkbox)
-        right_column_layout.addRow(rename_existing_file_checkbox)
+
+        # Place checkboxes in a horizontal layout
+        checkbox_layout = QHBoxLayout()
+        checkbox_layout.addWidget(use_local_filename_checkbox)
+        checkbox_layout.addWidget(use_path_from_config_checkbox)
+        checkbox_layout.addWidget(rename_existing_file_checkbox)
+
+        # Add the checkbox row to the left column layout
+        left_column_layout.addRow(checkbox_layout)
 
         left_column_with_margin = QHBoxLayout()
         left_margin = QSpacerItem(90, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
         left_column_with_margin.addItem(left_margin)
         left_column_with_margin.addLayout(left_column_layout)
-
-        target_history_days_checkbox = QCheckBox("Target History Days")
-        target_history_days_checkbox.setObjectName(f"target_history_days_checkbox_{targetLocation['id']}")
-
-        target_must_be_archived_checkbox = QCheckBox("Target Must Be Archived")
-        target_must_be_archived_checkbox.setObjectName(f"target_must_be_archived_checkbox_{targetLocation['id']}")
-
-        left_column_layout.addRow(target_history_days_checkbox)
-        left_column_layout.addRow(target_must_be_archived_checkbox)
 
         hbox_columns.addLayout(left_column_with_margin)
         hbox_columns.addSpacing(50)
@@ -129,8 +129,7 @@ class TargetLocationForm:
 
         target_labels.extend([userid_label, location_id_label, password_label, target_description_label])
         target_inputs.extend([userid_input, location_id_input, password_input, target_description_input])
-        target_checkboxes.extend([use_local_filename_checkbox, use_path_from_config_checkbox, target_history_days_checkbox,
-                                  rename_existing_file_checkbox, target_must_be_archived_checkbox])
+        target_checkboxes.extend([use_local_filename_checkbox, use_path_from_config_checkbox, rename_existing_file_checkbox])
 
         target_label.mousePressEvent = lambda event: toggle_inputs(target_labels, target_inputs, target_checkboxes)
         target_delete_button.clicked.connect(lambda: self.delete_target_location_fields_from_ui(targetLocation['id'], target_description_label, target_box_widget))

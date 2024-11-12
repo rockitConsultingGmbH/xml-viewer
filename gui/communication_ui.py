@@ -19,7 +19,6 @@ from gui.common_components.toggle_inputs import toggle_inputs
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
 class CommunicationUI(QWidget):
@@ -49,19 +48,19 @@ class CommunicationUI(QWidget):
 
         communications_box = QGroupBox("Communications")
         communications_box.setObjectName("group-border")
-        communications_box_layout = QVBoxLayout()
+        self.communications_box_layout = QVBoxLayout()
 
         # Add spacer item
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
-        communications_box_layout.addItem(spacer)
+        self.communications_box_layout.addItem(spacer)
 
-        self.create_group("Overview", communications_box_layout, self.communication_id)
-        self.create_group("Locations", communications_box_layout, self.communication_id)
-        self.create_group("Settings", communications_box_layout)
-        self.create_group("Pattern", communications_box_layout)
-        self.create_group("Commands", communications_box_layout)
+        self.create_group("Overview", self.communications_box_layout, self.communication_id)
+        self.create_group("Locations", self.communications_box_layout, self.communication_id)
+        self.create_group("Settings", self.communications_box_layout)
+        self.create_group("Pattern", self.communications_box_layout)
+        self.create_group("Commands", self.communications_box_layout)
 
-        communications_box.setLayout(communications_box_layout)
+        communications_box.setLayout(self.communications_box_layout)
         scroll_layout.addWidget(communications_box)
 
         scroll_area.setWidget(scroll_content)
@@ -71,7 +70,6 @@ class CommunicationUI(QWidget):
         layout.addLayout(button_layout)
         layout.addWidget(scroll_area)
         self.setLayout(layout)
-
 
     def set_fields_from_db(self):
         if self.communication_id is not None:
@@ -84,6 +82,9 @@ class CommunicationUI(QWidget):
             self.location_table_data.populate_source_location_fields(self.communication_id)
             self.location_table_data.populate_target_location_fields(self.communication_id)
             self.commands_ui.refresh_commands_ui()
+
+    def refresh_fields(self):
+        self.communication_table_data.populate_communication_table_fields(self.communication_id)
 
     def save_fields_to_db(self):
         try:
@@ -106,12 +107,13 @@ class CommunicationUI(QWidget):
             target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
             if target_location_ids_to_delete:
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
-
+            
             self.popup_message.show_message("Changes have been successfully saved.")
+            self.refresh_fields()
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
-
+    
     def create_group(self, group_name, layout, communication_id=None):
         group_box = QGroupBox(group_name)
         group_layout = QVBoxLayout()

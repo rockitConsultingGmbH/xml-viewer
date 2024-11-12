@@ -142,8 +142,6 @@ def createLocationDict(communication_id, location, locationType):
         'communication_id':             communication_id,
         'location':                     add_xml_element(location, 'location'),
         'location_id':                  location.get('id', ''),
-        'targetMustBeArchived':         add_boolean_xml_element(location, 'targetMustBeArchived'),
-        'targetHistoryDays':            add_boolean_xml_element(location, 'targetHistoryDays'),
         'useLocalFilename': '',
         'usePathFromConfig' : '',
         'renameExistingFile': '',
