@@ -10,7 +10,7 @@ def load_stylesheet(widget, relative_filepath):
     base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
     filepath = os.path.join(base_path, relative_filepath)
     
-    logging.debug(f"Full path to stylesheet: {filepath}")
+    #logging.debug(f"Full path to stylesheet: {filepath}")
     
     try:
         with open(filepath, 'r') as file:
