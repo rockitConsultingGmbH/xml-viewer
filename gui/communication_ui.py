@@ -19,7 +19,6 @@ from gui.common_components.toggle_inputs import toggle_inputs
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
 class CommunicationUI(QWidget):
@@ -84,6 +83,9 @@ class CommunicationUI(QWidget):
             self.location_table_data.populate_target_location_fields(self.communication_id)
             self.commands_ui.refresh_commands_ui()
 
+    def refresh_fields(self):
+        self.communication_table_data.populate_communication_table_fields(self.communication_id)
+
     def save_fields_to_db(self):
         try:
             if not self.name_input.text().strip():
@@ -105,11 +107,13 @@ class CommunicationUI(QWidget):
             target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
             if target_location_ids_to_delete:
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
+            
             self.popup_message.show_message("Changes have been successfully saved.")
+            self.refresh_fields()
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
-
+    
     def create_group(self, group_name, layout, communication_id=None):
         group_box = QGroupBox(group_name)
         group_layout = QVBoxLayout()
