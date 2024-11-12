@@ -18,11 +18,15 @@ class OverviewGroup:
         hbox1 = QHBoxLayout()
 
         #polling_status_label = QLabel("Polling aktiviert:")
-        self.polling_status = QLabel()
-        self.polling_status.setObjectName("polling_status")
-        self.polling_status.setAlignment(Qt.AlignLeft)
-        self.polling_status.setStyleSheet("font-weight: bold;")  
-    
+        #self.polling_status = QLabel()
+        #self.polling_status.setObjectName("polling_status")
+        #self.polling_status.setAlignment(Qt.AlignLeft)
+        #self.polling_status.setStyleSheet("font-weight: bold;")  
+
+        self.polling_activate_checkbox = QCheckBox("Polling aktiviert")
+        self.polling_activate_checkbox.setObjectName("polling_activated_checkbox")
+
+
         description_label = QLabel("Description(s)")
         description_label.setFixedWidth(100)
         self.addButton = QPushButton("+")
@@ -30,7 +34,8 @@ class OverviewGroup:
         self.addButton.setObjectName("addButton")
 
         #hbox1.addWidget(polling_status_label)
-        hbox1.addWidget(self.polling_status)
+        #hbox1.addWidget(self.polling_status)
+        hbox1.addWidget(self.polling_activate_checkbox)
         hbox1.addWidget(description_label)
         hbox1.addWidget(self.addButton)
 
@@ -71,6 +76,7 @@ class OverviewGroup:
         self.group_layout.addLayout(hbox_columns)
 
         self.addButton.clicked.connect(lambda: self.description_form.add_description_fields({'id': 'new', 'description': ''}))
+        self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
     def get_name_input(self):
         return self.name_input

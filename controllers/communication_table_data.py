@@ -70,7 +70,9 @@ class CommunicationTableData:
         set_checkbox_field(self.parent_widget,"pre_unzip_checkbox", row['preunzip'])
         set_checkbox_field(self.parent_widget,"post_zip_checkbox", row['postzip'])
         set_checkbox_field(self.parent_widget,"target_must_be_archived_checkbox", row['targetMustBeArchived'])
-        set_checkbox_field(self.parent_widget,"target_history_days_checkbox", row['targetHistoryDays'])
+        set_checkbox_field(self.parent_widget,"must_be_archived_checkbox", row['mustBeArchived'])
+        set_text_field(self.parent_widget,"target_history_days_input", row['targetHistoryDays'])
+        set_text_field(self.parent_widget,"history_days_input", row['historyDays'])
         set_checkbox_field(self.parent_widget,"rename_with_timestamp_checkbox", row['renameWithTimestamp'])
         set_text_field(self.parent_widget, "gueltig_ab_input", row['gueltigAb'])
         set_text_field(self.parent_widget, "gueltig_bis_input", row['gueltigBis'])
@@ -117,9 +119,9 @@ class CommunicationTableData:
             'pollUntilFound': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"poll_until_found_checkbox")),
             'noTransfer': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"no_transfer_checkbox")),
             'targetMustBeArchived': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"target_must_be_archived_checkbox")),
-            'targetHistoryDays': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"target_history_days_checkbox")),
-            'mustBeArchived': '',
-            'historyDays': '',
+            'targetHistoryDays': get_text_value(self.parent_widget,"target_history_days_input"),
+            'mustBeArchived': convert_checkbox_to_string(get_checkbox_value(self.parent_widget,"must_be_archived_checkbox")),
+            'historyDays':  get_text_value(self.parent_widget,"history_days_input"),
             'findPattern': get_text_value(self.parent_widget,"find_pattern_input"),
             'movPattern': get_text_value(self.parent_widget,"mov_pattern_input"),
             'quitPattern': get_text_value(self.parent_widget,"quit_pattern_input"),

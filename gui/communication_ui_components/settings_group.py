@@ -19,20 +19,14 @@ class SettingsGroup(QWidget):
         hbox = QHBoxLayout()
         hbox.setAlignment(Qt.AlignLeft)
 
-        # Add spacer at the top
         self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        # Create the header with a fixed size
-        polling_label = QLabel("Polling")
+        polling_label = ClickableLabel("Polling")
         polling_label.setFixedWidth(120)
         polling_label.setObjectName("label_parent")
         polling_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         hbox.addWidget(polling_label)
-        polling_activated_checkbox = QCheckBox("Polling aktiviert")
-        polling_activated_checkbox.setObjectName("polling_activated_checkbox")
-        polling_activated_checkbox.setFixedWidth(200)
-        polling_activated_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         poll_until_found_checkbox = QCheckBox("Poll until found")
         poll_until_found_checkbox.setObjectName("poll_until_found_checkbox")
@@ -43,16 +37,13 @@ class SettingsGroup(QWidget):
         no_transfer_checkbox.setObjectName("no_transfer_checkbox")
         no_transfer_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        hbox.addWidget(polling_activated_checkbox)
         hbox.addWidget(poll_until_found_checkbox)
         hbox.addWidget(no_transfer_checkbox)
 
         self.group_layout.addLayout(hbox)
 
-        # Add a spacer to separate sections
         self.group_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        # Create a grid layout with fixed-size widgets and add spacers
         grid_layout = QGridLayout()
 
         # Row 0 - Gültig ab
@@ -145,56 +136,73 @@ class SettingsGroup(QWidget):
 
         self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        # Additional settings layout (compression, etc.)
-        hbox_new_settings = QHBoxLayout()
-        hbox_new_settings.setAlignment(Qt.AlignLeft)
-        new_label = QLabel("Compression")
-        new_label.setObjectName("label_parent")
-        new_label.setFixedWidth(120)
-        new_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox_new_settings.addWidget(new_label)
-
-        new_checkbox1 = QCheckBox("Pre-Unzip")
-        new_checkbox1.setObjectName("pre_unzip_checkbox")
-        new_checkbox1.setFixedWidth(200)
-        new_checkbox1.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox_new_settings.addWidget(new_checkbox1)
-
-        new_checkbox2 = QCheckBox("Post-Zip")
-        new_checkbox2.setObjectName("post_zip_checkbox")
-        new_checkbox2.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox_new_settings.addWidget(new_checkbox2)
-
-        self.group_layout.addLayout(hbox_new_settings)
-
-        self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
-
+        # First row of additional settings layout
         hbox_additional_settings = QHBoxLayout()
         hbox_additional_settings.setAlignment(Qt.AlignLeft)
-        additional_label = QLabel("Other Settings")
+
+        additional_label = ClickableLabel("Other Settings")
         additional_label.setObjectName("label_parent")
+
         additional_label.setFixedWidth(120)
-        additional_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         hbox_additional_settings.addWidget(additional_label)
+
+        must_be_archived_checkbox = QCheckBox("Must Be Archived")
+        must_be_archived_checkbox.setObjectName("must_be_archived_checkbox")
+
+        must_be_archived_checkbox.setFixedWidth(200)
+        hbox_additional_settings.addWidget(must_be_archived_checkbox)
 
         target_must_be_archived_checkbox = QCheckBox("Target Must Be Archived")
         target_must_be_archived_checkbox.setObjectName("target_must_be_archived_checkbox")
-        target_must_be_archived_checkbox.setFixedWidth(200)
-        target_must_be_archived_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox_additional_settings.addWidget(target_must_be_archived_checkbox)
 
-        target_history_days_checkbox = QCheckBox("Target History Days")
-        target_history_days_checkbox.setObjectName("target_history_days_checkbox")
-        target_history_days_checkbox.setFixedWidth(200)
-        target_history_days_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        hbox_additional_settings.addWidget(target_history_days_checkbox)
+        target_must_be_archived_checkbox.setFixedWidth(200)
+        hbox_additional_settings.addWidget(target_must_be_archived_checkbox)
 
         rename_with_timestamp_checkbox = QCheckBox("Rename with Timestamp")
         rename_with_timestamp_checkbox.setObjectName("rename_with_timestamp_checkbox")
-        rename_with_timestamp_checkbox.setFixedWidth(200)
-        rename_with_timestamp_checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
         hbox_additional_settings.addWidget(rename_with_timestamp_checkbox)
-        
+
+        # Add the first row to the main layout
         self.group_layout.addLayout(hbox_additional_settings)
 
+        # Second row of additional settings layout
+        self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
+
+        hbox_additional_settings_row_2 = QHBoxLayout()
+        hbox_additional_settings_row_2.setAlignment(Qt.AlignLeft)
+
+        # Add spacer to align `History Days` under `Must Be Archived`
+        hbox_additional_settings_row_2.addItem(QSpacerItem(120, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
+
+        # History Days input and label
+        history_days_label = QLabel("History Days")
+        history_days_label.setFixedWidth(130)
+        history_days_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        hbox_additional_settings_row_2.addWidget(history_days_label)
+        history_days_input = QLineEdit()
+        history_days_input.setObjectName("history_days_input")
+        history_days_input.setFixedSize(450, 30)
+        hbox_additional_settings_row_2.addWidget(history_days_input)
+
+       # Second row of additional settings layout
+        hbox_additional_settings_row_3 = QHBoxLayout()
+        hbox_additional_settings_row_3.setAlignment(Qt.AlignLeft)
+        hbox_additional_settings_row_3.addItem(QSpacerItem(120, 0, QSizePolicy.Fixed, QSizePolicy.Minimum))
+
+        # Target History Days input and label
+        target_history_days_label = QLabel("Target History Days")
+        target_history_days_label.setFixedWidth(130)
+        target_history_days_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        hbox_additional_settings_row_3.addWidget(target_history_days_label)
+        target_history_days_input = QLineEdit()
+        target_history_days_input.setObjectName("target_history_days_input")
+        target_history_days_input.setFixedSize(450, 30)
+        hbox_additional_settings_row_3.addWidget(target_history_days_input)
+
+        # Add the second row to the main layout
+        self.group_layout.addLayout(hbox_additional_settings_row_2)
+        self.group_layout.addLayout(hbox_additional_settings_row_3)
+
+        # Spacer below the additional settings
         self.group_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))

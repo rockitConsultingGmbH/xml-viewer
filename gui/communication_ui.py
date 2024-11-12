@@ -109,7 +109,7 @@ class CommunicationUI(QWidget):
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
             
             self.popup_message.show_message("Changes have been successfully saved.")
-            self.refresh_fields()
+            #self.refresh_fields()
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -133,8 +133,8 @@ class CommunicationUI(QWidget):
         elif group_name == "Settings":
             self.settings_group = SettingsGroup(group_layout, self._communication_id, toggle_inputs)
             self.settings_group.create_settings_group()
-            line = self.create_horizontal_line()
-            group_layout.addWidget(line)
+            #line = self.create_horizontal_line()
+            #group_layout.addWidget(line)
 
         elif group_name == "Pattern":
             self.pattern_group = PatternGroup(group_layout, self._communication_id)
