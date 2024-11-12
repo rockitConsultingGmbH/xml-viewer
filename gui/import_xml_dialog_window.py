@@ -58,9 +58,7 @@ class FileDialog(QDialog):
         layout.addWidget(self.validate_button)
 
         self.setLayout(layout)
-
         self.toggle_xsd_fields()
-        self.validate_and_continue()
 
     def choose_xml_file(self):
         file_name, _ = QFileDialog.getOpenFileName(self, "Choose XML File", "", "XML Files (*.xml);;All Files (*)")
