@@ -1,11 +1,14 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, QLineEdit, QWidget, QScrollArea, QGroupBox, QSpacerItem, QSizePolicy, QFrame)
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, 
+                             QGroupBox, QSpacerItem, QSizePolicy, QFrame)
 from PyQt5.QtGui import QFont
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
-from database.utils import select_from_ipqueue, select_from_mqconfig, select_from_mqtrigger, update_ipqueue, update_mqconfig, update_mqtrigger
+from database.utils import select_from_mqconfig, update_mqconfig
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
+from gui.mq_configuration_components.ipqueue_configuration import IPQueueConfiguration
+from gui.mq_configuration_components.mqtrigger_configuration import MQTriggerConfiguration
 
 
 class MQConfigurationWidget(QWidget):
@@ -14,6 +17,8 @@ class MQConfigurationWidget(QWidget):
         self.conn_manager = ConnectionManager()
         self.config_manager = ConfigManager()
         self.popup_message = PopupMessage(self)
+        self.mqtrigger_configuration = MQTriggerConfiguration()
+        self.ipqueue_configuration = IPQueueConfiguration()
         self.ipqueue_fields = []
         self.setup_ui()
 
@@ -33,9 +38,9 @@ class MQConfigurationWidget(QWidget):
 
         self.create_mqconfig_layout(self.scroll_layout)
         self.add_groupbox_spacing(self.scroll_layout)
-        self.create_mqtrigger_layout(self.scroll_layout)
+        self.mqtrigger_configuration.create_mqtrigger_layout(self.scroll_layout)
         self.add_groupbox_spacing(self.scroll_layout)
-        self.create_ipqueue_layout(self.scroll_layout)
+        self.ipqueue_configuration.create_ipqueue_layout(self.scroll_layout)
 
         self.scroll_area.setWidget(scroll_content)
         main_layout.addWidget(self.scroll_area)
@@ -49,7 +54,7 @@ class MQConfigurationWidget(QWidget):
         mqconfig_group = QGroupBox("MQ Configuration")
         mqconfig_group.setObjectName("group-border")
         mqconfig_group.setFont(QFont("Arial", 12, QFont.Bold))
-        mqconfig_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
+        mqconfig_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit { font-size: 12px; }")
         mqconfig_layout = QFormLayout()
 
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
@@ -61,7 +66,7 @@ class MQConfigurationWidget(QWidget):
         parent_layout.addWidget(mqconfig_group)
 
     def add_mqconfig_fields_to_form_layout(self, form_layout):
-        self.is_remote_input = QCheckBox()
+        self.is_remote_input = QLineEdit()
         self.qmgr_input = QLineEdit()
         self.hostname_input = QLineEdit()
         self.port_input = QLineEdit()
@@ -79,6 +84,7 @@ class MQConfigurationWidget(QWidget):
         self.wait_interval_input = QLineEdit()
 
         fields = [
+            (self.is_remote_input, "Is Remote:"),
             (self.qmgr_input, "Queue Manager:"),
             (self.hostname_input, "Hostname:"),
             (self.port_input, "Port:"),
@@ -101,12 +107,11 @@ class MQConfigurationWidget(QWidget):
             field.setFixedHeight(35)
             form_layout.addRow(label, field)
 
-        form_layout.addRow("Remote:", self.is_remote_input)
-
     def populate_mqconfig_fields_from_db(self):
         data = self.get_mqconfig_data()
         if data:
-            self.is_remote_input.setChecked(data["isRemote"] == "true")
+            self.config_manager.mqconfig_id = data["id"]
+            self.is_remote_input.setText(data["isRemote"])
             self.qmgr_input.setText(data["qmgr"])
             self.hostname_input.setText(data["hostname"])
             self.port_input.setText(data["port"])
@@ -131,164 +136,9 @@ class MQConfigurationWidget(QWidget):
         conn.close()
         return dict(row) if row else None
 
-    def create_mqtrigger_layout(self, parent_layout):
-        mqtrigger_group = QGroupBox("MQTrigger Settings")
-        mqtrigger_group.setObjectName("group-border")
-        mqtrigger_group.setFont(QFont("Arial", 12, QFont.Bold))
-        mqtrigger_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
-        mqtrigger_layout = QFormLayout()
-
-        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
-        mqtrigger_layout.addItem(spacer)
-
-        self.add_mqtrigger_fields_to_form_layout(mqtrigger_layout)
-        self.populate_mqtrigger_fields_from_db()
-
-        mqtrigger_group.setLayout(mqtrigger_layout)
-        parent_layout.addWidget(mqtrigger_group)
-
-    def add_mqtrigger_fields_to_form_layout(self, form_layout):
-        self.success_interval_input = QLineEdit()
-        self.trigger_interval_input = QLineEdit()
-        self.polling_input = QLineEdit()
-        self.dynamic_instance_management_input = QLineEdit()
-        self.dynamic_success_count_input = QLineEdit()
-        self.dynamic_success_interval_input = QLineEdit()
-        self.dynamic_max_instances_input = QLineEdit()
-
-        fields = [
-            (self.success_interval_input, "Success Interval:"),
-            (self.trigger_interval_input, "Trigger Interval:"),
-            (self.polling_input, "Polling:"),
-            (self.dynamic_instance_management_input, "Dynamic Instance Management:"),
-            (self.dynamic_success_count_input, "Dynamic Success Count:"),
-            (self.dynamic_success_interval_input, "Dynamic Success Interval:"),
-            (self.dynamic_max_instances_input, "Dynamic Max Instances:")
-        ]
-
-        for field, label in fields:
-            field.setFixedWidth(500)
-            field.setFixedHeight(35)
-            form_layout.addRow(label, field)
-
-    def populate_mqtrigger_fields_from_db(self):
-        data = self.get_mqtrigger_data()
-        if data:
-            self.success_interval_input.setText(data["success_interval"])
-            self.trigger_interval_input.setText(data["trigger_interval"])
-            self.polling_input.setText(data["polling"])
-            self.dynamic_instance_management_input.setText(data["dynamic_instance_management"])
-            self.dynamic_success_count_input.setText(data["dynamic_success_count"])
-            self.dynamic_success_interval_input.setText(data["dynamic_success_interval"])
-            self.dynamic_max_instances_input.setText(data["dynamic_max_instances"])
-
-    def get_mqtrigger_data(self):
-        conn = self.conn_manager.get_db_connection()
-        cursor = conn.cursor()
-        cursor = select_from_mqtrigger(cursor, self.config_manager.config_id)
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
-
-    def create_ipqueue_layout(self, parent_layout):
-        ipqueue_group = QGroupBox("IPQueue Settings")
-        ipqueue_group.setObjectName("group-border")
-        ipqueue_group.setFont(QFont("Arial", 12, QFont.Bold))
-        ipqueue_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
-        ipqueue_main_layout = QVBoxLayout()
-
-        spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
-        ipqueue_main_layout.addItem(spacer)
-
-        ipqueue_entries = self.get_ipqueue_data()
-
-        for entry in ipqueue_entries:
-            individual_ipqueue_group = QGroupBox(f"IPQueue")
-            individual_ipqueue_group.setObjectName("group-border")
-            individual_ipqueue_group.setFont(QFont("Arial", 10, QFont.Bold, italic=True))
-            individual_ipqueue_layout = QFormLayout()
-
-            spacer = QSpacerItem(5, 5, QSizePolicy.Minimum, QSizePolicy.Fixed)
-            individual_ipqueue_layout.addItem(spacer)
-
-            individual_ipqueue_layout = self.add_ipqueue_fields_to_form_layout(individual_ipqueue_layout, entry)
-            self.populate_ipqueue_fields_from_db()
-
-            individual_ipqueue_group.setLayout(individual_ipqueue_layout)
-            ipqueue_main_layout.addWidget(individual_ipqueue_group)
-            ipqueue_main_layout.addSpacing(20)
-
-        ipqueue_group.setLayout(ipqueue_main_layout)
-        parent_layout.addWidget(ipqueue_group)
-
-    def add_ipqueue_fields_to_form_layout(self, entry_layout, entry):
-        ipqueue_input = QLineEdit()
-        ipqueue_errorqueue_input = QLineEdit()
-        ipqueue_number_of_threads_input = QLineEdit()
-        ipqueue_description_input = QLineEdit()
-
-        fields = [
-            (ipqueue_input, "Queue:"),
-            (ipqueue_errorqueue_input, "Error Queue:"),
-            (ipqueue_number_of_threads_input, "Number of Threads:"),
-            (ipqueue_description_input, "Description:")
-        ]
-
-        for field, label in fields:
-            field.setFixedWidth(500)
-            field.setFixedHeight(30)
-            entry_layout.addRow(label, field)
-
-        self.ipqueue_fields.append({
-            "queue": ipqueue_input,
-            "errorQueue": ipqueue_errorqueue_input,
-            "numberOfThreads": ipqueue_number_of_threads_input,
-            "description": ipqueue_description_input
-        })
-
-        return entry_layout
-    
-    def populate_ipqueue_fields_from_db(self):
-        ipqueue_entries = self.get_ipqueue_data()
-        for entry, field_group in zip(ipqueue_entries, self.ipqueue_fields):
-            field_group["queue"].setProperty("ipqueue_id", entry["id"])
-            field_group["errorQueue"].setProperty("ipqueue_id", entry["id"])
-            field_group["numberOfThreads"].setProperty("ipqueue_id", entry["id"])
-            field_group["description"].setProperty("ipqueue_id", entry["id"])
-
-            field_group["queue"].setText(entry["queue"])
-            field_group["errorQueue"].setText(entry["errorQueue"])
-            field_group["numberOfThreads"].setText(entry["numberOfThreads"])
-            field_group["description"].setText(entry["description"])
-
-    def get_ipqueue_data(self):
-        conn = self.conn_manager.get_db_connection()
-        cursor = conn.cursor()
-        cursor = select_from_ipqueue(cursor, self.config_manager.config_id)
-        rows = cursor.fetchall()
-        conn.close()
-        return rows
-
-    def save_ipqueue_fields_to_db(self, cursor):
-        for field_group in self.ipqueue_fields:
-            ipqueue_id = field_group["queue"].property("ipqueue_id")
-
-            ipqueue_data = {
-                "ipqueue_id": ipqueue_id,
-                "queue": field_group["queue"].text(),
-                "errorQueue": field_group["errorQueue"].text(),
-                "numberOfThreads": field_group["numberOfThreads"].text(),
-                "description": field_group["description"].text(),
-                "basicConfig_id": self.config_manager.config_id
-            }
-
-            update_ipqueue(cursor, ipqueue_data)
-
-        return cursor   
-
     def save_mqconfig_fields_to_db(self, cursor):
         mqconfig_data = {
-            "isRemote": "true" if self.is_remote_input.isChecked() else "false",
+            "isRemote": self.is_remote_input.text(),
             "qmgr": self.qmgr_input.text(),
             "hostname": self.hostname_input.text(),
             "port": self.port_input.text(),
@@ -310,30 +160,16 @@ class MQConfigurationWidget(QWidget):
         update_mqconfig(cursor, mqconfig_data)
         return cursor
 
-    def save_mqtrigger_fields_to_db(self, cursor):
-        mqtrigger_data = {
-            "success_interval": self.success_interval_input.text(),
-            "trigger_interval": self.trigger_interval_input.text(),
-            "polling": self.polling_input.text(),
-            "dynamic_instance_management": self.dynamic_instance_management_input.text(),
-            "dynamic_success_count": self.dynamic_success_count_input.text(),
-            "dynamic_success_interval": self.dynamic_success_interval_input.text(),
-            "dynamic_max_instances": self.dynamic_max_instances_input.text(),
-            "basicConfig_id": self.config_manager.config_id
-        }
-
-        update_mqtrigger(cursor, mqtrigger_data)
-        return cursor
-
     def save_fields_to_db(self):
         try:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
             self.save_mqconfig_fields_to_db(cursor)
-            self.save_mqtrigger_fields_to_db(cursor)
-            self.save_ipqueue_fields_to_db(cursor)
+            self.mqtrigger_configuration.save_mqtrigger_fields_to_db(cursor)
+            self.ipqueue_configuration.save_ipqueue_fields_to_db(cursor)
             conn.commit()
             self.popup_message.show_message("Changes have been successfully saved.")
+            self.refresh_page()
         except Exception as e:
             print(f"Error while saving data: {e}")
             conn.rollback()
@@ -344,19 +180,23 @@ class MQConfigurationWidget(QWidget):
     def set_fields_from_db(self):
         try:
             self.populate_mqconfig_fields_from_db()
-            self.populate_mqtrigger_fields_from_db()
-            self.populate_ipqueue_fields_from_db()
+            self.mqtrigger_configuration.populate_mqtrigger_fields_from_db()
+            self.ipqueue_configuration.populate_ipqueue_fields_from_db()
         except Exception as e:
             print(f"Error populating fields from database: {e}")
             self.popup_message.show_error_message("Error populating fields from database.")
 
     def refresh_page(self):
+        self.ipqueue_fields = []
+        self.ipqueue_configuration.reset_fields()
+
         self.clear_layout(self.scroll_layout)
         self.create_mqconfig_layout(self.scroll_layout)
         self.add_groupbox_spacing(self.scroll_layout)
-        self.create_mqtrigger_layout(self.scroll_layout)
+        self.mqtrigger_configuration.create_mqtrigger_layout(self.scroll_layout)
         self.add_groupbox_spacing(self.scroll_layout)
-        self.create_ipqueue_layout(self.scroll_layout)
+        self.ipqueue_configuration.create_ipqueue_layout(self.scroll_layout)
+
         self.repaint()
 
     def clear_layout(self, layout):
