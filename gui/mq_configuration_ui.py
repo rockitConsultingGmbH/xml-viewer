@@ -169,6 +169,7 @@ class MQConfigurationWidget(QWidget):
             self.ipqueue_configuration.save_ipqueue_fields_to_db(cursor)
             conn.commit()
             self.popup_message.show_message("Changes have been successfully saved.")
+            self.refresh_page()
         except Exception as e:
             print(f"Error while saving data: {e}")
             conn.rollback()
@@ -186,12 +187,17 @@ class MQConfigurationWidget(QWidget):
             self.popup_message.show_error_message("Error populating fields from database.")
 
     def refresh_page(self):
+        self.ipqueue_fields = []
+        #self.mqtrigger_configuration.reset_fields()
+        self.ipqueue_configuration.reset_fields()
+
         self.clear_layout(self.scroll_layout)
         self.create_mqconfig_layout(self.scroll_layout)
         self.add_groupbox_spacing(self.scroll_layout)
         self.mqtrigger_configuration.create_mqtrigger_layout(self.scroll_layout)
         self.add_groupbox_spacing(self.scroll_layout)
         self.ipqueue_configuration.create_ipqueue_layout(self.scroll_layout)
+
         self.repaint()
 
     def clear_layout(self, layout):

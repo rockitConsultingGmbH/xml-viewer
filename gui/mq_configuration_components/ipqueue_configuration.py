@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
-from database.utils import update_ipqueue, select_from_ipqueue, insert_into_ipqueue
+from database.utils import update_ipqueue, select_from_ipqueue, insert_into_ipqueue, delete_from_ipqueue
 
 class IPQueueConfiguration:
     def __init__(self):
@@ -11,6 +11,8 @@ class IPQueueConfiguration:
         self.config_manager = ConfigManager()
         self.ipqueue_fields = []
         self.new_ipqueues = []
+        self.deleted_ipqueues = []
+        self.hidden_ipqueue_widgets = []
         self.ipqueue_main_layout = None
 
     def create_ipqueue_layout(self, parent_layout):
@@ -45,7 +47,6 @@ class IPQueueConfiguration:
         self.ipqueue_main_layout.addLayout(ipqueues_label_row_layout)
         self.ipqueue_main_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        # Load and display IPQueue entries in ascending order of ID (oldest first)
         ipqueue_entries = sorted(self.get_ipqueue_data(), key=lambda x: x['id'])
         for entry in ipqueue_entries:
             self.add_ipqueue_to_layout(entry)
@@ -58,8 +59,11 @@ class IPQueueConfiguration:
         
         individual_ipqueue_group = QWidget()
         individual_ipqueue_layout = QFormLayout()
-
-        ipqueue_input_label = QLabel("Queue:")
+        if new:
+            ipqueue_input_label = QLabel("New Queue:")
+        else:
+            ipqueue_input_label = QLabel("Queue:")
+        #ipqueue_input_label = QLabel("Queue:")
         font = QFont()
         font.setBold(True)
         ipqueue_input_label.setFont(font)
@@ -73,7 +77,7 @@ class IPQueueConfiguration:
         ipqueue_delete_button = QPushButton("-")
         ipqueue_delete_button.setObjectName("deleteButton")
         ipqueue_delete_button.setFixedSize(30, 30)
-        ipqueue_delete_button.clicked.connect(lambda: self.delete_ipqueue(individual_ipqueue_group, ipqueue_id))
+        ipqueue_delete_button.clicked.connect(lambda: self.mark_ipqueue_for_deletion(individual_ipqueue_group, ipqueue_id))
 
         ipqueue_errorqueue_input = QLineEdit(entry["errorQueue"] if entry else "")
         ipqueue_number_of_threads_input = QLineEdit(entry["numberOfThreads"] if entry else "")
@@ -103,7 +107,8 @@ class IPQueueConfiguration:
             "errorQueue": ipqueue_errorqueue_input,
             "numberOfThreads": ipqueue_number_of_threads_input,
             "description": ipqueue_description_input,
-            "id": ipqueue_id
+            "id": ipqueue_id,
+            "widget": individual_ipqueue_group
         }
         self.ipqueue_fields.append(ipqueue_entry)
 
@@ -117,21 +122,34 @@ class IPQueueConfiguration:
         else:
             self.ipqueue_main_layout.addWidget(individual_ipqueue_group)
 
-    def delete_ipqueue(self, ipqueue_widget, ipqueue_id):
-        """Remove an IPQueue from the layout and mark for deletion if it exists in the DB."""
+    def mark_ipqueue_for_deletion(self, ipqueue_widget, ipqueue_id):
+        """Mark an IPQueue for deletion, hide it in the UI, and store its ID for deletion."""
+        ipqueue_widget.setVisible(False)
+        
         if ipqueue_id:
-            self.ipqueue_fields = [field for field in self.ipqueue_fields if field["id"] != ipqueue_id]
-            # Here, you would also add the logic to handle the actual DB deletion when saving
-        # Remove widget from UI
-        ipqueue_widget.setParent(None)
+            self.deleted_ipqueues.append(ipqueue_id)
+        
+        self.hidden_ipqueue_widgets.append(ipqueue_widget)
 
     def populate_ipqueue_fields_from_db(self):
+        self.reset_ipqueues()
         ipqueue_entries = self.get_ipqueue_data()
         for entry, field_group in zip(ipqueue_entries, self.ipqueue_fields):
             field_group["queue"].setText(entry["queue"])
             field_group["errorQueue"].setText(entry["errorQueue"])
             field_group["numberOfThreads"].setText(entry["numberOfThreads"])
             field_group["description"].setText(entry["description"])
+
+    def reset_ipqueues(self):
+        for widget in self.hidden_ipqueue_widgets:
+            widget.setVisible(True)
+
+        for new_entry in self.new_ipqueues:
+            new_entry["widget"].setParent(None)
+        self.new_ipqueues = []
+
+        self.deleted_ipqueues = []
+        self.hidden_ipqueue_widgets = []
 
     def get_ipqueue_data(self):
         conn = self.conn_manager.get_db_connection()
@@ -154,10 +172,21 @@ class IPQueueConfiguration:
             }
 
             if ipqueue_id:
-                ipqueue_data["ipqueue_id"] = ipqueue_id
+                ipqueue_data["id"] = ipqueue_id
                 update_ipqueue(cursor, ipqueue_data)
             else:
-                ipqueue_id = insert_into_ipqueue(cursor, ipqueue_data)
+                ipqueue_id = insert_into_ipqueue(cursor, ipqueue_data).lastrowid
                 field_group["id"] = ipqueue_id
 
+        for ipqueue_id in self.deleted_ipqueues:
+            delete_from_ipqueue(cursor, ipqueue_id)
+
+        self.deleted_ipqueues = []
+
         return cursor
+
+    def reset_fields(self):
+        self.ipqueue_fields = []
+        self.new_ipqueues = []
+        self.deleted_ipqueues = []
+        self.hidden_ipqueue_widgets = []

@@ -534,12 +534,12 @@ def update_ipqueue(cursor, row):
         row['numberOfThreads'],
         row['description'],
         row['basicConfig_id'],
-        row['ipqueue_id']
+        row['id']
     ))
     return cursor
 
 def delete_from_ipqueue(cursor, ipqueue_id):
-    cursor.execute("DELETE FROM IPQueue WHERE ipqueue_id = ? AND ", (ipqueue_id,))
+    cursor.execute("DELETE FROM IPQueue WHERE id = ?", (ipqueue_id,))
     return cursor
 
 # Communication

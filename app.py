@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
 
         self.setFixedSize(1920, 1080)
         self.setMinimumSize(800, 600)
-        #self.setMaximumSize(1920, 1080)
+        #self.setMaximumSize(3840, 2160)
         #self.setWindowFlags(self.windowFlags() | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
         #self.setWindowState(Qt.WindowMaximized)
 
@@ -297,7 +297,7 @@ class MainWindow(QMainWindow):
             table_item.setExpanded(False)
             font = table_item.font(0)
             font.setBold(True)
-            font.setPointSize(12)
+            font.setPointSize(11)
             table_item.setFont(0, font)
             tree_widget.addTopLevelItem(table_item)
 
