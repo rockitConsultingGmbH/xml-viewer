@@ -74,6 +74,7 @@ class CommunicationUI(QWidget):
     def set_fields_from_db(self):
         if self.communication_id is not None:
             self.overview_group_instance.reset_ui()
+            self.location_group.reset_ui()
             self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
@@ -81,7 +82,7 @@ class CommunicationUI(QWidget):
             self.communication_table_data.populate_communication_table_fields(self.communication_id)
             self.descritpion_table_data.populate_description_fields(self.communication_id)
             self.location_table_data.populate_source_location_fields(self.communication_id)
-            self.location_table_data.populate_target_location_fields(self.communication_id)
+            #self.location_table_data.populate_target_location_fields(self.communication_id)
             self.commands_ui.refresh_commands_ui()
 
     def refresh_fields(self):
@@ -134,8 +135,6 @@ class CommunicationUI(QWidget):
         elif group_name == "Settings":
             self.settings_group = SettingsGroup(group_layout, self._communication_id, toggle_inputs)
             self.settings_group.create_settings_group()
-            #line = self.create_horizontal_line()
-            #group_layout.addWidget(line)
 
         elif group_name == "Pattern":
             self.pattern_group = PatternGroup(group_layout, self._communication_id)

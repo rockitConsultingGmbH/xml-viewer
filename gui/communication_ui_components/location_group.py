@@ -108,4 +108,17 @@ class LocationsGroup(QWidget):
 
         source_label.mousePressEvent = lambda event: self.toggle_inputs(self.source_labels + self.source_checkboxes, self.source_inputs)
 
-        add_target_location_button.clicked.connect(lambda: self.targe_location_form.add_target_location_fields({'id': 'new'}))
+        add_target_location_button.clicked.connect(lambda: self.targe_location_form.add_target_location_fields({
+            'id': 'new',
+            'userid': '',
+            'location_id': '',
+            'location': '',
+            'password': '',
+            'description': '',
+            'useLocalFilename': '',
+            'usePathFromConfig': '',
+            'renameExistingFile': ''
+        }))
+
+    def reset_ui(self):
+        self.targe_location_form.reset_target_location_deletions()
