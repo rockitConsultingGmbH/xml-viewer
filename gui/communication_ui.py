@@ -73,6 +73,7 @@ class CommunicationUI(QWidget):
 
     def set_fields_from_db(self):
         if self.communication_id is not None:
+            self.overview_group_instance.reset_ui()
             self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
@@ -84,7 +85,7 @@ class CommunicationUI(QWidget):
             self.commands_ui.refresh_commands_ui()
 
     def refresh_fields(self):
-        self.communication_table_data.populate_communication_table_fields(self.communication_id)
+        self.populate_fields_from_db()
 
     def save_fields_to_db(self):
         try:
