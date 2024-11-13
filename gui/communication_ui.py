@@ -81,7 +81,7 @@ class CommunicationUI(QWidget):
         if self.communication_id is not None:
             self.communication_table_data.populate_communication_table_fields(self.communication_id)
             self.descritpion_table_data.populate_description_fields(self.communication_id)
-            self.location_table_data.populate_source_location_fields(self.communication_id)
+            #self.location_table_data.populate_source_location_fields(self.communication_id)
             #self.location_table_data.populate_target_location_fields(self.communication_id)
             self.commands_ui.refresh_commands_ui()
 
@@ -106,7 +106,7 @@ class CommunicationUI(QWidget):
             if description_ids_to_delete:
                 self.descritpion_table_data.delete_description_data(description_ids_to_delete)
 
-            target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
+            target_location_ids_to_delete = self.location_group.target_location_form.get_target_location_ids_to_delete()
             if target_location_ids_to_delete:
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
             
@@ -127,7 +127,7 @@ class CommunicationUI(QWidget):
             group_layout.addWidget(line)
 
         elif group_name == "Locations":
-            self.location_group = LocationsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.location_group = LocationsGroup(group_layout, self._communication_id)
             self.location_group.create_location_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)

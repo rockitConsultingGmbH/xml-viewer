@@ -1,15 +1,17 @@
 import logging
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QCheckBox, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QWidget, QPushButton
-
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_location
-
 from gui.common_components.clickable_label import ClickableLabel
-
+from gui.common_components.toggle_inputs import toggle_inputs
 
 class TargetLocationForm:
     def __init__(self, communication_id):
         self.communication_id = communication_id
+        self.toggle_inputs = toggle_inputs
+        self.source_labels = []
+        self.source_inputs = []
+        self.source_checkboxes = []
         self.target_location_ids_to_delete = []
         self.deleted_target_locations_data = []
         self.target_locations_form_layout = QFormLayout()
@@ -19,20 +21,20 @@ class TargetLocationForm:
     def load_target_locations(self):
         self.conn = self.conn_manager.get_db_connection()
         self.cursor = self.conn.cursor()
-        self.targetLocations = [dict(row) for row in select_from_location(self.cursor, self.communication_id, 'targetLocation').fetchall()]
+        self.target_locations = [dict(row) for row in select_from_location(self.cursor, self.communication_id, 'targetLocation').fetchall()]
         self.conn.close()
 
-    def create_form(self):
-        for targetLocation in self.targetLocations:
-            self.add_target_location_fields(targetLocation)
+    def setup_ui(self):
+        for target_location in self.target_locations:
+            self.add_target_location_fields(target_location)
         return self.target_locations_form_layout
 
-    def add_target_location_fields(self, targetLocation):
-        logging.info(f"Adding target location fields for targetLocation ID: {targetLocation['id']}")
+    def add_target_location_fields(self, target_location):
+        logging.info(f"Adding target location fields for targetLocation ID: {target_location['id']}")
         
         target_box_widget = QWidget()
-        target_box_widget.setObjectName(f"target_box_{targetLocation['id']}")
-        target_box_widget.setProperty("target_id", targetLocation['id'])
+        target_box_widget.setObjectName(f"target_box_{target_location['id']}")
+        target_box_widget.setProperty("target_id", target_location['id'])
 
         target_box = QVBoxLayout(target_box_widget)
         target_label = ClickableLabel("Target")
@@ -40,8 +42,7 @@ class TargetLocationForm:
         target_label.setStyleSheet("font-weight: bold;")
         target_input = QLineEdit()
         target_input.setFixedHeight(30)
-        target_input.setObjectName(f"target_{targetLocation['id']}_input")
-        target_input.setText(targetLocation['location'])
+        target_input.setObjectName(f"target_{target_location['id']}_input")
 
         target_delete_button = QPushButton("-")
         target_delete_button.setObjectName("deleteButton")
@@ -63,24 +64,20 @@ class TargetLocationForm:
         right_column_layout = QFormLayout()
     
         userid_input = QLineEdit()
-        userid_input.setObjectName(f"userid_target_{targetLocation['id']}_input")
+        userid_input.setObjectName(f"userid_target_{target_location['id']}_input")
         userid_input.setFixedHeight(30)
-        userid_input.setText(targetLocation['userid'])
 
         password_input = QLineEdit()
-        password_input.setObjectName(f"password_target_{targetLocation['id']}_input")
+        password_input.setObjectName(f"password_target_{target_location['id']}_input")
         password_input.setFixedHeight(30)
-        password_input.setText(targetLocation['password'])
 
         location_id_input = QLineEdit()
-        location_id_input.setObjectName(f"location_id_target_{targetLocation['id']}_input")
+        location_id_input.setObjectName(f"location_id_target_{target_location['id']}_input")
         location_id_input.setFixedHeight(30)
-        location_id_input.setText(targetLocation['location_id'])
 
         target_description_input = QLineEdit()
-        target_description_input.setObjectName(f"target_description_{targetLocation['id']}_input")
+        target_description_input.setObjectName(f"target_description_{target_location['id']}_input")
         target_description_input.setFixedHeight(30)
-        target_description_input.setText(targetLocation['description'])
 
         left_column_layout.addRow(QLabel("User ID"), userid_input)
         right_column_layout.addRow(QLabel("Password"), password_input)
@@ -88,16 +85,13 @@ class TargetLocationForm:
         right_column_layout.addRow(QLabel("Description"), target_description_input)
 
         use_local_filename_checkbox = QCheckBox("Use Local Filename")
-        use_local_filename_checkbox.setObjectName(f"use_local_filename_target_{targetLocation['id']}_checkbox")
-        use_local_filename_checkbox.setChecked(bool(targetLocation['useLocalFilename']))
+        use_local_filename_checkbox.setObjectName(f"use_local_filename_checkbox_target_{target_location['id']}")
 
         use_path_from_config_checkbox = QCheckBox("Use Path From Config")
-        use_path_from_config_checkbox.setObjectName(f"use_path_from_config_target_{targetLocation['id']}_checkbox")
-        use_path_from_config_checkbox.setChecked(bool(targetLocation['usePathFromConfig']))
+        use_path_from_config_checkbox.setObjectName(f"use_path_from_config_checkbox_target_{target_location['id']}")
 
         rename_existing_file_checkbox = QCheckBox("Rename Existing File")
-        rename_existing_file_checkbox.setObjectName(f"rename_existing_file_target_{targetLocation['id']}_checkbox")
-        rename_existing_file_checkbox.setChecked(bool(targetLocation['renameExistingFile']))
+        rename_existing_file_checkbox.setObjectName(f"rename_existing_file_checkbox_{target_location['id']}")
 
         checkbox_layout = QHBoxLayout()
         checkbox_layout.addWidget(use_local_filename_checkbox)
@@ -118,13 +112,28 @@ class TargetLocationForm:
         self.target_locations_form_layout.addRow(target_box_widget)
         self.target_locations_form_layout.addItem(QSpacerItem(0, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
-        target_delete_button.clicked.connect(lambda: self.mark_target_location_for_deletion(targetLocation['id'], target_box_widget, targetLocation))
+        target_delete_button.clicked.connect(lambda: self.mark_target_location_for_deletion(target_location['id'], target_box_widget, target_location))
+        self.populate_target_fields(target_location, target_input, userid_input, password_input, location_id_input, target_description_input, use_local_filename_checkbox, use_path_from_config_checkbox, rename_existing_file_checkbox)
 
-    def mark_target_location_for_deletion(self, targetLocation_id, target_box_widget, targetLocation):
-        self.target_location_ids_to_delete.append(targetLocation_id)
-        self.deleted_target_locations_data.append(targetLocation)
+        #self.source_labels.extend([userid_label, location_id_label, password_label, source_description_label])
+        #self.source_inputs.extend([self.userid_input, self.location_id_input, self.password_input, self.source_description_input])
+        #source_label.mousePressEvent = lambda event: self.toggle_inputs(self.source_labels, self.source_inputs)
+    
+    def populate_target_fields(self, target_location, target_input, userid_input, password_input, location_id_input, target_description_input, use_local_filename_checkbox, use_path_from_config_checkbox, rename_existing_file_checkbox):
+        target_input.setText(target_location.get('location', ''))
+        userid_input.setText(target_location.get('userid', ''))
+        password_input.setText(target_location.get('password', ''))
+        location_id_input.setText(target_location.get('location_id', ''))
+        target_description_input.setText(target_location.get('description', ''))
+        use_local_filename_checkbox.setChecked(bool(target_location.get('useLocalFilename', False)))
+        use_path_from_config_checkbox.setChecked(bool(target_location.get('usePathFromConfig', False)))
+        rename_existing_file_checkbox.setChecked(bool(target_location.get('renameExistingFile', False)))
+
+    def mark_target_location_for_deletion(self, target_location_id, target_box_widget, target_location):
+        self.target_location_ids_to_delete.append(target_location_id)
+        self.deleted_target_locations_data.append(target_location)
         target_box_widget.setVisible(False)
-        logging.debug(f"Marked targetLocation_id {targetLocation_id} for deletion.")
+        logging.debug(f"Marked targetLocation_id {target_location_id} for deletion.")
 
     def reset_target_location_deletions(self):
         self.target_location_ids_to_delete.clear()
@@ -141,7 +150,7 @@ class TargetLocationForm:
                 self.clear_layout(item.layout())
 
         self.load_target_locations()
-        self.create_form()
+        self.setup_ui()
         logging.debug("Refreshed target locations form layout.")
 
     def clear_layout(self, layout):
