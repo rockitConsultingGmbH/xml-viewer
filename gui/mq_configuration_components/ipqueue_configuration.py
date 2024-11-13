@@ -30,6 +30,7 @@ class IPQueueConfiguration:
 
         ipqueues_label = QLabel("IPQueues")
         font = QFont()
+        font.setPointSize(14) 
         font.setBold(True)
         ipqueues_label.setFont(font)
         ipqueues_label.setFixedWidth(110)
@@ -63,7 +64,6 @@ class IPQueueConfiguration:
             ipqueue_input_label = QLabel("New Queue:")
         else:
             ipqueue_input_label = QLabel("Queue:")
-        #ipqueue_input_label = QLabel("Queue:")
         font = QFont()
         font.setBold(True)
         ipqueue_input_label.setFont(font)
@@ -123,7 +123,6 @@ class IPQueueConfiguration:
             self.ipqueue_main_layout.addWidget(individual_ipqueue_group)
 
     def mark_ipqueue_for_deletion(self, ipqueue_widget, ipqueue_id):
-        """Mark an IPQueue for deletion, hide it in the UI, and store its ID for deletion."""
         ipqueue_widget.setVisible(False)
         
         if ipqueue_id:
