@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox, QLineEdit, QWidget, QScrollArea, QGroupBox, QSpacerItem, QSizePolicy, QFrame)
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, 
+                             QGroupBox, QSpacerItem, QSizePolicy, QFrame)
 from PyQt5.QtGui import QFont
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
@@ -53,7 +54,7 @@ class MQConfigurationWidget(QWidget):
         mqconfig_group = QGroupBox("MQ Configuration")
         mqconfig_group.setObjectName("group-border")
         mqconfig_group.setFont(QFont("Arial", 12, QFont.Bold))
-        mqconfig_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
+        mqconfig_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit { font-size: 12px; }")
         mqconfig_layout = QFormLayout()
 
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
@@ -65,7 +66,7 @@ class MQConfigurationWidget(QWidget):
         parent_layout.addWidget(mqconfig_group)
 
     def add_mqconfig_fields_to_form_layout(self, form_layout):
-        self.is_remote_input = QCheckBox()
+        self.is_remote_input = QLineEdit()
         self.qmgr_input = QLineEdit()
         self.hostname_input = QLineEdit()
         self.port_input = QLineEdit()
@@ -83,6 +84,7 @@ class MQConfigurationWidget(QWidget):
         self.wait_interval_input = QLineEdit()
 
         fields = [
+            (self.is_remote_input, "Is Remote:"),
             (self.qmgr_input, "Queue Manager:"),
             (self.hostname_input, "Hostname:"),
             (self.port_input, "Port:"),
@@ -105,13 +107,11 @@ class MQConfigurationWidget(QWidget):
             field.setFixedHeight(35)
             form_layout.addRow(label, field)
 
-        form_layout.addRow("Remote:", self.is_remote_input)
-
     def populate_mqconfig_fields_from_db(self):
         data = self.get_mqconfig_data()
         if data:
             self.config_manager.mqconfig_id = data["id"]
-            self.is_remote_input.setChecked(data["isRemote"] == "true")
+            self.is_remote_input.setText(data["isRemote"])
             self.qmgr_input.setText(data["qmgr"])
             self.hostname_input.setText(data["hostname"])
             self.port_input.setText(data["port"])
@@ -138,7 +138,7 @@ class MQConfigurationWidget(QWidget):
 
     def save_mqconfig_fields_to_db(self, cursor):
         mqconfig_data = {
-            "isRemote": "true" if self.is_remote_input.isChecked() else "false",
+            "isRemote": self.is_remote_input.text(),
             "qmgr": self.qmgr_input.text(),
             "hostname": self.hostname_input.text(),
             "port": self.port_input.text(),
@@ -188,7 +188,6 @@ class MQConfigurationWidget(QWidget):
 
     def refresh_page(self):
         self.ipqueue_fields = []
-        #self.mqtrigger_configuration.reset_fields()
         self.ipqueue_configuration.reset_fields()
 
         self.clear_layout(self.scroll_layout)
