@@ -1,4 +1,6 @@
 # SQL Statements
+from PyQt5.QtWidgets import QMessageBox
+
 
 # Common
 def select_all_tablenames_from_db(cursor):
@@ -1117,6 +1119,23 @@ def select_from_namelist_with_communication(cursor, nameList_id):
     """,
                    (nameList_id,))
     return cursor
+
+def get_namelist_id(cursor, communication_id):
+    try:
+        query = "SELECT id FROM NameList WHERE communication_id = ?"
+        cursor.execute(query, (communication_id,))
+        result = cursor.fetchone()
+        if result:
+            return result["id"]
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("No Alternate Namelist was found")
+            msg.setWindowTitle("Info")
+            msg.exec_()
+    except Exception as e:
+        print(f"Error while fetching nameList_id: {e}")
+        return cursor
 
 
 def get_namelist(cursor, text):

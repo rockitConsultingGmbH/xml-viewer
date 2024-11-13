@@ -13,9 +13,10 @@ from gui.common_components.stylesheet_loader import load_stylesheet
 class NameListsWidget(QWidget):
     name_updated = pyqtSignal(int, str)
 
-    def __init__(self, nameList_id=None, parent=None):
+    def __init__(self, communication_id=None, nameList_id=None, parent=None):
         super().__init__(parent)
         self.nameList_id = str(nameList_id) if nameList_id is not None else ""
+        self.communication_id = communication_id
         self.conn_manager = ConnectionManager()
         self.popup_message = PopupMessage(self)
         self.entries_to_delete = []
@@ -253,21 +254,31 @@ class NameListsWidget(QWidget):
 
     def populate_namelist_fields_from_db(self):
         try:
+            print("Starting to populate namelist fields from DB")
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
 
+            print(f"Fetching namelist data for nameList_id: {self.nameList_id}")
             cursor = select_from_namelist(cursor, self.nameList_id)
             result = cursor.fetchone()
             if result:
+                print(f"Namelist data fetched: {result}")
                 self.list_name_input.setText(result["listName"])
+            else:
+                print("No namelist data found")
 
+            print(f"Fetching communication data for nameList_id: {self.nameList_id}")
             cursor = select_from_namelist_with_communication(cursor, self.nameList_id)
             result = cursor.fetchone()
             if result:
+                print(f"Communication data fetched: {result}")
                 self.communication_label.setText(f"Communication: {result['communication_name']}")
                 self.communication_label.setProperty("communication_id", result["communication_id"])
+            else:
+                print("No communication data found")
         except Exception as e:
             print(f"Error while fetching namelist fields: {e}")
             self.popup_message.show_error_message(f"Error while fetching namelist fields: {e}")
         finally:
             conn.close()
+            print("Database connection closed")

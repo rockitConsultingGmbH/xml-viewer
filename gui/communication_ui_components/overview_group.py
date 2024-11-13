@@ -2,6 +2,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, \
     QSizePolicy, QMainWindow
 
+from common.connection_manager import ConnectionManager
+from database.utils import get_namelist_id
 from gui.communication_ui_components.descriptions import DescriptionForm
 from gui.namelists_ui import NameListsWidget
 
@@ -10,6 +12,7 @@ class OverviewGroup:
     def __init__(self, group_layout, communication_id):
         self.group_layout = group_layout
         self.communication_id = communication_id
+        self.conn_manager = ConnectionManager()
         self.namelist_ui = NameListsWidget(self)
         self.description_form = DescriptionForm(self.communication_id)
         self.setup_ui()
@@ -75,7 +78,14 @@ class OverviewGroup:
 
     def switch_to_namelist_view(self):
         try:
-            namelist_view = NameListsWidget(self.communication_id)
+            communication_id = self.communication_id
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+            namelist_id = get_namelist_id(cursor, communication_id)
+            if namelist_id is None:
+                print("No nameList_id found, cannot switch to namelist view")
+                return
+            namelist_view = NameListsWidget(communication_id, namelist_id)
             parent_widget = self.group_layout.parentWidget()
             while parent_widget and not isinstance(parent_widget, QMainWindow):
                 parent_widget = parent_widget.parentWidget()
@@ -88,5 +98,8 @@ class OverviewGroup:
                     main_window.right_widget = namelist_view
                     main_window.splitter.addWidget(main_window.right_widget)
                     main_window.splitter.setSizes([250, 1000])
+            namelist_view.populate_namelist_fields_from_db()
         except Exception as e:
             print(f"Error occurred: {e}")
+        finally:
+            conn.close()
