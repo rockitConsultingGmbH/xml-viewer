@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QPushButton, 
-                             QHBoxLayout, QSpacerItem, QSizePolicy, QGroupBox)
+import importlib
+from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QPushButton,
+                             QHBoxLayout, QSpacerItem, QSizePolicy, QGroupBox, QMainWindow)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
-from database.utils import (select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_communication_column, 
+from database.utils import (select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_communication_column,
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
@@ -57,13 +58,21 @@ class NameListsWidget(QWidget):
         namelist_layout.addItem(spacer)
 
         self.communication_label = QLabel("Communication")
+        self.communication_label.setFixedWidth(270)
+
+        self.goButton = QPushButton("GO")
+        self.goButton.setObjectName("goButton")
+        self.goButton.setFixedSize(43, 30)
+        self.goButton.setToolTip("Go to Communication...")
+        self.goButton.clicked.connect(self.switch_to_communication_view)
 
         name_layout = QHBoxLayout()
         name_layout.addWidget(self.list_name_input)
         name_layout.addWidget(self.communication_label)
+        name_layout.addWidget(self.goButton)
 
         namelist_layout.addRow("Name:", name_layout)
-                            
+
         self.populate_namelist_fields_from_db()
         parent_layout.addLayout(namelist_layout)
 
@@ -282,3 +291,37 @@ class NameListsWidget(QWidget):
         finally:
             conn.close()
             print("Database connection closed")
+
+    def switch_to_communication_view(self):
+        try:
+            communication_id = self.communication_label.property("communication_id")
+            if communication_id is None:
+                print("No communication_id found, cannot switch to communication view")
+                return
+
+            conn = self.conn_manager.get_db_connection()
+
+            CommunicationUI = importlib.import_module('gui.communication_ui').CommunicationUI
+            communication_view = CommunicationUI(communication_id)
+            parent_widget = self.name_entries_layout.parentWidget()
+            while parent_widget and not isinstance(parent_widget, QMainWindow):
+                parent_widget = parent_widget.parentWidget()
+            if parent_widget:
+                main_window = parent_widget
+                while main_window and not hasattr(main_window, 'right_widget'):
+                    main_window = main_window.parentWidget()
+                if main_window and hasattr(main_window, 'right_widget'):
+                    main_window.right_widget.setParent(None)
+                    main_window.right_widget = communication_view
+                    main_window.splitter.addWidget(main_window.right_widget)
+                    main_window.splitter.setSizes([250, 1000])
+
+            communication_view.communication_table_data.populate_communication_table_fields(communication_id)
+            communication_view.descritpion_table_data.populate_description_fields(communication_id)
+            communication_view.location_table_data.populate_source_location_fields(communication_id)
+            communication_view.location_table_data.populate_target_location_fields(communication_id)
+            communication_view.commands_ui.refresh_commands_ui()
+        except Exception as e:
+            print(f"Error occurred: {e}")
+        finally:
+            conn.close()
