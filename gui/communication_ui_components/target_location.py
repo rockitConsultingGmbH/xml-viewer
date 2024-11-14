@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QCheckBox, QHBoxLayo
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_location
 from gui.common_components.clickable_label import ClickableLabel
+from gui.common_components.icons import delete_button_icon
 from gui.common_components.toggle_inputs import toggle_inputs
 from controllers.utils.get_and_set_value import set_checkbox_field
 
@@ -47,8 +48,9 @@ class TargetLocationForm(QWidget):
         self.target_input.setFixedHeight(30)
         self.target_input.setObjectName(f"target_{target_location['id']}_input")
 
-        target_delete_button = QPushButton("-")
+        target_delete_button = QPushButton()
         target_delete_button.setObjectName("deleteButton")
+        target_delete_button.setIcon(delete_button_icon)
         target_delete_button.setFixedSize(30, 30)
 
         target_row_layout = QHBoxLayout()

@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QHBoxLayout, QPushBu
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_description
 from gui.common_components.delete_elements import delete_field
+from gui.common_components.icons import delete_button_icon
+
 
 class DescriptionForm:
     def __init__(self, communication_id):
@@ -40,8 +42,9 @@ class DescriptionForm:
         description_input.setFixedSize(550, 30)
         description_input.setText(description['text'] if 'text' in description else "")
 
-        delete_descriptions_button = QPushButton("-")
+        delete_descriptions_button = QPushButton()
         delete_descriptions_button.setObjectName("deleteButton")
+        delete_descriptions_button.setIcon(delete_button_icon)
         delete_descriptions_button.setFixedSize(30, 30)
 
         hbox_layout = QHBoxLayout()

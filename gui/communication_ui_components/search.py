@@ -7,6 +7,7 @@ from database.utils import get_communications, get_locations, get_descriptions, 
     get_mq_configs, get_mq_trigger, get_ip_queue, get_namelist, get_alternatenames, get_command, get_command_param
 from common.connection_manager import ConnectionManager
 from common.config_manager import ConfigManager
+from gui.common_components.icons import search_icon
 
 
 class SearchResultsWindow(QWidget):
@@ -17,8 +18,7 @@ class SearchResultsWindow(QWidget):
         self.resource_manager = ResourceManager()
         self.setWindowTitle("Search Results")
         self.setGeometry(100, 100, 800, 400)
-        search_icon =  self.resource_manager.get_resource_path('gui/icon/search.svg')
-        self.setWindowIcon(QIcon(search_icon))
+        self.setWindowIcon(search_icon)
         layout = QVBoxLayout()
         self.results_tree = QTreeWidget()
         self.results_tree.setHeaderLabels(["Found", "Configuration", "Source", "Name"])

@@ -13,6 +13,7 @@ from gui.common_components.communication_popup_warnings import show_unsaved_chan
 from gui.common_components.create_new_communication import create_new_communication, on_name_changed, \
     delete_new_communication, delete_communication
 from gui.common_components.create_new_namelist import create_new_namelist, delete_new_namelist, delete_namelist
+from gui.common_components.icons import main_icon
 from gui.communication_ui import CommunicationUI
 from gui.communication_ui_components.search import Search
 from gui.import_xml_dialog_window import FileDialog
@@ -51,8 +52,8 @@ class MainWindow(QMainWindow):
         #self.setWindowFlags(self.windowFlags() | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
         #self.setWindowState(Qt.WindowMaximized)
 
-        main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
-        self.setWindowIcon(QIcon(main_icon))
+
+        self.setWindowIcon(main_icon)
         self.setWindowTitle(self.app_name)
 
         # Center the window on the screen

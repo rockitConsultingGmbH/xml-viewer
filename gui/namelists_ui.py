@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
 from database.utils import (select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_communication_column, 
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
+from gui.common_components.icons import delete_button_icon
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
@@ -115,9 +116,10 @@ class NameListsWidget(QWidget):
         entry_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         entry_input.setProperty("entry_id", entry_id)
 
-        delete_button = QPushButton("-")
+        delete_button = QPushButton()
         delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
+        delete_button.setIcon(delete_button_icon)
         delete_button.clicked.connect(lambda: self.delete_entry(entry_layout, entry_input))
 
         entry_layout.addWidget(entry_input)

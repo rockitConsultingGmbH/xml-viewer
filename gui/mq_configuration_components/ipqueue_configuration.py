@@ -1,9 +1,11 @@
 from PyQt5.QtWidgets import QGroupBox, QVBoxLayout, QSpacerItem, QSizePolicy, QFormLayout, QLineEdit, QWidget, QPushButton, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
 from database.utils import update_ipqueue, select_from_ipqueue, insert_into_ipqueue, delete_from_ipqueue
+from gui.common_components.icons import add_button_icon, delete_button_icon
+
 
 class IPQueueConfiguration:
     def __init__(self):
@@ -34,8 +36,9 @@ class IPQueueConfiguration:
         ipqueues_label.setFixedWidth(110)
         ipqueues_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         
-        ipqueue_add_button = QPushButton("+")
+        ipqueue_add_button = QPushButton()
         ipqueue_add_button.setObjectName("addButton")
+        ipqueue_add_button.setIcon(add_button_icon)
         ipqueue_add_button.setFixedSize(30, 30)
         ipqueue_add_button.clicked.connect(lambda: self.add_ipqueue_to_layout(new=True))
 
@@ -72,8 +75,9 @@ class IPQueueConfiguration:
         ipqueue_input.setFixedSize(500, 30)
         ipqueue_input.setProperty("ipqueue_id", ipqueue_id)
         
-        ipqueue_delete_button = QPushButton("-")
+        ipqueue_delete_button = QPushButton()
         ipqueue_delete_button.setObjectName("deleteButton")
+        ipqueue_delete_button.setIcon(delete_button_icon)
         ipqueue_delete_button.setFixedSize(30, 30)
         ipqueue_delete_button.clicked.connect(lambda: self.mark_ipqueue_for_deletion(individual_ipqueue_group, ipqueue_id))
 
