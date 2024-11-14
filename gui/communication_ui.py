@@ -25,7 +25,7 @@ class CommunicationUI(QWidget):
     name_updated = pyqtSignal(int, str)
     def __init__(self, communication_id, parent=None):
         super().__init__(parent)
-        self._communication_id = communication_id
+        self.communication_id = communication_id
 
         self.popup_message = PopupMessage(self)
         self.communication_table_data = CommunicationTableData(self)
@@ -35,10 +35,6 @@ class CommunicationUI(QWidget):
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
-
-    @property
-    def communication_id(self):
-        return self._communication_id
 
     def setup_ui(self):
         scroll_area = QScrollArea()
@@ -50,7 +46,6 @@ class CommunicationUI(QWidget):
         communications_box.setObjectName("group-border")
         self.communications_box_layout = QVBoxLayout()
 
-        # Add spacer item
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.communications_box_layout.addItem(spacer)
 
@@ -81,8 +76,6 @@ class CommunicationUI(QWidget):
         if self.communication_id is not None:
             self.communication_table_data.populate_communication_table_fields(self.communication_id)
             self.descritpion_table_data.populate_description_fields(self.communication_id)
-            self.location_table_data.populate_source_location_fields(self.communication_id)
-            #self.location_table_data.populate_target_location_fields(self.communication_id)
             self.commands_ui.refresh_commands_ui()
 
     def refresh_fields(self):
@@ -111,7 +104,6 @@ class CommunicationUI(QWidget):
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
             
             self.popup_message.show_message("Changes have been successfully saved.")
-            #self.refresh_fields()
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -121,23 +113,23 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            self.overview_group_instance = OverviewGroup(group_layout, self._communication_id)
+            self.overview_group_instance = OverviewGroup(group_layout, self.communication_id)
             self.name_input = self.overview_group_instance.get_name_input()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Locations":
-            self.location_group = LocationsGroup(group_layout, self._communication_id, toggle_inputs)
-            self.location_group.create_location_group()
+            self.location_group = LocationsGroup(group_layout, self.communication_id, toggle_inputs)
+            self.location_group.setup_ui()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Settings":
-            self.settings_group = SettingsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.settings_group = SettingsGroup(group_layout, self.communication_id, toggle_inputs)
             self.settings_group.create_settings_group()
 
         elif group_name == "Pattern":
-            self.pattern_group = PatternGroup(group_layout, self._communication_id)
+            self.pattern_group = PatternGroup(group_layout, self.communication_id)
             self.pattern_group.create_pattern_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
