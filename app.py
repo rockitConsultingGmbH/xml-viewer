@@ -169,11 +169,6 @@ class MainWindow(QMainWindow):
         self.create_namelist_action.triggered.connect(lambda: self.namelist_manager.create_new_namelist())
         self.create_namelist_action.setEnabled(False)
 
-        #self.duplicate_namelist_action = QAction('Duplicate selected', self)
-        #self.namelist_menu.addAction(self.duplicate_namelist_action)
-        #self.duplicate_namelist_action.triggered.connect(self.namelist_manager.duplicate_selected_namelist())
-        #self.duplicate_namelist_action.setEnabled(False)
-
         self.delete_namelist_action = QAction('Delete selected', self)
         self.namelist_menu.addAction(self.delete_namelist_action)
         self.delete_namelist_action.triggered.connect(lambda: self.namelist_manager.delete_namelist())
@@ -188,7 +183,7 @@ class MainWindow(QMainWindow):
 
         self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action,
                              self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action,
-                             self.namelist_menu, self.create_namelist_action, self.duplicate_namelist_action, self.delete_namelist_action]
+                             self.namelist_menu, self.create_namelist_action, self.delete_namelist_action]
 
         search_widget = QWidget(self)
         search_layout = QHBoxLayout(search_widget)
@@ -372,10 +367,6 @@ class MainWindow(QMainWindow):
             create_new_action = QAction("New NameList", self)
             create_new_action.triggered.connect(lambda: self.namelist_manager.create_new_namelist())
             menu.addAction(create_new_action)
-
-            #duplicate_action = QAction("Duplicate", self)
-            #duplicate_action.triggered.connect(lambda: self.namelist_manager.duplicate_selected_namelist())
-            #menu.addAction(duplicate_action)
 
             delete_action = QAction("Delete", self)
             delete_action.triggered.connect(lambda: self.namelist_manager.delete_namelist(nameList_id))
