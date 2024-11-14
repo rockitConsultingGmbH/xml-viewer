@@ -2,7 +2,7 @@ QScrollArea, QGroupBox {
     border: none;
 }
 
- QCheckBox  {
+QCheckBox {
     border: none;
     font-size: 14px;
 }
@@ -15,6 +15,10 @@ QScrollArea, QGroupBox {
 QLabel {
     border: none;
     font-size: 14px;
+}
+
+QGroupBox QLabel {
+    font-size: 15px;
 }
 
 #label_parent, #polling_aktiviert_checkbox {

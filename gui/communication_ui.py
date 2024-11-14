@@ -25,7 +25,7 @@ class CommunicationUI(QWidget):
     name_updated = pyqtSignal(int, str)
     def __init__(self, communication_id, parent=None):
         super().__init__(parent)
-        self._communication_id = communication_id
+        self.communication_id = communication_id
 
         self.popup_message = PopupMessage(self)
         self.communication_table_data = CommunicationTableData(self)
@@ -35,10 +35,6 @@ class CommunicationUI(QWidget):
         self.setup_ui()
 
         load_stylesheet(self, "css/right_widget_styling.qss")
-
-    @property
-    def communication_id(self):
-        return self._communication_id
 
     def setup_ui(self):
         scroll_area = QScrollArea()
@@ -73,18 +69,21 @@ class CommunicationUI(QWidget):
 
     def set_fields_from_db(self):
         if self.communication_id is not None:
+            self.overview_group_instance.reset_ui()
+            self.location_group.reset_ui()
+            self.pattern_group.reset_ui()
             self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
         if self.communication_id is not None:
             self.communication_table_data.populate_communication_table_fields(self.communication_id)
             self.descritpion_table_data.populate_description_fields(self.communication_id)
-            self.location_table_data.populate_source_location_fields(self.communication_id)
-            self.location_table_data.populate_target_location_fields(self.communication_id)
+            #self.location_table_data.populate_source_location_fields(self.communication_id)
+            #self.location_table_data.populate_target_location_fields(self.communication_id)
             self.commands_ui.refresh_commands_ui()
 
     def refresh_fields(self):
-        self.communication_table_data.populate_communication_table_fields(self.communication_id)
+        self.populate_fields_from_db()
 
     def save_fields_to_db(self):
         try:
@@ -104,12 +103,11 @@ class CommunicationUI(QWidget):
             if description_ids_to_delete:
                 self.descritpion_table_data.delete_description_data(description_ids_to_delete)
 
-            target_location_ids_to_delete = self.location_group.targe_location_form.get_target_location_ids_to_delete()
+            target_location_ids_to_delete = self.location_group.target_location_form.get_target_location_ids_to_delete()
             if target_location_ids_to_delete:
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
             
             self.popup_message.show_message("Changes have been successfully saved.")
-            #self.refresh_fields()
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -119,26 +117,24 @@ class CommunicationUI(QWidget):
         group_layout = QVBoxLayout()
 
         if group_name == "Overview":
-            self.overview_group_instance = OverviewGroup(group_layout, self._communication_id)
+            self.overview_group_instance = OverviewGroup(group_layout, self.communication_id)
             self.name_input = self.overview_group_instance.get_name_input()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Locations":
-            self.location_group = LocationsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.location_group = LocationsGroup(group_layout, self.communication_id)
             self.location_group.create_location_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
         elif group_name == "Settings":
-            self.settings_group = SettingsGroup(group_layout, self._communication_id, toggle_inputs)
+            self.settings_group = SettingsGroup(group_layout, self.communication_id, toggle_inputs)
             self.settings_group.create_settings_group()
-            #line = self.create_horizontal_line()
-            #group_layout.addWidget(line)
 
         elif group_name == "Pattern":
-            self.pattern_group = PatternGroup(group_layout, self._communication_id)
-            self.pattern_group.create_pattern_group()
+            self.pattern_group = PatternGroup(group_layout, self.communication_id, self)
+            self.pattern_group.setup_ui()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 

@@ -2,11 +2,10 @@ from common.connection_manager import ConnectionManager
 from database.utils import delete_from_location, insert_into_location, update_location, select_from_location
 from controllers.utils.get_and_set_value import (
                                                  get_checkbox_value,
-                                                 convert_checkbox_to_string, get_text_value, set_checkbox_field, set_text_field)
+                                                 convert_checkbox_to_string, get_text_value)
 from PyQt5.QtWidgets import QWidget
 import logging
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class LocationTableData:
@@ -16,30 +15,6 @@ class LocationTableData:
 
     def set_parent_widget(self, parent_widget):
         self.parent_widget = parent_widget
-
-    def populate_source_location_fields(self, communication_id, parent_widget=None, location_type='sourceLocation'):
-        if parent_widget is None:
-            parent_widget = self.parent_widget
-
-        if parent_widget is None:
-            raise ValueError("Parent widget must be provided either during initialization or as an argument.")
-
-        conn = self.conn_manager.get_db_connection()
-        cursor = conn.cursor()
-        source_location_row = select_from_location(cursor, communication_id, location_type).fetchone()
-        if source_location_row:
-            self.populate_source_fields(source_location_row)
-        conn.close()
-
-    def populate_source_fields(self, source_location_row):
-        (id, communication_id, location, location_id, use_local_filename,
-         use_path_from_config, rename_existing_file, userid, password, description, location_type) = source_location_row
-
-        set_text_field(self.parent_widget, "source_input", location)
-        set_text_field(self.parent_widget, "userid_source_input", userid)
-        set_text_field(self.parent_widget, "password_source_input", password)
-        set_text_field(self.parent_widget, "source_description_input", description)
-        set_text_field(self.parent_widget, "location_id_input", location_id)
 
     def save_source_location_data(self, communication_id, location_type='sourceLocation'):
         conn = self.conn_manager.get_db_connection()
@@ -77,36 +52,6 @@ class LocationTableData:
         except Exception as e:
             logging.error(f"An error occurred while creating source location row: {e}")
             raise
-
-    def populate_target_location_fields(self, communication_id, parent_widget=None, location_type='targetLocation'):
-        if parent_widget is None:
-            parent_widget = self.parent_widget
-
-        if parent_widget is None:
-            raise ValueError("Parent widget must be provided either during initialization or as an argument.")
-
-        conn = self.conn_manager.get_db_connection()
-        cursor = conn.cursor()
-        target_locations = select_from_location(cursor, communication_id, location_type).fetchall()
-        for target_location in target_locations:
-            if target_location:
-                self.populate_target_fields(target_location)
-        conn.close()
-
-    def populate_target_fields(self, target_location_row):
-        (id, communication_id, location, location_id, use_local_filename,
-         use_path_from_config,
-         rename_existing_file, userid, password, description, location_type) = target_location_row
-
-        self.parent_widget.setProperty("location_id", id)
-        set_text_field(self.parent_widget, f"target_{id}_input", location)
-        set_text_field(self.parent_widget, f"userid_target_{id}_input", userid)
-        set_text_field(self.parent_widget, f"password_target_{id}_input", password)
-        set_text_field(self.parent_widget, f"target_description_{id}_input", description)
-        set_text_field(self.parent_widget, f"location_id_target_{id}_input", location_id)
-        set_checkbox_field(self.parent_widget, f"use_local_filename_checkbox_target_{id}", use_local_filename)
-        set_checkbox_field(self.parent_widget, f"use_path_from_config_checkbox_target_{id}", use_path_from_config)
-        set_checkbox_field(self.parent_widget, f"rename_existing_file_checkbox_{id}", rename_existing_file)
 
     def save_target_location_data(self, communication_id, location_type='targetLocation'):
         conn = self.conn_manager.get_db_connection()

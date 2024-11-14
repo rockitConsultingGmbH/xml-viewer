@@ -52,7 +52,7 @@ CREATE TABLE LzbConfig (
 CREATE TABLE MqConfig (
     id INTEGER PRIMARY KEY,
     basicConfig_id INT NOT NULL,
-    isRemote BOOLEAN,
+    isRemote VARCHAR(255),
     qmgr VARCHAR(255),
     hostname VARCHAR(255),
     port VARCHAR(255),

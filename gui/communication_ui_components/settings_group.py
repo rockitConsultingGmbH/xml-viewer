@@ -19,7 +19,7 @@ class SettingsGroup(QWidget):
         hbox = QHBoxLayout()
         hbox.setAlignment(Qt.AlignLeft)
 
-        self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
+        self.group_layout.addItem(QSpacerItem(20, 30, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         polling_label = ClickableLabel("Polling")
         polling_label.setFixedWidth(120)
