@@ -103,8 +103,9 @@ class CommunicationUI(QWidget):
             if target_location_ids_to_delete:
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
             
+            self.location_group.target_location_form.refresh_form()
+
             self.popup_message.show_message("Changes have been successfully saved.")
-            self.set_fields_from_db()
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
