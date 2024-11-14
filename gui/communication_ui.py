@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 class CommunicationUI(QWidget):
     name_updated = pyqtSignal(int, str)
     def __init__(self, communication_id, parent=None):
-        super().__init__()
+        super().__init__(parent)
         self.communication_id = communication_id
 
         self.popup_message = PopupMessage(self)
@@ -46,7 +46,6 @@ class CommunicationUI(QWidget):
         communications_box.setObjectName("group-border")
         self.communications_box_layout = QVBoxLayout()
 
-        # Add spacer item
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.communications_box_layout.addItem(spacer)
 
@@ -71,19 +70,16 @@ class CommunicationUI(QWidget):
         if self.communication_id is not None:
             self.overview_group_instance.reset_ui()
             self.location_group.reset_ui()
-            self.pattern_group.reset_ui()
             self.populate_fields_from_db()
 
     def populate_fields_from_db(self):
         if self.communication_id is not None:
             self.communication_table_data.populate_communication_table_fields(self.communication_id)
             self.descritpion_table_data.populate_description_fields(self.communication_id)
-            #self.location_table_data.populate_source_location_fields(self.communication_id)
-            #self.location_table_data.populate_target_location_fields(self.communication_id)
             self.commands_ui.refresh_commands_ui()
 
     def refresh_fields(self):
-        self.populate_fields_from_db()
+        self.set_fields_from_db()
 
     def save_fields_to_db(self):
         try:
@@ -108,6 +104,7 @@ class CommunicationUI(QWidget):
                 self.location_table_data.delete_location_data(target_location_ids_to_delete)
             
             self.popup_message.show_message("Changes have been successfully saved.")
+            self.set_fields_from_db()
 
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
@@ -123,8 +120,8 @@ class CommunicationUI(QWidget):
             group_layout.addWidget(line)
 
         elif group_name == "Locations":
-            self.location_group = LocationsGroup(group_layout, self.communication_id)
-            self.location_group.create_location_group()
+            self.location_group = LocationsGroup(group_layout, self.communication_id, toggle_inputs)
+            self.location_group.setup_ui()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
@@ -133,8 +130,8 @@ class CommunicationUI(QWidget):
             self.settings_group.create_settings_group()
 
         elif group_name == "Pattern":
-            self.pattern_group = PatternGroup(group_layout, self.communication_id, self)
-            self.pattern_group.setup_ui()
+            self.pattern_group = PatternGroup(group_layout, self.communication_id)
+            self.pattern_group.create_pattern_group()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
