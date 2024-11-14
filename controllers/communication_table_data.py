@@ -78,25 +78,6 @@ class CommunicationTableData:
         set_text_field(self.parent_widget, "gueltig_bis_input", row['gueltigBis'])
         set_text_field(self.parent_widget, "alt_name_input", row['alternateNameList'])
 
-        self.populate_patterns(row)
-
-    def populate_patterns(self, row, parent_widget=None):
-        logging.debug("Populating patterns...")
-        pattern_names = [
-            "find_pattern_input", "quit_pattern_input", "ack_pattern_input",
-            "zip_pattern_input", "mov_pattern_input", "put_pattern_input", "rcv_pattern_input",
-            "tmp_pattern_input"
-        ]
-
-        pattern_values = [
-            row['findPattern'], row['quitPattern'], row['ackPattern'],
-            row['zipPattern'], row['movPattern'], row['putPattern'], row['rcvPattern'],
-            row['tmpPattern']
-        ]
-
-        for pattern_name, pattern_value in zip(pattern_names, pattern_values):
-            set_text_field(self.parent_widget, pattern_name, pattern_value)
-
     def save_communication_data(self, communication_id):
         logging.debug("Saving communication data for communication_id: %s", communication_id)
         conn = self.conn_manager.get_db_connection()

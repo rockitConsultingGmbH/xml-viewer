@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, QSizePolicy, QVBoxLayout, QWidget
-from gui.common_components.clickable_label import ClickableLabel
+from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, QSizePolicy, QWidget
 from gui.communication_ui_components.target_location import TargetLocationForm
 from gui.communication_ui_components.source_location import SourceLocationForm
 
 class LocationsGroup(QWidget):
-    def __init__(self, group_layout, communication_id, parent=None):
-        super().__init__(parent)
+    def __init__(self, group_layout, communication_id, parent_widget=None):
+        super().__init__(parent_widget)
+        self.parent_widget = parent_widget
         self.group_layout = group_layout
         self.communication_id = communication_id
 
@@ -25,7 +25,6 @@ class LocationsGroup(QWidget):
         # Source Location Form
         self.source_location_form = SourceLocationForm(self.communication_id)
         form_layout.addRow(self.source_location_form.setup_ui())
-
 
         spacer = QSpacerItem(0, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         form_layout.addItem(spacer)
@@ -53,7 +52,6 @@ class LocationsGroup(QWidget):
 
         self.group_layout.addLayout(form_layout)
         
-
         # Connect add button to add a new target location
         add_target_location_button.clicked.connect(lambda: self.target_location_form.add_target_location_fields({
             'id': 'new',
