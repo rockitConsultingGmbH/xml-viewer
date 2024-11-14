@@ -77,6 +77,104 @@ class CommunicationTableData:
         set_text_field(self.parent_widget, "gueltig_ab_input", row['gueltigAb'])
         set_text_field(self.parent_widget, "gueltig_bis_input", row['gueltigBis'])
         set_text_field(self.parent_widget, "alt_name_input", row['alternateNameList'])
+import logging
+from common.connection_manager import ConnectionManager
+from common.config_manager import ConfigManager
+from database.utils import update_communication, select_from_communication, \
+    get_communication_names
+from controllers.utils.get_and_set_value import (get_text_value, set_checkbox_field, get_checkbox_value,
+                                                convert_checkbox_to_string, set_text_field, set_label)
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+class CommunicationTableData:
+    def __init__(self, parent_widget=None):
+        self.parent_widget = parent_widget
+        self.conn_manager = ConnectionManager()
+        self.config_manager = ConfigManager()
+        logging.debug("CommunicationTableData initialized with parent_widget: %s", parent_widget)
+
+    def get_communication_name(self, communication_id):
+        try:
+            conn = self.conn_manager.get_db_connection()
+            cursor = conn.cursor()
+
+            cursor = get_communication_names(cursor, communication_id, self.config_manager.config_id)
+            result = cursor.fetchone()
+
+            if result:
+                return result['name']
+            return None
+
+        except Exception as e:
+            print(f"Error while getting communication name: {e}")
+            return None
+        finally:
+            conn.close()
+
+    def populate_communication_table_fields(self, communication_id, parent_widget=None):
+        logging.debug("Populating communication table fields for communication_id: %s", communication_id)
+        if parent_widget is None:
+            parent_widget = self.parent_widget
+
+        if parent_widget is None:
+            logging.error("Parent widget must be provided either during initialization or as an argument.")
+            raise ValueError("Parent widget must be provided either during initialization or as an argument.")
+
+        conn = self.conn_manager.get_db_connection()
+        cursor = conn.cursor()
+
+        row = select_from_communication(cursor, communication_id, self.config_manager.config_id).fetchone()
+
+        if row:
+            logging.debug("Data fetched for communication_id: %s", communication_id)
+            self.populate_fields(row)
+        else:
+            logging.warning("No data found for communication_id: %s", communication_id)
+        conn.close()
+
+    def populate_fields(self, row):
+        logging.debug("Populating fields with data...")
+
+        set_text_field(self.parent_widget, "name_input", row['name'])
+        set_checkbox_field(self.parent_widget,"polling_activated_checkbox", row['isToPoll'])
+        set_label(self.parent_widget, "polling_status", f"Polling aktiviert: {row['isToPoll']}")
+        set_checkbox_field(self.parent_widget,"poll_until_found_checkbox", row['pollUntilFound'])
+        set_checkbox_field(self.parent_widget,"no_transfer_checkbox", row['noTransfer'])
+        set_text_field(self.parent_widget, "befoerderung_ab_input", row['befoerderungAb'])
+        set_text_field(self.parent_widget, "befoerderung_bis_input", row['befoerderungBis'])
+        set_text_field(self.parent_widget, "befoerderung_cron_input", row['befoerderungCron'])
+        set_text_field(self.parent_widget, "poll_interval_input", row['pollInterval'])
+        set_text_field(self.parent_widget, "escalation_timeout_input", row['watcherEscalationTimeout'])
+        set_checkbox_field(self.parent_widget,"pre_unzip_checkbox", row['preunzip'])
+        set_checkbox_field(self.parent_widget,"post_zip_checkbox", row['postzip'])
+        set_checkbox_field(self.parent_widget,"target_must_be_archived_checkbox", row['targetMustBeArchived'])
+        set_checkbox_field(self.parent_widget,"must_be_archived_checkbox", row['mustBeArchived'])
+        set_text_field(self.parent_widget,"target_history_days_input", row['targetHistoryDays'])
+        set_text_field(self.parent_widget,"history_days_input", row['historyDays'])
+        set_checkbox_field(self.parent_widget,"rename_with_timestamp_checkbox", row['renameWithTimestamp'])
+        set_text_field(self.parent_widget, "gueltig_ab_input", row['gueltigAb'])
+        set_text_field(self.parent_widget, "gueltig_bis_input", row['gueltigBis'])
+        set_text_field(self.parent_widget, "alt_name_input", row['alternateNameList'])
+
+        self.populate_patterns(row)
+
+    def populate_patterns(self, row, parent_widget=None):
+        logging.debug("Populating patterns...")
+        pattern_names = [
+            "find_pattern_input", "quit_pattern_input", "ack_pattern_input",
+            "zip_pattern_input", "mov_pattern_input", "put_pattern_input", "rcv_pattern_input",
+            "tmp_pattern_input"
+        ]
+
+        pattern_values = [
+            row['findPattern'], row['quitPattern'], row['ackPattern'],
+            row['zipPattern'], row['movPattern'], row['putPattern'], row['rcvPattern'],
+            row['tmpPattern']
+        ]
+
+        for pattern_name, pattern_value in zip(pattern_names, pattern_values):
+            set_text_field(self.parent_widget, pattern_name, pattern_value)
 
     def save_communication_data(self, communication_id):
         logging.debug("Saving communication data for communication_id: %s", communication_id)
