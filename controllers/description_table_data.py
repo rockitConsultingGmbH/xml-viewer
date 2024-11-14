@@ -48,10 +48,8 @@ class DescriptionTableData:
         if parent_widget is None:
             raise ValueError("Parent widget must be provided either during initialization or as an argument.")
 
-        # Find all QLineEdit fields
         all_line_edits = parent_widget.findChildren(QLineEdit)
         
-        # Filter to get only those whose object name starts with 'description'
         description_fields = [field for field in all_line_edits if field.objectName().startswith('description')]
         
         return description_fields
@@ -61,16 +59,12 @@ class DescriptionTableData:
             conn = self.conn_manager.get_db_connection()
             cursor = conn.cursor()
 
-            # Get all fields that start with 'description'
             description_fields = self.get_all_description_fields(self.parent_widget)
 
-            # Iterate through each found field and save data
             for field in description_fields:
                 description_text = field.text()
                 logging.debug(f"Found description field: {field.objectName()} with value: {description_text}")
                 
-                #if description_text:
-                # Extract the ID from the field's object name (assuming it's in the format 'description_<id>_input')
                 description_id = field.objectName().split('_')[1]
                 existing_result = select_from_description(cursor, communication_id, description_id).fetchone()
 
