@@ -18,9 +18,7 @@ class IPQueueConfiguration:
     def create_ipqueue_layout(self, parent_layout):
         ipqueue_group = QGroupBox("IPQueue Settings")
         ipqueue_group.setObjectName("group-border")
-        ipqueue_group.setFont(QFont("Arial", 12, QFont.Bold))
-        ipqueue_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
-        
+
         self.ipqueue_main_layout = QVBoxLayout()
 
         ipqueues_label_row_layout = QHBoxLayout()

@@ -53,8 +53,6 @@ class MQConfigurationWidget(QWidget):
     def create_mqconfig_layout(self, parent_layout):
         mqconfig_group = QGroupBox("MQ Configuration")
         mqconfig_group.setObjectName("group-border")
-        mqconfig_group.setFont(QFont("Arial", 12, QFont.Bold))
-        mqconfig_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit { font-size: 12px; }")
         mqconfig_layout = QFormLayout()
 
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)

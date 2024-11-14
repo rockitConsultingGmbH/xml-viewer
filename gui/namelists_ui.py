@@ -40,9 +40,6 @@ class NameListsWidget(QWidget):
     def add_group_box(self, parent_layout, title, content_creator):
         group_box = QGroupBox(title)
         group_box.setObjectName("group-border")
-        group_box.setFont(QFont("Arial", 12, QFont.Bold))
-        group_box.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
-
         group_layout = QVBoxLayout(group_box)
         content_creator(group_layout)
         parent_layout.addWidget(group_box)

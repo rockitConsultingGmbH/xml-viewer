@@ -23,8 +23,6 @@ class MQTriggerConfiguration:
     def create_mqtrigger_layout(self, parent_layout):
         mqtrigger_group = QGroupBox("MQTrigger Settings")
         mqtrigger_group.setObjectName("group-border")
-        mqtrigger_group.setFont(QFont("Arial", 12, QFont.Bold))
-        mqtrigger_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         mqtrigger_layout = QFormLayout()
 
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
