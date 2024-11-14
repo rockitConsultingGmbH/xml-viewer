@@ -612,7 +612,9 @@ def insert_into_communication(cursor, row):
 
 def select_from_communication(cursor, communication_id, basicConfig_id):
     cursor.execute("""
-    SELECT         
+    SELECT
+        id,
+        basicConfig_id,  
         name,
         alternateNameList,
         watcherEscalationTimeout,
@@ -809,10 +811,10 @@ def insert_into_location(cursor, row):
     ))
     return cursor
 
-def select_from_location(cursor, communication_id, locationType):
-    cursor.execute("""
+def select_from_location(cursor, communication_id, locationType=None):
+    query = """
     SELECT
-		id,
+        id,
         communication_id,
         location,
         location_id,
@@ -824,9 +826,13 @@ def select_from_location(cursor, communication_id, locationType):
         description,
         locationType
     FROM Location
-    WHERE communication_id = ? AND locationType = ?
-    """,
-                   (communication_id, locationType,))
+    WHERE communication_id = ?
+    """
+    params = [communication_id]
+    if locationType is not None:
+        query += " AND locationType = ?"
+        params.append(locationType)
+    cursor.execute(query, params)
     return cursor
 
 def get_locations(cursor, text):
@@ -1044,6 +1050,19 @@ def select_from_namelist(cursor, nameList_id):
     WHERE id = ?
     """,
                    (nameList_id,))
+    return cursor
+
+def select_from_namelist_w_communication_id(cursor, communication_id):
+    cursor.execute("""
+    SELECT
+        id,
+        basicConfig_id,
+        communication_id,
+        listName
+    FROM NameList
+    WHERE communication_id = ?
+    """,
+                   (communication_id,))
     return cursor
 
 def update_namelist(cursor, row):

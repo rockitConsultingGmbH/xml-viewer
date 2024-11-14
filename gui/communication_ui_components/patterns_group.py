@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class PatternGroup(QWidget):
     def __init__(self, group_layout, communication_id, parent_widget=None):
-        super().__init__(parent_widget)
+        super().__init__()
         self.communication_id = communication_id
         self.group_layout = group_layout
         self.parent_widget = parent_widget

@@ -8,7 +8,7 @@ from controllers.utils.get_and_set_value import set_checkbox_field
 
 class TargetLocationForm(QWidget):
     def __init__(self, communication_id, parent_widget=None):
-        super().__init__(parent_widget)
+        super().__init__()
         self.parent_widget = parent_widget
         self.communication_id = communication_id
         self.toggle_inputs = toggle_inputs

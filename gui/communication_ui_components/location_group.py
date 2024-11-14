@@ -4,7 +4,6 @@ from gui.communication_ui_components.source_location import SourceLocationForm
 
 class LocationsGroup(QWidget):
     def __init__(self, group_layout, communication_id, parent_widget=None):
-        super().__init__(parent_widget)
         self.parent_widget = parent_widget
         self.group_layout = group_layout
         self.communication_id = communication_id

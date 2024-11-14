@@ -48,9 +48,6 @@ class MainWindow(QMainWindow):
 
         self.setFixedSize(1920, 1080)
         self.setMinimumSize(800, 600)
-        #self.setMaximumSize(3840, 2160)
-        #self.setWindowFlags(self.windowFlags() | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
-        #self.setWindowState(Qt.WindowMaximized)
 
         main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
         self.setWindowIcon(QIcon(main_icon))
@@ -153,15 +150,16 @@ class MainWindow(QMainWindow):
         self.create_communication_action.triggered.connect(lambda: self.communication_manager.create_new_communication())
         self.create_communication_action.setEnabled(False)
 
+        self.duplicate_communication_action = QAction('Duplicate selected', self)
+        self.communication_menu.addAction(self.duplicate_communication_action)
+        self.duplicate_communication_action.triggered.connect(lambda: self.communication_manager.duplicate_selected_communication())
+        self.duplicate_communication_action.setEnabled(False)
+
         self.delete_communication_action = QAction('Delete selected', self)
         self.communication_menu.addAction(self.delete_communication_action)
         self.delete_communication_action.triggered.connect(lambda: self.communication_manager.delete_selected_communication())
         self.delete_communication_action.setEnabled(False)
-
-        self.duplicate_communication_action = QAction('Duplicate selected', self)
-        self.communication_menu.addAction(self.duplicate_communication_action)
-        #self.duplicate_communication_action.triggered.connect(lambda: duplicate_selected_communication(self))
-        self.duplicate_communication_action.setEnabled(False)
+    
 
         self.namelist_menu = edit_menu.addMenu('NameList')
         self.namelist_menu.setEnabled(False)
@@ -171,9 +169,9 @@ class MainWindow(QMainWindow):
         self.create_namelist_action.triggered.connect(lambda: self.namelist_manager.create_new_namelist())
         self.create_namelist_action.setEnabled(False)
 
-        self.duplicate_namelist_action = QAction('Duplicate selected', self)
-        #namelist_menu.addAction(self.duplicate_namelist_action)
-        #self.duplicate_namelist_action.triggered.connect(self.duplicate_selected_namelist)
+        #self.duplicate_namelist_action = QAction('Duplicate selected', self)
+        #self.namelist_menu.addAction(self.duplicate_namelist_action)
+        #self.duplicate_namelist_action.triggered.connect(self.namelist_manager.duplicate_selected_namelist())
         #self.duplicate_namelist_action.setEnabled(False)
 
         self.delete_namelist_action = QAction('Delete selected', self)
@@ -184,13 +182,9 @@ class MainWindow(QMainWindow):
         about_action = QAction("About", self)
         about_action.triggered.connect(self.show_about)
 
-        #guide_action = QAction("User Guide", self)
-        #guide_action.triggered.connect(self.show_guide)
-
         menubar = self.menuBar()
         help_menu = menubar.addMenu("Help")
         help_menu.addAction(about_action)
-        #help_menu.addAction(guide_action)
 
         self.edit_actions = [self.save_action, self.saveas_action, self.copy_action, self.delete_action, self.select_all_action,
                              self.communication_menu, self.create_communication_action, self.duplicate_communication_action, self.delete_communication_action,
@@ -362,7 +356,7 @@ class MainWindow(QMainWindow):
             menu.addAction(create_new_action)
 
             duplicate_action = QAction("Duplicate", self)
-            #duplicate_action.triggered.connect(lambda: duplicate_selected_communication(self, communication_id))
+            duplicate_action.triggered.connect(lambda: self.communication_manager.duplicate_selected_communication())
             menu.addAction(duplicate_action)
 
             delete_action = QAction("Delete", self)
@@ -380,7 +374,7 @@ class MainWindow(QMainWindow):
             menu.addAction(create_new_action)
 
             #duplicate_action = QAction("Duplicate", self)
-            #duplicate_action.triggered.connect(lambda: duplicate_selected_namelist(self, nameList_id))
+            #duplicate_action.triggered.connect(lambda: self.namelist_manager.duplicate_selected_namelist())
             #menu.addAction(duplicate_action)
 
             delete_action = QAction("Delete", self)

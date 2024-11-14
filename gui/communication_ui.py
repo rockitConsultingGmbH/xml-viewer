@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 class CommunicationUI(QWidget):
     name_updated = pyqtSignal(int, str)
     def __init__(self, communication_id, parent=None):
-        super().__init__(parent)
+        super().__init__()
         self.communication_id = communication_id
 
         self.popup_message = PopupMessage(self)
