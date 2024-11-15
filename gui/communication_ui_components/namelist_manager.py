@@ -6,7 +6,7 @@ from common.connection_manager import ConnectionManager
 from gui.communication_ui import CommunicationUI
 from database.utils import select_from_communication, insert_into_communication, delete_from_communication, insert_into_location, select_from_location, \
     select_from_command, insert_into_command, insert_into_commandparam, select_from_commandparam, insert_into_namelist, select_from_namelist, delete_from_namelist, insert_into_description, \
-        select_from_description, insert_into_alternatename, select_from_alternatename, delete_from_alternatename
+        select_from_description, insert_into_alternatename, select_from_alternatename, delete_from_alternatename_w_nameList_id
 
 class NameListManager:
     def __init__(self, main_window):
@@ -14,11 +14,14 @@ class NameListManager:
         self.conn_manager = ConnectionManager()
         self.config_manager = ConfigManager()
 
+    def on_name_changed(self):
+        self.name_changed = True
+
     def create_new_namelist(self):
         try:
             conn = self.main_window.conn_manager.get_db_connection()
             cursor = conn.cursor()
-            new_namelist_id = insert_into_namelist(cursor, {"listName": "", "basicConfig_id": self.main_window.config_manager.config_id}).lastrowid
+            new_namelist_id = insert_into_namelist(cursor, {"listName": "", "communication_id": "", "basicConfig_id": self.main_window.config_manager.config_id}).lastrowid
             conn.commit()
             conn.close()
 
@@ -51,7 +54,7 @@ class NameListManager:
             cursor = conn.cursor()
             namelist_id = self.main_window.current_namelist_id
             delete_from_namelist(cursor, namelist_id)
-            delete_from_alternatename(cursor, namelist_id)
+            delete_from_alternatename_w_nameList_id(cursor, namelist_id)
             conn.commit()
             conn.close()
 
@@ -86,7 +89,7 @@ class NameListManager:
             conn = self.main_window.conn_manager.get_db_connection()
             cursor = conn.cursor()
             delete_from_namelist(cursor, namelist_id)
-            delete_from_alternatename(cursor, namelist_id)
+            delete_from_alternatename_w_nameList_id(cursor, namelist_id)
             conn.commit()
             conn.close()
 
@@ -150,7 +153,7 @@ class NameListManager:
         new_name_list_id = insert_into_namelist(cursor, duplicate_name_list_data).lastrowid
 
         # Duplicate alternate names linked to the original namelist
-        alternate_names = select_from_alternatename(cursor, name_list['id']).fetchall()
+        alternate_names = select_from_alternatename(cursor, namelist_id).fetchall()
         for alternate_name in alternate_names:
             duplicate_alternate_name_data = self.duplicate_data(alternate_name)
             duplicate_alternate_name_data['nameList_id'] = new_name_list_id

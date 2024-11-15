@@ -1076,9 +1076,9 @@ def update_namelist(cursor, row):
     ))
     return cursor
 
-def delete_from_namelist(cursor, basicConfig_id, communication_id):
-    cursor.execute("DELETE FROM NameList WHERE basicConfig_id = ? AND communication_id = ?",
-                   (basicConfig_id, communication_id,))
+def delete_from_namelist(cursor, id):
+    cursor.execute("DELETE FROM NameList WHERE id = ?",
+                   (id,))
     return cursor
 
 def select_from_namelist_with_communication(cursor, nameList_id):
@@ -1162,6 +1162,10 @@ def update_alternatename(cursor, row):
 
 def delete_from_alternatename(cursor, id):
     cursor.execute("DELETE FROM AlternateName WHERE id = ?", (id,))
+    return cursor
+
+def delete_from_alternatename_w_nameList_id(cursor, nameList_id):
+    cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (nameList_id,))
     return cursor
 
 # Description

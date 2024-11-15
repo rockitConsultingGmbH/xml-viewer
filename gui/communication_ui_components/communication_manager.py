@@ -119,15 +119,32 @@ class CommunicationManager:
 
             QMessageBox.information(self.main_window, "Deleted", "Communication deleted successfully.")
 
-    def delete_new_namelist(self):
-        self.delete_new_communication()
-
     def delete_selected_communication(self):
         tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
         current_item = tree_widget.currentItem()
+
+        # Ensure a valid item is selected and it belongs to the communication tree
         if current_item and current_item.parent() == self.main_window.communication_config_item:
             communication_id = current_item.data(0, Qt.UserRole)
+
+            # Call delete_communication to handle database removal
             self.delete_communication(communication_id)
+
+            # Remove the current item from the tree
+            parent_item = current_item.parent()
+            parent_item.removeChild(current_item)
+
+            # Check if there are other communication items remaining
+            if parent_item.childCount() > 0:
+                first_item = parent_item.child(0)
+                tree_widget.setCurrentItem(first_item)
+                self.main_window.on_item_clicked(first_item)
+            else:
+                # Handle case where there are no remaining communications
+                self.main_window.right_widget.setParent(None)
+                self.main_window.right_widget = QWidget()
+                self.main_window.splitter.addWidget(self.main_window.right_widget)
+                self.main_window.right_widget.setObjectName("placeholder_widget")
 
     def duplicate_selected_communication(self):
         tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
