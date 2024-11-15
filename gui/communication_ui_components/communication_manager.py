@@ -98,37 +98,59 @@ class CommunicationManager:
                 conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
 
+                # Delete from related tables
                 cursor.execute("DELETE FROM Location WHERE communication_id = ?", (communication_id,))
                 cursor.execute("DELETE FROM Description WHERE communication_id = ?", (communication_id,))
                 cursor.execute("DELETE FROM CommandParam WHERE command_id IN (SELECT id FROM Command WHERE communication_id = ?)", (communication_id,))
                 cursor.execute("DELETE FROM Command WHERE communication_id = ?", (communication_id,))
-                cursor.execute("UPDATE NameList SET communication_id = ? WHERE id IN (SELECT id FROM NameList WHERE communication_id = ?)", ('',communication_id,))
+                cursor.execute("UPDATE NameList SET communication_id = NULL WHERE communication_id = ?", (communication_id,))
                 cursor.execute("DELETE FROM Communication WHERE id = ?", (communication_id,))
                 conn.commit()
                 conn.close()
 
-                next_item = None
-                for i in range(self.main_window.communication_config_item.childCount()):
-                    child_item = self.main_window.communication_config_item.child(i)
-                    if child_item.data(0, Qt.UserRole) == communication_id:
-                        self.main_window.communication_config_item.removeChild(child_item)
-                        if self.main_window.communication_config_item.childCount() > 0:
-                            next_item = self.main_window.communication_config_item.child(0)
-                        break
+                tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
+                current_item = tree_widget.currentItem()
 
-                QMessageBox.information(self.main_window, "Deleted", "Communication deleted successfully.")
-                
-                # Select next item or clear the right widget
+                # Determine the next item
+                next_item = None
+                if current_item:
+                    parent_item = current_item.parent()
+                    if parent_item:
+                        current_index = parent_item.indexOfChild(current_item)
+                        # Get the next sibling or loop to the first sibling if the last one is deleted
+                        if current_index + 1 < parent_item.childCount():
+                            next_item = parent_item.child(current_index + 1)
+                        elif parent_item.childCount() > 0:
+                            next_item = parent_item.child(0)
+                    else:
+                        # Handle the case where there is no parent (top-level items)
+                        current_index = tree_widget.indexOfTopLevelItem(current_item)
+                        if current_index + 1 < tree_widget.topLevelItemCount():
+                            next_item = tree_widget.topLevelItem(current_index + 1)
+                        elif tree_widget.topLevelItemCount() > 0:
+                            next_item = tree_widget.topLevelItem(0)
+
+                # Remove the current item from the tree
+                if current_item:
+                    if current_item.parent():
+                        current_item.parent().removeChild(current_item)
+                    else:
+                        tree_widget.takeTopLevelItem(tree_widget.indexOfTopLevelItem(current_item))
+
+                # Update the UI
                 if next_item:
+                    tree_widget.setCurrentItem(next_item)
                     self.main_window.on_item_clicked(next_item)
                 else:
                     self.main_window.right_widget.setParent(None)
                     self.main_window.right_widget = QWidget()
                     self.main_window.splitter.addWidget(self.main_window.right_widget)
-                    self.main_window.splitter.setSizes([250, 1000])
-                    self.main_window.setCentralWidget(self.main_window.splitter)
+                    self.main_window.right_widget.setObjectName("placeholder_widget")
+
+                QMessageBox.information(self.main_window, "Deleted", "Communication deleted successfully.")
             except Exception as e:
                 QMessageBox.critical(self.main_window, "Error", f"An error occurred while deleting the communication: {str(e)}")
+
 
     def delete_selected_communication(self):
         tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
