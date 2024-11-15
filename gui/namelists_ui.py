@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QPushButton, 
                              QHBoxLayout, QSpacerItem, QSizePolicy, QGroupBox)
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
+from common.resource_manager import ResourceManager
 from database.utils import (select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_communication_column, 
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
-from gui.common_components.icons import delete_button_icon
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
@@ -18,6 +18,7 @@ class NameListsWidget(QWidget):
         super().__init__(parent)
         self.nameList_id = str(nameList_id) if nameList_id is not None else ""
         self.conn_manager = ConnectionManager()
+        self.resource_manager = ResourceManager()
         self.popup_message = PopupMessage(self)
         self.entries_to_delete = []
         self.setup_ui()
@@ -119,7 +120,8 @@ class NameListsWidget(QWidget):
         delete_button = QPushButton()
         delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
-        delete_button.setIcon(delete_button_icon)
+        delete_button_icon = self.resource_manager.get_resource_path('gui/icon/minus-button.svg')
+        delete_button.setIcon(QIcon(delete_button_icon))
         delete_button.clicked.connect(lambda: self.delete_entry(entry_layout, entry_input))
 
         entry_layout.addWidget(entry_input)

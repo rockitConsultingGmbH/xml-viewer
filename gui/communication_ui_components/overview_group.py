@@ -1,14 +1,16 @@
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, \
     QSizePolicy
 
-from gui.common_components.icons import add_button_icon
+from common.resource_manager import ResourceManager
 from gui.communication_ui_components.descriptions import DescriptionForm
 
 class OverviewGroup:
     def __init__(self, group_layout, communication_id):
         self.group_layout = group_layout
         self.communication_id = communication_id
+        self.resource_manager = ResourceManager()
         self.description_form = DescriptionForm(self.communication_id)
         self.setup_ui()
 
@@ -26,7 +28,8 @@ class OverviewGroup:
         description_label.setFixedWidth(100)
         self.addButton = QPushButton()
         self.addButton.setFixedSize(30, 30)
-        self.addButton.setIcon(add_button_icon)
+        add_button_icon = self.resource_manager.get_resource_path('gui/icon/plus-button.svg')
+        self.addButton.setIcon(QIcon(add_button_icon))
         self.addButton.setObjectName("addButton")
 
         hbox1.addWidget(self.polling_activate_checkbox)

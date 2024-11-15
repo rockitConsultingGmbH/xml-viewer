@@ -3,13 +3,14 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
+from common.resource_manager import ResourceManager
 from database.utils import update_ipqueue, select_from_ipqueue, insert_into_ipqueue, delete_from_ipqueue
-from gui.common_components.icons import add_button_icon, delete_button_icon
 
 
 class IPQueueConfiguration:
     def __init__(self):
         self.conn_manager = ConnectionManager()
+        self.resource_manager = ResourceManager()
         self.config_manager = ConfigManager()
         self.ipqueue_fields = []
         self.new_ipqueues = []
@@ -38,7 +39,8 @@ class IPQueueConfiguration:
         
         ipqueue_add_button = QPushButton()
         ipqueue_add_button.setObjectName("addButton")
-        ipqueue_add_button.setIcon(add_button_icon)
+        add_button_icon = self.resource_manager.get_resource_path('gui/icon/plus-button.svg')
+        ipqueue_add_button.setIcon(QIcon(add_button_icon))
         ipqueue_add_button.setFixedSize(30, 30)
         ipqueue_add_button.clicked.connect(lambda: self.add_ipqueue_to_layout(new=True))
 
@@ -77,7 +79,8 @@ class IPQueueConfiguration:
         
         ipqueue_delete_button = QPushButton()
         ipqueue_delete_button.setObjectName("deleteButton")
-        ipqueue_delete_button.setIcon(delete_button_icon)
+        delete_button_icon = self.resource_manager.get_resource_path('gui/icon/minus-button.svg')
+        ipqueue_delete_button.setIcon(QIcon(delete_button_icon))
         ipqueue_delete_button.setFixedSize(30, 30)
         ipqueue_delete_button.clicked.connect(lambda: self.mark_ipqueue_for_deletion(individual_ipqueue_group, ipqueue_id))
 
