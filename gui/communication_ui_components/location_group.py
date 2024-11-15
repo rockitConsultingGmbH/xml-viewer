@@ -10,7 +10,7 @@ class LocationsGroup(QWidget):
     def __init__(self, group_layout, communication_id, toggle_inputs, parent=None):
         super().__init__(parent)
         self.resource_manager = ResourceManager()
-        self.parent_widget = parent_widget
+        self.parent_widget = parent
         self.group_layout = group_layout
         self.communication_id = communication_id
         self.toggle_inputs = toggle_inputs

@@ -5,6 +5,7 @@ import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit, QHBoxLayout
+from PyQt5.QtGui import QIcon
 
 from common.resource_manager import ResourceManager
 from gui.basic_configuration_ui import BasicConfigurationWidget
