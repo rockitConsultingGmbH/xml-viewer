@@ -1,8 +1,11 @@
+import logging
 from lxml import etree
 import os
 from common.connection_manager import ConnectionManager
 import database.utils as utils
 import utils.import_xml_to_db.dictionaries as dictionaries
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # DB file path
 db_path = os.path.join(os.path.dirname(__file__), 'database.db')
@@ -23,7 +26,7 @@ def validate_xml(xml_path, xsd_path):
     if not xsd_schema.validate(xml_tree):
         raise ValueError(f"XML file {xml_path} is invalid:\n{xsd_schema.error_log}")
 
-    print(f"XML file {xml_path} is valid.")
+    logging.debug(f"XML file {xml_path} is valid.")
     return xml_tree
 
 def insert_basic_config(cursor, acsfiletransfer, config_file_path):

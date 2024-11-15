@@ -7,6 +7,7 @@ from common.resource_manager import ResourceManager
 from database.utils import select_from_description
 from gui.common_components.delete_elements import delete_field
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DescriptionForm:
     def __init__(self, communication_id):

@@ -8,7 +8,6 @@ from common.connection_manager import ConnectionManager
 from common.resource_manager import ResourceManager
 from database.utils import delete_from_command, delete_from_commandparam, insert_into_command, insert_into_commandparam, select_from_command, select_from_commandparam, update_commandparam
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 params = {

@@ -1,3 +1,4 @@
+import logging
 from PyQt5.QtWidgets import QVBoxLayout, QCheckBox, QLineEdit, QFormLayout, QWidget, QGroupBox, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QFont
 from common.config_manager import ConfigManager
@@ -6,6 +7,8 @@ from database.utils import select_from_lzbconfig, update_lzbconfig
 from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class LZBConfigurationWidget(QWidget):
@@ -89,7 +92,7 @@ class LZBConfigurationWidget(QWidget):
             conn.close()
             return row if row else None
         except Exception as e:
-            print(f"Error while saving data: {e}")
+            logging.debug(f"Error while saving data: {e}")
             conn.rollback()
             self.popup_message.show_error_message(f"Error while saving data: {e}")
         finally:
@@ -116,7 +119,7 @@ class LZBConfigurationWidget(QWidget):
             conn.close()
             self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:
-            print(f"Error while saving data: {e}")
+            logging.debug(f"Error while saving data: {e}")
             conn.rollback()
             self.popup_message.show_error_message(f"Error while saving data: {e}")
         finally:

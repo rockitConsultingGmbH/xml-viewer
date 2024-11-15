@@ -19,7 +19,7 @@ from gui.common_components.toggle_inputs import toggle_inputs
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class CommunicationUI(QWidget):
     name_updated = pyqtSignal(int, str)

@@ -162,7 +162,6 @@ class NameListManager:
         self.create_duplicated_item(selected_item, duplicate_name_list_data, new_name_list_id)
 
     def duplicate_data(self, data):
-        """Duplicate data dictionary with adjustments for copying."""
         duplicate_data = dict(data)
         if 'name' in duplicate_data:
             duplicate_data['name'] += " Copy"

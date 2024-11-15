@@ -1,3 +1,4 @@
+import logging
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, 
                              QGroupBox, QSpacerItem, QSizePolicy, QFrame)
 from PyQt5.QtGui import QFont
@@ -9,6 +10,8 @@ from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
 from gui.mq_configuration_components.ipqueue_configuration import IPQueueConfiguration
 from gui.mq_configuration_components.mqtrigger_configuration import MQTriggerConfiguration
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class MQConfigurationWidget(QWidget):
@@ -169,7 +172,7 @@ class MQConfigurationWidget(QWidget):
             self.popup_message.show_message("Changes have been successfully saved.")
             self.refresh_page()
         except Exception as e:
-            print(f"Error while saving data: {e}")
+            logging.debug(f"Error while saving data: {e}")
             conn.rollback()
             self.popup_message.show_error_message(f"Error while saving data: {e}")
         finally:
@@ -181,7 +184,7 @@ class MQConfigurationWidget(QWidget):
             self.mqtrigger_configuration.populate_mqtrigger_fields_from_db()
             self.ipqueue_configuration.populate_ipqueue_fields_from_db()
         except Exception as e:
-            print(f"Error populating fields from database: {e}")
+            logging.debug(f"Error populating fields from database: {e}")
             self.popup_message.show_error_message("Error populating fields from database.")
 
     def refresh_page(self):

@@ -4,8 +4,7 @@ import logging
 from common.connection_manager import ConnectionManager
 from database.utils import delete_from_description, insert_into_description, select_from_description, update_description
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DescriptionTableData:
     def __init__(self, parent_widget=None):

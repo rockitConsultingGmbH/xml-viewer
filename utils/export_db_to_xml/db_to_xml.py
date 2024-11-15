@@ -1,7 +1,10 @@
+import logging
 import os
 from lxml import etree
 from utils.export_db_to_xml import db_to_xml_map
 from common.connection_manager import ConnectionManager
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # DB file path
 db_path = os.path.join(os.path.dirname(__file__), 'database.db')
@@ -127,6 +130,6 @@ def export_to_xml(file_path, config_id):
     try:
         pretty_xml_tree = create_xml_from_dbconfig(config_id)
         save_xml_to_file(pretty_xml_tree, file_path)
-        print(f"Data has been written to {file_path}")
+        logging.debug(f"Data has been written to {file_path}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logging.debug(f"An error occurred: {e}")

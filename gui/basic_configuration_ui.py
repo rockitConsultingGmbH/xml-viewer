@@ -1,3 +1,4 @@
+import logging
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QCheckBox,
                              QLineEdit, QWidget, QGroupBox, QSizePolicy, QSpacerItem)
 from PyQt5.QtGui import QFont
@@ -10,6 +11,7 @@ import sqlite3
 
 from gui.common_components.stylesheet_loader import load_stylesheet
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class BasicConfigurationWidget(QWidget):
     def __init__(self, parent=None):
@@ -122,7 +124,7 @@ class BasicConfigurationWidget(QWidget):
             conn.close()
             return row if row else None
         except Exception as e:
-            print(f"Error while saving data: {e}")
+            logging.debug(f"Error while saving data: {e}")
             conn.rollback()
             self.popup_message.show_error_message(f"Error while saving data: {e}")
         finally:
@@ -153,7 +155,7 @@ class BasicConfigurationWidget(QWidget):
             conn.close()
             self.popup_message.show_message("Changes have been successfully saved.")
         except Exception as e:
-            print(f"Error while saving data: {e}")
+            logging.debug(f"Error while saving data: {e}")
             conn.rollback()
             self.popup_message.show_error_message(f"Error while saving data: {e}")
         finally:

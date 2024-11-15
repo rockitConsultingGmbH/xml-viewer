@@ -6,7 +6,7 @@ from controllers.utils.get_and_set_value import (
 from PyQt5.QtWidgets import QWidget
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class LocationTableData:
     def __init__(self, parent_widget=None):

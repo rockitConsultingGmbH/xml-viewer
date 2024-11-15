@@ -1,5 +1,8 @@
+import logging
 import os
 import sqlite3
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ConnectionManager:
     _instance = None
@@ -20,5 +23,5 @@ class ConnectionManager:
             connection.row_factory = sqlite3.Row
             return connection
         except sqlite3.Error as e:
-            print(f"An error occurred while connecting to the database: {e}")
+            logging.debug(f"An error occurred while connecting to the database: {e}")
             return None

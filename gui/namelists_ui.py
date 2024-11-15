@@ -1,3 +1,4 @@
+import logging
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QPushButton, 
                              QHBoxLayout, QSpacerItem, QSizePolicy, QGroupBox)
 from PyQt5.QtGui import QFont, QIcon
@@ -10,6 +11,7 @@ from gui.common_components.popup_message import PopupMessage
 from gui.common_components.buttons import Buttons
 from gui.common_components.stylesheet_loader import load_stylesheet
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class NameListsWidget(QWidget):
     name_updated = pyqtSignal(int, str)
@@ -172,7 +174,7 @@ class NameListsWidget(QWidget):
 
             list_name = self.list_name_input.text()
             communication_id = self.communication_label.property("communication_id")
-            print(f"Communication ID: {communication_id}")
+            logging.debug(f"Communication ID: {communication_id}")
             if not list_name:
                 self.popup_message.show_error_message("List name cannot be empty.")
                 return
@@ -203,7 +205,7 @@ class NameListsWidget(QWidget):
             self.popup_message.show_message("Changes have been successfully saved.")
 
         except Exception as e:
-            print(f"Error while saving data: {e}")
+            logging.debug(f"Error while saving data: {e}")
             conn.rollback()
             self.popup_message.show_error_message(f"Error while saving data: {e}")
         finally:
@@ -241,7 +243,7 @@ class NameListsWidget(QWidget):
             rows = cursor.fetchall()
             return rows
         except Exception as e:
-            print(f"Error while fetching name entries data: {e}")
+            logging.debug(f"Error while fetching name entries data: {e}")
             self.popup_message.show_error_message(f"Error while fetching name entries data: {e}")
             return []
         finally:
@@ -268,7 +270,7 @@ class NameListsWidget(QWidget):
                 self.communication_label.setText(f"Communication: {result['communication_name']}")
                 self.communication_label.setProperty("communication_id", result["communication_id"])
         except Exception as e:
-            print(f"Error while fetching namelist fields: {e}")
+            logging.debug(f"Error while fetching namelist fields: {e}")
             self.popup_message.show_error_message(f"Error while fetching namelist fields: {e}")
         finally:
             conn.close()

@@ -1,6 +1,9 @@
 import configparser
+import logging
 import os
 import sys
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ConfigManager:
     _instance = None
@@ -36,7 +39,7 @@ class ConfigManager:
                         value = line.split("=", 1)[1].strip()
                         break
         except Exception as e:
-            print(f"Error reading {property_name} from properties file: {e}")
+            logging.debug(f"Error reading {property_name} from properties file: {e}")
         return value
     
     def get_all_properties(file_path):
