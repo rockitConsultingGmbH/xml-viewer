@@ -1,9 +1,11 @@
 import logging
+
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QCheckBox, QHBoxLayout, QVBoxLayout, QSpacerItem, QSizePolicy, QWidget, QPushButton
 from common.connection_manager import ConnectionManager
+from common.resource_manager import ResourceManager
 from database.utils import select_from_location
 from gui.common_components.clickable_label import ClickableLabel
-from gui.common_components.icons import delete_button_icon
 from gui.common_components.toggle_inputs import toggle_inputs
 from controllers.utils.get_and_set_value import set_checkbox_field
 
@@ -19,6 +21,7 @@ class TargetLocationForm(QWidget):
         self.target_location_ids_to_delete = []
         self.deleted_target_locations_data = []
         self.target_locations_form_layout = QFormLayout()
+        self.resource_manager = ResourceManager()
         self.conn_manager = ConnectionManager()
 
     def load_target_locations(self):
@@ -50,7 +53,8 @@ class TargetLocationForm(QWidget):
 
         target_delete_button = QPushButton()
         target_delete_button.setObjectName("deleteButton")
-        target_delete_button.setIcon(delete_button_icon)
+        delete_button_icon = self.resource_manager.get_resource_path('gui/icon/minus-button.svg')
+        target_delete_button.setIcon(QIcon(delete_button_icon))
         target_delete_button.setFixedSize(30, 30)
 
         target_row_layout = QHBoxLayout()

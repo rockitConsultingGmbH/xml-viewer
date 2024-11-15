@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QLineEdit
 from PyQt5.QtGui import QIcon
 from lxml import etree
 from common.resource_manager import ResourceManager
-from gui.common_components.icons import folder_icon, pick_file_icon
 from utils.empty_database import empty_database
 from utils.import_xml_to_db.xml_to_db import validate_xml, insert_data_into_db
 from common.config_manager import ConfigManager
@@ -18,7 +17,8 @@ class FileDialog(QDialog):
         self.setGeometry(100, 100, 400, 200)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
-        self.setWindowIcon(pick_file_icon)
+        pick_file_icon =  self.resource_manager.get_resource_path('gui/icon/pick_file.svg')
+        self.setWindowIcon(QIcon(pick_file_icon))
 
         layout = QVBoxLayout()
 
@@ -26,7 +26,8 @@ class FileDialog(QDialog):
         self.xml_path = QLineEdit("C:/Users/MichalisPantazis/MPA/WORK/projects/BBK/acsft_client/test/acsfiletransfer.xml.e_export.xml")
         self.xml_path.setReadOnly(True)
         self.xml_button = QPushButton()
-        self.xml_button.setIcon(folder_icon)
+        folder_icon = self.resource_manager.get_resource_path("gui/icon/folder.svg")
+        self.xml_button.setIcon(QIcon(folder_icon))
         self.xml_button.clicked.connect(self.choose_xml_file)
         xml_layout = QHBoxLayout()
         xml_layout.addWidget(self.xml_path)
@@ -36,7 +37,7 @@ class FileDialog(QDialog):
         self.xsd_path = QLineEdit()
         self.xsd_path.setReadOnly(True)
         self.xsd_button = QPushButton()
-        self.xsd_button.setIcon(folder_icon)
+        self.xsd_button.setIcon(QIcon(folder_icon))
         self.xsd_button.clicked.connect(self.choose_xsd_file)
         xsd_layout = QHBoxLayout()
         xsd_layout.addWidget(self.xsd_path)

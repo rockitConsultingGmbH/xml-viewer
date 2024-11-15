@@ -1,12 +1,14 @@
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, QSizePolicy, QWidget
 
-from gui.common_components.icons import add_button_icon
+from common.resource_manager import ResourceManager
 from gui.communication_ui_components.target_location import TargetLocationForm
 from gui.communication_ui_components.source_location import SourceLocationForm
 
 class LocationsGroup(QWidget):
     def __init__(self, group_layout, communication_id, parent_widget=None):
         super().__init__(parent_widget)
+        self.resource_manager = ResourceManager()
         self.parent_widget = parent_widget
         self.group_layout = group_layout
         self.communication_id = communication_id
@@ -39,7 +41,8 @@ class LocationsGroup(QWidget):
 
         add_target_location_button = QPushButton()
         add_target_location_button.setFixedSize(30, 30)
-        add_target_location_button.setIcon(add_button_icon)
+        add_button_icon = self.resource_manager.get_resource_path('gui/icon/plus-button.svg')
+        add_target_location_button.setIcon(QIcon(add_button_icon))
         add_target_location_button.setObjectName("addButton")
 
         hbox_target = QHBoxLayout()

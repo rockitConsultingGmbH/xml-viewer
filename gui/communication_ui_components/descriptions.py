@@ -1,15 +1,18 @@
 import logging
+
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QFormLayout, QLineEdit, QLabel, QHBoxLayout, QPushButton
 from common.connection_manager import ConnectionManager
+from common.resource_manager import ResourceManager
 from database.utils import select_from_description
 from gui.common_components.delete_elements import delete_field
-from gui.common_components.icons import delete_button_icon
 
 
 class DescriptionForm:
     def __init__(self, communication_id):
         self.communication_id = communication_id
         self.form_layout_right = QFormLayout()
+        self.resource_manager = ResourceManager()
         self.description_ids_to_delete = []
         self.deleted_descriptions_data = []
         self.setup_ui()
@@ -44,7 +47,8 @@ class DescriptionForm:
 
         delete_descriptions_button = QPushButton()
         delete_descriptions_button.setObjectName("deleteButton")
-        delete_descriptions_button.setIcon(delete_button_icon)
+        delete_button_icon_path = self.resource_manager.get_resource_path('gui/icon/minus-button.svg')
+        delete_descriptions_button.setIcon(QIcon(delete_button_icon_path))
         delete_descriptions_button.setFixedSize(30, 30)
 
         hbox_layout = QHBoxLayout()
@@ -55,12 +59,11 @@ class DescriptionForm:
 
         delete_descriptions_button.clicked.connect(
             lambda: self.delete_description_fields_from_ui(description['id'], description_label, hbox_layout))
-        
+
     def delete_description_fields_from_ui(self, description_id, description_label, hbox_layout):
         delete_field(self.form_layout_right, description_label, hbox_layout)
         self.description_ids_to_delete.append(description_id)
         logging.debug(f"Added description_id {description_id} to delete list. Current list: {self.description_ids_to_delete}")
-        #self.refresh_ui()
 
     def reset_description_fields(self):
         self.description_ids_to_delete.clear()
@@ -68,7 +71,7 @@ class DescriptionForm:
         self.refresh_ui()
         logging.debug("Reset description form to initial state.")
 
-    def save_descriptions(self):        
+    def save_descriptions(self):
         self.description_ids_to_delete.clear()
         self.deleted_descriptions_data.clear()
         self.refresh_ui()
