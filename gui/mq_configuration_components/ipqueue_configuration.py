@@ -68,7 +68,7 @@ class IPQueueConfiguration:
         font = QFont()
         font.setBold(True)
         ipqueue_input_label.setFont(font)
-        ipqueue_input_label.setFixedWidth(110)
+        ipqueue_input_label.setFixedWidth(134)
         ipqueue_input_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         
         ipqueue_input = QLineEdit(entry["queue"] if entry else "")
