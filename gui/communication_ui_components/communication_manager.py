@@ -5,8 +5,8 @@ from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
 from gui.communication_ui import CommunicationUI
 from database.utils import select_from_communication, insert_into_communication, delete_from_communication, insert_into_location, select_from_location, \
-    select_from_command, insert_into_command, insert_into_commandparam, select_from_commandparam, insert_into_namelist, select_from_namelist_w_communication_id, insert_into_description, \
-        select_from_description, insert_into_alternatename, select_from_alternatename
+    select_from_command, insert_into_command, insert_into_commandparam, select_from_commandparam, insert_into_description, \
+        select_from_description
 
 class CommunicationManager:
     def __init__(self, main_window):
@@ -18,8 +18,10 @@ class CommunicationManager:
         try:
             conn = self.main_window.conn_manager.get_db_connection()
             cursor = conn.cursor()
-            new_communication_id = insert_into_communication(cursor, {"name": "", "basicConfig_id": self.main_window.config_manager.config_id}).lastrowid
+            cursor.execute("INSERT INTO Communication (name, basicConfig_id) VALUES (?, ?)",
+                        ("", self.main_window.config_manager.config_id))
             conn.commit()
+            new_communication_id = cursor.lastrowid
             conn.close()
 
             new_item = QTreeWidgetItem(["New Communication"])
@@ -44,6 +46,10 @@ class CommunicationManager:
             self.main_window.name_changed = False
         except Exception as e:
             QMessageBox.critical(self.main_window, "Error", f"An error occurred: {str(e)}")
+
+
+    def on_name_changed(self, main_window):
+        self.name_changed = True
 
     def update_communication_in_tree(self, communication_id, new_name):
         for i in range(self.main_window.communication_config_item.childCount()):

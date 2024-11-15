@@ -79,6 +79,8 @@ if __name__ == "__main__":
         ("gui/icon/main.svg", "gui/icon"),
         ("gui/icon/pick_file.svg", "gui/icon"),
         ("gui/icon/search.svg", "gui/icon"),
+        ("gui/icon/minus-button.svg", "gui/icon"),
+        ("gui/icon/plus-button.svg", "gui/icon"),
         ("css/right_widget_styling.qss", "css"),
         ("css/tree_widget_styling.qss", "css"),
         ("config.properties", "."),

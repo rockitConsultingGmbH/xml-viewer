@@ -136,7 +136,8 @@ class LocationsGroup(QWidget):
             'renameExistingFile': ''
         }))
 
-        self.populate_fields(self.source_locations)
+        if self.source_locations:
+            self.populate_fields(self.source_locations)
 
     def populate_fields(self, data):
         self.source_input.setText(data["location"])
