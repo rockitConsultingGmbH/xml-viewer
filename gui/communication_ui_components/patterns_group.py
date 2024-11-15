@@ -7,7 +7,7 @@ class PatternGroup:
         self.form_layout_left = QFormLayout()
         self.form_layout_right = QFormLayout()
 
-    def create_pattern_group(self):
+    def setup_ui(self):
         self.group_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         hbox_left_column = QHBoxLayout()

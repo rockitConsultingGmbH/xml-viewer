@@ -4,9 +4,8 @@ from PyQt5.QtCore import Qt
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
 from gui.communication_ui import CommunicationUI
-from database.utils import select_from_communication, insert_into_communication, delete_from_communication, insert_into_location, select_from_location, \
-    select_from_command, insert_into_command, insert_into_commandparam, select_from_commandparam, insert_into_namelist, select_from_namelist, delete_from_namelist, insert_into_description, \
-        select_from_description, insert_into_alternatename, select_from_alternatename, delete_from_alternatename_w_nameList_id
+from database.utils import insert_into_namelist, select_from_namelist, delete_from_namelist, \
+        insert_into_alternatename, select_from_alternatename, delete_from_alternatename_w_nameList_id
 
 class NameListManager:
     def __init__(self, main_window):
@@ -147,23 +146,19 @@ class NameListManager:
             conn.close()
             return
 
-        # Duplicate namelist data and insert the new namelist
         duplicate_name_list_data = self.duplicate_data(name_list)
-        duplicate_name_list_data['communication_id'] = name_list['communication_id']   #Keep original communication_id
+        duplicate_name_list_data['communication_id'] = name_list['communication_id']
         new_name_list_id = insert_into_namelist(cursor, duplicate_name_list_data).lastrowid
 
-        # Duplicate alternate names linked to the original namelist
         alternate_names = select_from_alternatename(cursor, namelist_id).fetchall()
         for alternate_name in alternate_names:
             duplicate_alternate_name_data = self.duplicate_data(alternate_name)
             duplicate_alternate_name_data['nameList_id'] = new_name_list_id
             insert_into_alternatename(cursor, duplicate_alternate_name_data)
 
-        # Commit transaction and close connection
         conn.commit()
         conn.close()
 
-        # Add the duplicated namelist as a new item in the tree
         self.create_duplicated_item(selected_item, duplicate_name_list_data, new_name_list_id)
 
     def duplicate_data(self, data):
@@ -174,11 +169,10 @@ class NameListManager:
         if 'listName' in duplicate_data:
             duplicate_data['listName'] += " Copy"
         if 'id' in duplicate_data:
-            duplicate_data.pop('id')   #Remove 'id' to allow a new ID to be generated
+            duplicate_data.pop('id')
         return duplicate_data
 
     def create_duplicated_item(self, selected_item, duplicate_data, new_id):
-        """Insert duplicated item in the tree below the selected item."""
         duplicated_item = QTreeWidgetItem([duplicate_data['listName']])
         duplicated_item.setData(0, Qt.UserRole, new_id)
 
@@ -189,6 +183,5 @@ class NameListManager:
         selected_index = parent_item.indexOfChild(selected_item)
         parent_item.insertChild(selected_index + 1, duplicated_item)
 
-        # Expand to display the new duplicated item
         parent_item.setExpanded(True)
 

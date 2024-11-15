@@ -88,33 +88,43 @@ class CommunicationManager:
         )
 
         if reply == QMessageBox.Yes:
-            conn = self.main_window.conn_manager.get_db_connection()
-            cursor = conn.cursor()
-            delete_from_communication(cursor, communication_id)
-            conn.commit()
-            conn.close()
+            try:
+                conn = self.main_window.conn_manager.get_db_connection()
+                cursor = conn.cursor()
+                delete_from_communication(cursor, communication_id)
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                QMessageBox.critical(self.main_window, "Error", f"Failed to delete communication: {e}")
+                return
+            finally:
+                conn.close()
 
-            # Remove the item from the tree and refresh the tree view
+            tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
+            parent_item = self.main_window.communication_config_item
             next_item = None
-            for i in range(self.main_window.communication_config_item.childCount()):
-                child_item = self.main_window.communication_config_item.child(i)
+
+            for i in range(parent_item.childCount()):
+                child_item = parent_item.child(i)
                 if child_item.data(0, Qt.UserRole) == communication_id:
-                    self.main_window.communication_config_item.removeChild(child_item)
-                    if self.main_window.communication_config_item.childCount() > 0:
-                        next_item = self.main_window.communication_config_item.child(0)
+                    parent_item.removeChild(child_item)
+
+                    if i + 1 < parent_item.childCount():
+                        next_item = parent_item.child(i + 1)
+                    elif parent_item.childCount() > 0:
+                        next_item = parent_item.child(0)
                     break
 
-            # Refresh the tree_widget to reflect changes
-            tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
             tree_widget.update()
             tree_widget.repaint()
 
             if next_item:
-                self.main_window.on_item_clicked(next_item)
                 tree_widget.setCurrentItem(next_item)
+                self.main_window.on_item_clicked(next_item)
             else:
                 self.main_window.right_widget.setParent(None)
                 self.main_window.right_widget = QWidget()
+                self.main_window.right_widget.setObjectName("placeholder_widget")
                 self.main_window.splitter.addWidget(self.main_window.right_widget)
 
             QMessageBox.information(self.main_window, "Deleted", "Communication deleted successfully.")

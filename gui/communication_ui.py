@@ -49,8 +49,8 @@ class CommunicationUI(QWidget):
         spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.communications_box_layout.addItem(spacer)
 
-        self.create_group("Overview", self.communications_box_layout, self.communication_id)
-        self.create_group("Locations", self.communications_box_layout, self.communication_id)
+        self.create_group("Overview", self.communications_box_layout)
+        self.create_group("Locations", self.communications_box_layout)
         self.create_group("Settings", self.communications_box_layout)
         self.create_group("Pattern", self.communications_box_layout)
         self.create_group("Commands", self.communications_box_layout)
@@ -110,7 +110,7 @@ class CommunicationUI(QWidget):
         except Exception as e:
             self.popup_message.show_error_message(f"Error while saving data: {e}")
     
-    def create_group(self, group_name, layout, communication_id=None):
+    def create_group(self, group_name, layout):
         group_box = QGroupBox(group_name)
         group_layout = QVBoxLayout()
 
@@ -132,7 +132,7 @@ class CommunicationUI(QWidget):
 
         elif group_name == "Pattern":
             self.pattern_group = PatternGroup(group_layout, self.communication_id)
-            self.pattern_group.create_pattern_group()
+            self.pattern_group.setup_ui()
             line = self.create_horizontal_line()
             group_layout.addWidget(line)
 
