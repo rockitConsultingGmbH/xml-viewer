@@ -169,10 +169,12 @@ CREATE TABLE Command (
 CREATE TABLE CommandParam (
     id INTEGER PRIMARY KEY,
     command_id INT NOT NULL,
+    --communication_id INT NOT NULL,
     param VARCHAR(255),
     paramName VARCHAR(255),
     paramOrder INT,
     FOREIGN KEY (command_id) REFERENCES Command(id) ON DELETE CASCADE
+    --FOREIGN KEY (communication_id) REFERENCES Communication(id) ON DELETE CASCADE
     --UNIQUE (command_id, paramName)
 );
 

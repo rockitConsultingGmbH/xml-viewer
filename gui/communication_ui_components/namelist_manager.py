@@ -51,15 +51,18 @@ class NameListManager:
         try:
             conn = self.main_window.conn_manager.get_db_connection()
             cursor = conn.cursor()
+            
             namelist_id = self.main_window.current_namelist_id
-            delete_from_namelist(cursor, namelist_id)
-            delete_from_alternatename_w_nameList_id(cursor, namelist_id)
+
+            cursor.execute("DELETE FROM Namelist WHERE id = ?", (namelist_id,))
+            cursor.execute("DELETE FROM AlternateName WHERE nameList_id = ?", (namelist_id,))
             conn.commit()
             conn.close()
 
             for i in range(self.main_window.namelist_item.childCount()):
                 child_item = self.main_window.namelist_item.child(i)
-                if child_item.data(0, Qt.UserRole) == self.main_window.current_namelist_id:
+
+                if child_item.data(0, Qt.UserRole) == namelist_id:
                     self.main_window.namelist_item.removeChild(child_item)
                     break
 
@@ -74,6 +77,7 @@ class NameListManager:
             self.main_window.current_namelist_id = None
         except Exception as e:
             QMessageBox.critical(self.main_window, "Error", f"An error occurred while deleting the nameList: {str(e)}")
+
 
     def delete_namelist(self, namelist_id):
         reply = QMessageBox.question(

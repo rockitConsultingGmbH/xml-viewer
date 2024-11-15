@@ -385,32 +385,48 @@ class MainWindow(QMainWindow):
 
     def on_item_clicked(self, item):
         try:
+            def handle_unsaved_changes(context_id, current_context_id, item_type):
+                if (
+                    hasattr(self, 'unsaved_changes') 
+                    and self.unsaved_changes 
+                    and not self.name_changed 
+                    and hasattr(self, current_context_id) 
+                    and context_id != getattr(self, current_context_id)
+                ):
+                    reply = show_unsaved_changes_warning(self)
+                    if reply == QMessageBox.No:
+                        tree_widget = self.left_widget.layout().itemAt(0).widget()
+                        new_items = tree_widget.findItems(f"New {item_type}", Qt.MatchExactly | Qt.MatchRecursive)
+                        if new_items:
+                            tree_widget.setCurrentItem(new_items[0])
+                        return False
+                    elif reply == QMessageBox.Yes:
+                        if context_id is not None:
+                            if item_type == "Communication":
+                                self.communication_manager.delete_new_communication()
+                            elif item_type == "Namelist":
+                                self.namelist_manager.delete_new_namelist()
+                return True
+
             communication_id = item.data(0, Qt.UserRole)
-            if hasattr(self, 'unsaved_changes') and self.unsaved_changes and not self.name_changed and hasattr(self,
-                                                                                                               'current_communication_id') and communication_id != self.current_communication_id:
-                reply = show_unsaved_changes_warning(self)
-                if reply == QMessageBox.No:
-                    tree_widget = self.left_widget.layout().itemAt(0).widget()
-                    new_comm_items = tree_widget.findItems("New Communication", Qt.MatchExactly | Qt.MatchRecursive)
-                    if new_comm_items:
-                        tree_widget.setCurrentItem(new_comm_items[0])
-                    return
-                elif reply == QMessageBox.Yes:
-                    self.communication_manager.delete_new_communication()
+
+            # Handle unsaved changes for communication
+            if not handle_unsaved_changes(
+                communication_id, 
+                'current_communication_id', 
+                "Communication"
+            ):
+                return
 
             namelist_id = item.data(0, Qt.UserRole)
-            if hasattr(self,
-                       'unsaved_changes') and self.unsaved_changes and not self.name_changed and hasattr(self,
-                                                                                                               'current_namelist_id') and namelist_id != self.current_namelist_id:
-                reply = show_unsaved_changes_warning(self)
-                if reply == QMessageBox.No:
-                    tree_widget = self.left_widget.layout().itemAt(0).widget()
-                    new_namelist_items = tree_widget.findItems("New Namelist", Qt.MatchExactly | Qt.MatchRecursive)
-                    if new_namelist_items:
-                        tree_widget.setCurrentItem(new_namelist_items[0])
-                    return
-                elif reply == QMessageBox.Yes:
-                    self.namelist_manager.delete_new_namelist()
+
+            # Handle unsaved changes for namelist
+            if not handle_unsaved_changes(
+                namelist_id, 
+                'current_namelist_id', 
+                "Namelist"
+            ):
+                return
 
             if item.parent() == self.communication_config_item:
                 if communication_id is not None:
@@ -426,8 +442,9 @@ class MainWindow(QMainWindow):
                     self.unsaved_changes = False
                     self.current_communication_id = communication_id
             elif item.parent() == self.namelist_item:
-                namelist_id = item.data(0, Qt.UserRole)
-                self.load_namelists_view(namelist_id)
+                if namelist_id is not None:
+                    self.load_namelists_view(namelist_id)
+                    self.current_namelist_id = namelist_id
             elif item == self.basic_config_item:
                 self.load_basic_config_view()
             elif item == self.lzb_config_item:
@@ -436,6 +453,8 @@ class MainWindow(QMainWindow):
                 self.load_mq_config_view()
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
+
+
 
     def load_basic_config_view(self):
         self.right_widget.setParent(None)

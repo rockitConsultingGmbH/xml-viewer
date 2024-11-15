@@ -62,7 +62,7 @@ class CommunicationManager:
         try:
             conn = self.main_window.conn_manager.get_db_connection()
             cursor = conn.cursor()
-            delete_from_communication(cursor, self.main_window.current_communication_id)
+            cursor.execute("DELETE FROM Communication WHERE id = ?", (self.main_window.current_communication_id,))
             conn.commit()
             conn.close()
 
@@ -95,72 +95,47 @@ class CommunicationManager:
 
         if reply == QMessageBox.Yes:
             try:
-                conn = self.main_window.conn_manager.get_db_connection()
+                conn = self.conn_manager.get_db_connection()
                 cursor = conn.cursor()
-                delete_from_communication(cursor, communication_id)
+
+                cursor.execute("DELETE FROM Location WHERE communication_id = ?", (communication_id,))
+                cursor.execute("DELETE FROM Description WHERE communication_id = ?", (communication_id,))
+                cursor.execute("DELETE FROM CommandParam WHERE command_id IN (SELECT id FROM Command WHERE communication_id = ?)", (communication_id,))
+                cursor.execute("DELETE FROM Command WHERE communication_id = ?", (communication_id,))
+                cursor.execute("UPDATE NameList SET communication_id = ? WHERE id IN (SELECT id FROM NameList WHERE communication_id = ?)", ('',communication_id,))
+                cursor.execute("DELETE FROM Communication WHERE id = ?", (communication_id,))
                 conn.commit()
-            except Exception as e:
-                conn.rollback()
-                QMessageBox.critical(self.main_window, "Error", f"Failed to delete communication: {e}")
-                return
-            finally:
                 conn.close()
 
-            tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
-            parent_item = self.main_window.communication_config_item
-            next_item = None
+                next_item = None
+                for i in range(self.main_window.communication_config_item.childCount()):
+                    child_item = self.main_window.communication_config_item.child(i)
+                    if child_item.data(0, Qt.UserRole) == communication_id:
+                        self.main_window.communication_config_item.removeChild(child_item)
+                        if self.main_window.communication_config_item.childCount() > 0:
+                            next_item = self.main_window.communication_config_item.child(0)
+                        break
 
-            for i in range(parent_item.childCount()):
-                child_item = parent_item.child(i)
-                if child_item.data(0, Qt.UserRole) == communication_id:
-                    parent_item.removeChild(child_item)
-
-                    if i + 1 < parent_item.childCount():
-                        next_item = parent_item.child(i + 1)
-                    elif parent_item.childCount() > 0:
-                        next_item = parent_item.child(0)
-                    break
-
-            tree_widget.update()
-            tree_widget.repaint()
-
-            if next_item:
-                tree_widget.setCurrentItem(next_item)
-                self.main_window.on_item_clicked(next_item)
-            else:
-                self.main_window.right_widget.setParent(None)
-                self.main_window.right_widget = QWidget()
-                self.main_window.right_widget.setObjectName("placeholder_widget")
-                self.main_window.splitter.addWidget(self.main_window.right_widget)
-
-            QMessageBox.information(self.main_window, "Deleted", "Communication deleted successfully.")
+                QMessageBox.information(self.main_window, "Deleted", "Communication deleted successfully.")
+                
+                # Select next item or clear the right widget
+                if next_item:
+                    self.main_window.on_item_clicked(next_item)
+                else:
+                    self.main_window.right_widget.setParent(None)
+                    self.main_window.right_widget = QWidget()
+                    self.main_window.splitter.addWidget(self.main_window.right_widget)
+                    self.main_window.splitter.setSizes([250, 1000])
+                    self.main_window.setCentralWidget(self.main_window.splitter)
+            except Exception as e:
+                QMessageBox.critical(self.main_window, "Error", f"An error occurred while deleting the communication: {str(e)}")
 
     def delete_selected_communication(self):
         tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
         current_item = tree_widget.currentItem()
-
-        # Ensure a valid item is selected and it belongs to the communication tree
         if current_item and current_item.parent() == self.main_window.communication_config_item:
             communication_id = current_item.data(0, Qt.UserRole)
-
-            # Call delete_communication to handle database removal
             self.delete_communication(communication_id)
-
-            # Remove the current item from the tree
-            parent_item = current_item.parent()
-            parent_item.removeChild(current_item)
-
-            # Check if there are other communication items remaining
-            if parent_item.childCount() > 0:
-                first_item = parent_item.child(0)
-                tree_widget.setCurrentItem(first_item)
-                self.main_window.on_item_clicked(first_item)
-            else:
-                # Handle case where there are no remaining communications
-                self.main_window.right_widget.setParent(None)
-                self.main_window.right_widget = QWidget()
-                self.main_window.splitter.addWidget(self.main_window.right_widget)
-                self.main_window.right_widget.setObjectName("placeholder_widget")
 
     def duplicate_selected_communication(self):
         tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
@@ -250,5 +225,4 @@ class CommunicationManager:
         selected_index = parent_item.indexOfChild(selected_item)
         parent_item.insertChild(selected_index + 1, duplicated_item)
 
-        # Expand the parent item to show the new duplicated item
         parent_item.setExpanded(True)
