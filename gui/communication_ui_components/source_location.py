@@ -5,6 +5,8 @@ from common.connection_manager import ConnectionManager
 from database.utils import select_from_location
 from gui.common_components.toggle_inputs import toggle_inputs
 
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 class SourceLocationForm(QWidget):
     def __init__(self, communication_id, parent_widget=None):
         super().__init__()
