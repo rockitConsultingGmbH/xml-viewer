@@ -3,9 +3,9 @@ import sqlite3
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QAction, QSplitter, QWidget, QVBoxLayout, QTreeWidget, \
     QTreeWidgetItem, QMessageBox, QFileDialog, QMenu, QLineEdit, QHBoxLayout
+from gui.common_components.icons import main_icon
 
 from common.resource_manager import ResourceManager
 from gui.basic_configuration_ui import BasicConfigurationWidget
@@ -49,8 +49,7 @@ class MainWindow(QMainWindow):
         self.setFixedSize(1920, 1080)
         self.setMinimumSize(800, 600)
 
-        main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
-        self.setWindowIcon(QIcon(main_icon))        
+        self.setWindowIcon(main_icon)     
         self.setWindowTitle(self.app_name)
 
         # Center the window on the screen

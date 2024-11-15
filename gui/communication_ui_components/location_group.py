@@ -1,7 +1,7 @@
-import logging
-from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, QSizePolicy, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, QSizePolicy, QWidget
 from common.connection_manager import ConnectionManager
 from database.utils import select_from_location
+from gui.common_components.icons import add_button_icon
 from gui.common_components.clickable_label import ClickableLabel
 from gui.communication_ui_components.target_location import TargetLocationForm
 
