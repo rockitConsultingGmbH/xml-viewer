@@ -1,8 +1,11 @@
 import logging
+
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QComboBox, QGroupBox
 from PyQt5.QtCore import Qt
 
 from common.connection_manager import ConnectionManager
+from common.resource_manager import ResourceManager
 from database.utils import delete_from_command, delete_from_commandparam, insert_into_command, insert_into_commandparam, select_from_command, select_from_commandparam, update_commandparam
 
 # Configure logging
@@ -23,6 +26,7 @@ class CommandsGroup(QWidget):
         super().__init__()
         self.communication_id = communication_id
         self.conn_manager = ConnectionManager()
+        self.resource_manager = ResourceManager()
         self.vertical_layout = QVBoxLayout()
         self.setLayout(self.vertical_layout)
         self.commands_to_delete = []
@@ -47,9 +51,11 @@ class CommandsGroup(QWidget):
         self.dropdown.addItems(params.keys())
         self.dropdown.setFixedSize(550, 30)
 
-        plus_button = QPushButton("+")
+        plus_button = QPushButton()
         plus_button.setObjectName("addButton")
         plus_button.setFixedSize(30, 30)
+        add_button_icon = self.resource_manager.get_resource_path('gui/icon/plus-button.svg')
+        plus_button.setIcon(QIcon(add_button_icon))
         plus_button.clicked.connect(self.add_new_command)
 
         button_layout = QHBoxLayout()
@@ -167,9 +173,11 @@ class CommandsGroup(QWidget):
         command_label.setTextFormat(Qt.RichText)
         command_label.setAlignment(Qt.AlignLeft)
 
-        delete_button = QPushButton("-")
+        delete_button = QPushButton()
         delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
+        delete_button_icon = self.resource_manager.get_resource_path('gui/icon/minus-button.svg')
+        delete_button.setIcon(QIcon(delete_button_icon))
         delete_button.clicked.connect(lambda: self.delete_command(command_group))
         
         title_layout = QHBoxLayout()

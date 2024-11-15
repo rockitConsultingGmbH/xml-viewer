@@ -17,7 +17,7 @@ class SearchResultsWindow(QWidget):
         self.resource_manager = ResourceManager()
         self.setWindowTitle("Search Results")
         self.setGeometry(100, 100, 800, 400)
-        search_icon =  self.resource_manager.get_resource_path('gui/icon/search.svg')
+        search_icon = self.resource_manager.get_resource_path('gui/icon/search.svg')
         self.setWindowIcon(QIcon(search_icon))
         layout = QVBoxLayout()
         self.results_tree = QTreeWidget()

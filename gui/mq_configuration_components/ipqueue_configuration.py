@@ -1,13 +1,16 @@
 from PyQt5.QtWidgets import QGroupBox, QVBoxLayout, QSpacerItem, QSizePolicy, QFormLayout, QLineEdit, QWidget, QPushButton, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from common.config_manager import ConfigManager
 from common.connection_manager import ConnectionManager
+from common.resource_manager import ResourceManager
 from database.utils import update_ipqueue, select_from_ipqueue, insert_into_ipqueue, delete_from_ipqueue
+
 
 class IPQueueConfiguration:
     def __init__(self):
         self.conn_manager = ConnectionManager()
+        self.resource_manager = ResourceManager()
         self.config_manager = ConfigManager()
         self.ipqueue_fields = []
         self.new_ipqueues = []
@@ -18,9 +21,7 @@ class IPQueueConfiguration:
     def create_ipqueue_layout(self, parent_layout):
         ipqueue_group = QGroupBox("IPQueue Settings")
         ipqueue_group.setObjectName("group-border")
-        ipqueue_group.setFont(QFont("Arial", 12, QFont.Bold))
-        ipqueue_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
-        
+
         self.ipqueue_main_layout = QVBoxLayout()
 
         ipqueues_label_row_layout = QHBoxLayout()
@@ -36,8 +37,10 @@ class IPQueueConfiguration:
         ipqueues_label.setFixedWidth(110)
         ipqueues_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         
-        ipqueue_add_button = QPushButton("+")
+        ipqueue_add_button = QPushButton()
         ipqueue_add_button.setObjectName("addButton")
+        add_button_icon = self.resource_manager.get_resource_path('gui/icon/plus-button.svg')
+        ipqueue_add_button.setIcon(QIcon(add_button_icon))
         ipqueue_add_button.setFixedSize(30, 30)
         ipqueue_add_button.clicked.connect(lambda: self.add_ipqueue_to_layout(new=True))
 
@@ -67,15 +70,17 @@ class IPQueueConfiguration:
         font = QFont()
         font.setBold(True)
         ipqueue_input_label.setFont(font)
-        ipqueue_input_label.setFixedWidth(110)
+        ipqueue_input_label.setFixedWidth(134)
         ipqueue_input_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         
         ipqueue_input = QLineEdit(entry["queue"] if entry else "")
         ipqueue_input.setFixedSize(500, 30)
         ipqueue_input.setProperty("ipqueue_id", ipqueue_id)
         
-        ipqueue_delete_button = QPushButton("-")
+        ipqueue_delete_button = QPushButton()
         ipqueue_delete_button.setObjectName("deleteButton")
+        delete_button_icon = self.resource_manager.get_resource_path('gui/icon/minus-button.svg')
+        ipqueue_delete_button.setIcon(QIcon(delete_button_icon))
         ipqueue_delete_button.setFixedSize(30, 30)
         ipqueue_delete_button.clicked.connect(lambda: self.mark_ipqueue_for_deletion(individual_ipqueue_group, ipqueue_id))
 

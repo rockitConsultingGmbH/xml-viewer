@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import (QVBoxLayout, QFormLayout, QLineEdit, QWidget, QScrollArea, QLabel, QPushButton, 
                              QHBoxLayout, QSpacerItem, QSizePolicy, QGroupBox)
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 from common.connection_manager import ConnectionManager
+from common.resource_manager import ResourceManager
 from database.utils import (select_from_alternatename, select_from_namelist, select_from_namelist_with_communication, update_communication_column, 
                             update_namelist, update_alternatename, insert_into_alternatename, delete_from_alternatename)
 from gui.common_components.popup_message import PopupMessage
@@ -17,6 +18,7 @@ class NameListsWidget(QWidget):
         super().__init__(parent)
         self.nameList_id = str(nameList_id) if nameList_id is not None else ""
         self.conn_manager = ConnectionManager()
+        self.resource_manager = ResourceManager()
         self.popup_message = PopupMessage(self)
         self.entries_to_delete = []
         self.setup_ui()
@@ -40,9 +42,6 @@ class NameListsWidget(QWidget):
     def add_group_box(self, parent_layout, title, content_creator):
         group_box = QGroupBox(title)
         group_box.setObjectName("group-border")
-        group_box.setFont(QFont("Arial", 12, QFont.Bold))
-        group_box.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
-
         group_layout = QVBoxLayout(group_box)
         content_creator(group_layout)
         parent_layout.addWidget(group_box)
@@ -118,9 +117,11 @@ class NameListsWidget(QWidget):
         entry_input.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         entry_input.setProperty("entry_id", entry_id)
 
-        delete_button = QPushButton("-")
+        delete_button = QPushButton()
         delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
+        delete_button_icon = self.resource_manager.get_resource_path('gui/icon/minus-button.svg')
+        delete_button.setIcon(QIcon(delete_button_icon))
         delete_button.clicked.connect(lambda: self.delete_entry(entry_layout, entry_input))
 
         entry_layout.addWidget(entry_input)

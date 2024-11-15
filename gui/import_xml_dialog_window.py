@@ -16,8 +16,8 @@ class FileDialog(QDialog):
         self.setWindowTitle("Choose XML and XSD Files")
         self.setGeometry(100, 100, 400, 200)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-        pick_file_icon =  self.resource_manager.get_resource_path('gui/icon/pick_file.svg')
 
+        pick_file_icon =  self.resource_manager.get_resource_path('gui/icon/pick_file.svg')
         self.setWindowIcon(QIcon(pick_file_icon))
 
         layout = QVBoxLayout()
@@ -26,7 +26,7 @@ class FileDialog(QDialog):
         self.xml_path = QLineEdit("C:/Users/MichalisPantazis/MPA/WORK/projects/BBK/acsft_client/test/acsfiletransfer.xml.e_export.xml")
         self.xml_path.setReadOnly(True)
         self.xml_button = QPushButton()
-        folder_icon =  self.resource_manager.get_resource_path('gui/icon/folder.svg')
+        folder_icon = self.resource_manager.get_resource_path("gui/icon/folder.svg")
         self.xml_button.setIcon(QIcon(folder_icon))
         self.xml_button.clicked.connect(self.choose_xml_file)
         xml_layout = QHBoxLayout()
