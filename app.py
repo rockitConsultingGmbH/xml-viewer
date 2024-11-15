@@ -169,6 +169,11 @@ class MainWindow(QMainWindow):
         self.create_namelist_action.triggered.connect(lambda: self.namelist_manager.create_new_namelist())
         self.create_namelist_action.setEnabled(False)
 
+        self.duplicate_namelist_action = QAction('Duplicate selected', self)
+        self.namelist_menu.addAction(self.duplicate_namelist_action)
+        self.duplicate_namelist_action.triggered.connect(self.namelist_manager.duplicate_selected_namelist)
+        self.duplicate_namelist_action.setEnabled(False)
+
         self.delete_namelist_action = QAction('Delete selected', self)
         self.namelist_menu.addAction(self.delete_namelist_action)
         self.delete_namelist_action.triggered.connect(lambda: self.namelist_manager.delete_namelist())
@@ -367,6 +372,10 @@ class MainWindow(QMainWindow):
             create_new_action = QAction("New NameList", self)
             create_new_action.triggered.connect(lambda: self.namelist_manager.create_new_namelist())
             menu.addAction(create_new_action)
+
+            duplicate_action = QAction("Duplicate", self)
+            duplicate_action.triggered.connect(lambda: self.namelist_manager.duplicate_selected_namelist(self, nameList_id))
+            menu.addAction(duplicate_action)
 
             delete_action = QAction("Delete", self)
             delete_action.triggered.connect(lambda: self.namelist_manager.delete_namelist(nameList_id))

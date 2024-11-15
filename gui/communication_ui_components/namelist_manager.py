@@ -125,67 +125,67 @@ class NameListManager:
                 child_item.setText(0, new_name)
                 break
 
-#    def duplicate_selected_namelist(self):
-#        tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
-#        selected_item = tree_widget.currentItem()
-#
-#        if not selected_item:
-#            QMessageBox.warning(self.main_window, "No Selection", "Please select a namelist to duplicate.")
-#            return
-#
-#        namelist_id = selected_item.data(0, Qt.UserRole)
-#
-#        conn = self.conn_manager.get_db_connection()
-#        cursor = conn.cursor()
-#        name_list = select_from_namelist(cursor, namelist_id).fetchone()
-#
-#        if not name_list:
-#            QMessageBox.critical(self.main_window, "Error", "Selected namelist not found in the database.")
-#            conn.close()
-#            return
-#
-#        # Duplicate namelist data and insert the new namelist
-#        duplicate_name_list_data = self.duplicate_data(name_list)
-#        duplicate_name_list_data['communication_id'] = name_list['communication_id']  # Keep original communication_id
-#        new_name_list_id = insert_into_namelist(cursor, duplicate_name_list_data).lastrowid
-#
-#        # Duplicate alternate names linked to the original namelist
-#        alternate_names = select_from_alternatename(cursor, name_list['id']).fetchall()
-#        for alternate_name in alternate_names:
-#            duplicate_alternate_name_data = self.duplicate_data(alternate_name)
-#            duplicate_alternate_name_data['nameList_id'] = new_name_list_id
-#            insert_into_alternatename(cursor, duplicate_alternate_name_data)
-#
-#        # Commit transaction and close connection
-#        conn.commit()
-#        conn.close()
-#
-#        # Add the duplicated namelist as a new item in the tree
-#        self.create_duplicated_item(selected_item, duplicate_name_list_data, new_name_list_id)
-#
-#    def duplicate_data(self, data):
-#        """Duplicate data dictionary with adjustments for copying."""
-#        duplicate_data = dict(data)
-#        if 'name' in duplicate_data:
-#            duplicate_data['name'] += " Copy"
-#        if 'listName' in duplicate_data:
-#            duplicate_data['listName'] += " Copy"
-#        if 'id' in duplicate_data:
-#            duplicate_data.pop('id')  # Remove 'id' to allow a new ID to be generated
-#        return duplicate_data
-#
-#    def create_duplicated_item(self, selected_item, duplicate_data, new_id):
-#        """Insert duplicated item in the tree below the selected item."""
-#        duplicated_item = QTreeWidgetItem([duplicate_data['listName']])
-#        duplicated_item.setData(0, Qt.UserRole, new_id)
-#
-#        parent_item = selected_item.parent()
-#        if not parent_item:
-#            parent_item = self.main_window.namelist_item
-#
-#        selected_index = parent_item.indexOfChild(selected_item)
-#        parent_item.insertChild(selected_index + 1, duplicated_item)
-#
-#        # Expand to display the new duplicated item
-#        parent_item.setExpanded(True)
+    def duplicate_selected_namelist(self):
+        tree_widget = self.main_window.left_widget.layout().itemAt(0).widget()
+        selected_item = tree_widget.currentItem()
+
+        if not selected_item:
+            QMessageBox.warning(self.main_window, "No Selection", "Please select a namelist to duplicate.")
+            return
+
+        namelist_id = selected_item.data(0, Qt.UserRole)
+
+        conn = self.conn_manager.get_db_connection()
+        cursor = conn.cursor()
+        name_list = select_from_namelist(cursor, namelist_id).fetchone()
+
+        if not name_list:
+            QMessageBox.critical(self.main_window, "Error", "Selected namelist not found in the database.")
+            conn.close()
+            return
+
+        # Duplicate namelist data and insert the new namelist
+        duplicate_name_list_data = self.duplicate_data(name_list)
+        duplicate_name_list_data['communication_id'] = name_list['communication_id']   #Keep original communication_id
+        new_name_list_id = insert_into_namelist(cursor, duplicate_name_list_data).lastrowid
+
+        # Duplicate alternate names linked to the original namelist
+        alternate_names = select_from_alternatename(cursor, name_list['id']).fetchall()
+        for alternate_name in alternate_names:
+            duplicate_alternate_name_data = self.duplicate_data(alternate_name)
+            duplicate_alternate_name_data['nameList_id'] = new_name_list_id
+            insert_into_alternatename(cursor, duplicate_alternate_name_data)
+
+        # Commit transaction and close connection
+        conn.commit()
+        conn.close()
+
+        # Add the duplicated namelist as a new item in the tree
+        self.create_duplicated_item(selected_item, duplicate_name_list_data, new_name_list_id)
+
+    def duplicate_data(self, data):
+        """Duplicate data dictionary with adjustments for copying."""
+        duplicate_data = dict(data)
+        if 'name' in duplicate_data:
+            duplicate_data['name'] += " Copy"
+        if 'listName' in duplicate_data:
+            duplicate_data['listName'] += " Copy"
+        if 'id' in duplicate_data:
+            duplicate_data.pop('id')   #Remove 'id' to allow a new ID to be generated
+        return duplicate_data
+
+    def create_duplicated_item(self, selected_item, duplicate_data, new_id):
+        """Insert duplicated item in the tree below the selected item."""
+        duplicated_item = QTreeWidgetItem([duplicate_data['listName']])
+        duplicated_item.setData(0, Qt.UserRole, new_id)
+
+        parent_item = selected_item.parent()
+        if not parent_item:
+            parent_item = self.main_window.namelist_item
+
+        selected_index = parent_item.indexOfChild(selected_item)
+        parent_item.insertChild(selected_index + 1, duplicated_item)
+
+        # Expand to display the new duplicated item
+        parent_item.setExpanded(True)
 

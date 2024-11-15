@@ -196,8 +196,8 @@ class CommunicationManager:
         duplicate_data = dict(data)
         if 'name' in duplicate_data:
             duplicate_data['name'] += " Copy"
-        if 'alternateNameList' in duplicate_data:
-            duplicate_data['alternateNameList'] = ""
+        #if 'alternateNameList' in duplicate_data:
+        #    duplicate_data['alternateNameList'] += " Copy"
         if 'listName' in duplicate_data:
             duplicate_data['listName'] += " Copy"
         if 'id' in duplicate_data:
