@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QCheckBox, QLineEdit, QPushButton, QFormLayout, QHBoxLayout, QSpacerItem, \
     QSizePolicy
 
+from gui.common_components.icons import add_button_icon
 from gui.communication_ui_components.descriptions import DescriptionForm
 
 class OverviewGroup:
@@ -23,8 +24,9 @@ class OverviewGroup:
 
         description_label = QLabel("Description(s)")
         description_label.setFixedWidth(100)
-        self.addButton = QPushButton("+")
+        self.addButton = QPushButton()
         self.addButton.setFixedSize(30, 30)
+        self.addButton.setIcon(add_button_icon)
         self.addButton.setObjectName("addButton")
 
         hbox1.addWidget(self.polling_activate_checkbox)

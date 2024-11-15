@@ -99,8 +99,9 @@ class LocationsGroup(QWidget):
         target_label.setFixedWidth(145)
         target_label.setObjectName("label_parent")
 
-        add_target_location_button = QPushButton("+")
+        add_target_location_button = QPushButton()
         add_target_location_button.setFixedSize(30, 30)
+        add_target_location_button.setIcon(add_button_icon)
         add_target_location_button.setObjectName("addButton")
 
         hbox_target = QHBoxLayout()

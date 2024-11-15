@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(800, 600)
 
         main_icon = self.resource_manager.get_resource_path('gui/icon/main.svg')
-        self.setWindowIcon(QIcon(main_icon))
+        self.setWindowIcon(QIcon(main_icon))        
         self.setWindowTitle(self.app_name)
 
         # Center the window on the screen

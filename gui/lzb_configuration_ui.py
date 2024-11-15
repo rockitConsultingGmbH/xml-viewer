@@ -27,8 +27,6 @@ class LZBConfigurationWidget(QWidget):
     def create_layouts(self):
         self.lzb_config_group = QGroupBox("LZB Configuration")
         self.lzb_config_group.setObjectName("group-border")
-        self.lzb_config_group.setFont(QFont("Arial", 12, QFont.Bold))
-        self.lzb_config_group.setStyleSheet("QLabel { border: none; font-size: 12px; } QLineEdit, QCheckBox { font-size: 12px; }")
         self.layout = QVBoxLayout(self)
         self.form_layout = QFormLayout()
         self.button_layout = Buttons().create_button_layout(self)

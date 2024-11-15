@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 
 from common.connection_manager import ConnectionManager
 from database.utils import delete_from_command, delete_from_commandparam, insert_into_command, insert_into_commandparam, select_from_command, select_from_commandparam, update_commandparam
+from gui.common_components.icons import add_button_icon, delete_button_icon
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -47,9 +48,10 @@ class CommandsGroup(QWidget):
         self.dropdown.addItems(params.keys())
         self.dropdown.setFixedSize(550, 30)
 
-        plus_button = QPushButton("+")
+        plus_button = QPushButton()
         plus_button.setObjectName("addButton")
         plus_button.setFixedSize(30, 30)
+        plus_button.setIcon(add_button_icon)
         plus_button.clicked.connect(self.add_new_command)
 
         button_layout = QHBoxLayout()
@@ -167,9 +169,10 @@ class CommandsGroup(QWidget):
         command_label.setTextFormat(Qt.RichText)
         command_label.setAlignment(Qt.AlignLeft)
 
-        delete_button = QPushButton("-")
+        delete_button = QPushButton()
         delete_button.setObjectName("deleteButton")
         delete_button.setFixedSize(30, 30)
+        delete_button.setIcon(delete_button_icon)
         delete_button.clicked.connect(lambda: self.delete_command(command_group))
         
         title_layout = QHBoxLayout()
